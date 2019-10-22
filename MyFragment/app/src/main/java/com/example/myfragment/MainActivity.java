@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_frame,new MyFragment1()).commit();
+                getSupportFragmentManager().beginTransaction().setCustomAnimations(R.animator.enter_anim2,R.animator.exit_anim2).replace(R.id.main_frame,new MyFragment1()).commit();
 
             }
         });
@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_frame,new MyFragment2()).commit();
+                getSupportFragmentManager().beginTransaction().setCustomAnimations(R.animator.enter_anim2,R.animator.exit_anim2).replace(R.id.main_frame,new MyFragment2()).commit();
 
             }
         });
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_frame,new MyFragment3()).commit();
+                getSupportFragmentManager().beginTransaction().setCustomAnimations(R.animator.enter_anim,R.animator.exit_anim).replace(R.id.main_frame,new MyFragment3()).commit();
 
             }
         });
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_frame,new MyFragment4()).commit();
+                getSupportFragmentManager().beginTransaction().setCustomAnimations(R.animator.enter_anim,R.animator.exit_anim).replace(R.id.main_frame,new MyFragment4()).commit();
 
             }
         });
