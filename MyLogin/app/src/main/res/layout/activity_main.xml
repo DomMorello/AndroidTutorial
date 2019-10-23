@@ -83,4 +83,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/gorillaz2" />
 
+    <TextView
+        android:id="@+id/logout_user_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="14dp"
+        android:layout_marginTop="16dp"
+        android:text="아무도 로그아웃하지 않았습니다."
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
