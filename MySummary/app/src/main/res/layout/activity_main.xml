@@ -6,6 +6,7 @@
     android:orientation="vertical">
 
     <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center">
@@ -76,38 +77,42 @@
                         android:layout_height="match_parent"
                         android:layout_marginTop="10dp">
 
-                        <ImageView
-                            android:id="@+id/thumb_up1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:src="@drawable/ic_thumb_up" />
+                        <Button
+                            android:id="@+id/likeButton"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            style="@style/Widget.AppCompat.Button.Borderless"
+                            android:background="@drawable/thumb_up_selector" />
 
-                        <ImageView
-                            android:id="@+id/thumb_down1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                        <Button
+                            android:id="@+id/dislikeButton"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            style="@style/Widget.AppCompat.Button.Borderless"
                             android:layout_marginLeft="50dp"
-                            android:layout_toRightOf="@id/thumb_up1"
-                            android:src="@drawable/ic_thumb_down" />
+                            android:layout_toRightOf="@id/likeButton"
+                            android:background="@drawable/thumb_down_selector" />
 
                         <TextView
+                            android:id="@+id/likeCountView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
                             android:layout_marginLeft="5dp"
-                            android:layout_toRightOf="@id/thumb_up1"
-                            android:text="15"
+                            android:layout_toRightOf="@id/likeButton"
+                            android:text="1"
                             android:textColor="#000000"
                             android:textSize="15dp"
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/dislikeCountView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
                             android:layout_marginLeft="5dp"
-                            android:layout_toRightOf="@id/thumb_down1"
-                            android:text="3"
+                            android:layout_toRightOf="@id/dislikeButton"
+                            android:text="1"
                             android:textColor="#000000"
                             android:textSize="15dp"
                             android:textStyle="bold" />
@@ -315,18 +320,6 @@
                     android:textSize="20dp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp"
-                    android:text="돈 없음!\n빽 없음!\n능력 없음!\n\n 하지만 무식하게 씩씩하고 대책 없이 당당하다! 돈에 대한 욕심도, 열정도 제로인 ‘일록’. 그에게 어느 날 친구 ‘예건’이 뜻밖의 제안을 하게 되는데 바로 남성 사중창 대회에 참가하는 것. 처음엔 어이가 없다고 생각했지만 ‘일록’은 은근히 끌리게 되고 그렇게 이름만 멋들어진 남성 사중창 그룹 ‘델타 보이즈’가 결성된다!
- \n\n
-비주얼을 담당하는 공장 알바남 ‘일록’, 시카고에서 날아온 또라이 ‘예건’, 빈손으로 등장하는 법이 없는 꽁치 파는 꽁지머리 청년 ‘대용’, 1+1으로 찾아온 도너츠 노점남 ‘준세’가 뭉쳤다! 우리가 바로 델타 보이즈!"
-                    android:textColor="#646262"
-                    android:textSize="15dp"
-                    android:textStyle="normal" />
-
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -387,6 +380,18 @@
                         android:textSize="15dp" />
                 </RelativeLayout>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:text="돈 없음!\n빽 없음!\n능력 없음!\n\n 하지만 무식하게 씩씩하고 대책 없이 당당하다! 돈에 대한 욕심도, 열정도 제로인 ‘일록’. 그에게 어느 날 친구 ‘예건’이 뜻밖의 제안을 하게 되는데 바로 남성 사중창 대회에 참가하는 것. 처음엔 어이가 없다고 생각했지만 ‘일록’은 은근히 끌리게 되고 그렇게 이름만 멋들어진 남성 사중창 그룹 ‘델타 보이즈’가 결성된다!
+ \n\n
+비주얼을 담당하는 공장 알바남 ‘일록’, 시카고에서 날아온 또라이 ‘예건’, 빈손으로 등장하는 법이 없는 꽁치 파는 꽁지머리 청년 ‘대용’, 1+1으로 찾아온 도너츠 노점남 ‘준세’가 뭉쳤다! 우리가 바로 델타 보이즈!"
+                    android:textColor="#646262"
+                    android:textSize="15dp"
+                    android:textStyle="normal" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="30px"
@@ -395,7 +400,18 @@
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="300dp">
+                    android:layout_height="350dp">
+
+                    <ListView
+                        android:id="@+id/comment_listview"
+                        android:layout_below="@+id/writeCommentButton"
+                        android:layout_above="@+id/read_more"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginBottom="10dp">
+                    </ListView>
 
                     <TextView
                         android:id="@+id/한줄평"
@@ -408,27 +424,24 @@
                         android:textStyle="bold" />
 
                     <Button
-                        android:id="@+id/작성하기"
+                        android:id="@+id/writeCommentButton"
                         style="@style/Widget.AppCompat.Button.Borderless"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
                         android:layout_marginTop="4dp"
                         android:layout_marginRight="15dp"
+                        android:drawablePadding="5dp"
+                        android:drawableLeft="@drawable/ic_review_selected"
                         android:background="#FFFFFF"
                         android:text="작성하기"
                         android:textColor="#FF3900"
                         android:textSize="20dp"
                         android:textStyle="bold" />
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="13dp"
-                        android:layout_toLeftOf="@+id/작성하기"
-                        android:src="@drawable/ic_review_selected" />
 
                     <Button
+                        android:id="@+id/read_more"
                         style="@style/Widget.AppCompat.Button.Borderless"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

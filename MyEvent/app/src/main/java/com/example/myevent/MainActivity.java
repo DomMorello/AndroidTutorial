@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textView = (TextView)findViewById(R.id.textView);
+        textView = findViewById(R.id.textView);
 
         View view = findViewById(R.id.view);
         view.setOnTouchListener(new View.OnTouchListener() {
