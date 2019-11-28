@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 //            if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.RECEIVE_SMS)){
 //                Toast.makeText(this,"SMS권한 설명이 필요함",Toast.LENGTH_SHORT).show();
 //            }else{    //이 부분을 주석처리하면 앱을 실행시킬때마다 권한을 요청하는 대화상자를 띄움.
-                //시스템에 권한을 요청하는 코드 입니다.
+                //시스템에 권한을 요청하는 코드
                 ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.RECEIVE_SMS},1);
 //            }
         }
