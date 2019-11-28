@@ -26,13 +26,13 @@ public class SmsReceiver extends BroadcastReceiver {
             String sender = messages[0].getOriginatingAddress();
             Log.d(TAG,"sender: "+sender);
 
-            String contents = messages[0].getMessageBody().toString();
+            String contents = messages[0].getMessageBody();
             Log.d(TAG,"contents: "+contents);
 
             Date receivedDate = new Date(messages[0].getTimestampMillis());
             Log.d(TAG,"received date: "+receivedDate);
 
-            sendToActivity(context, sender, contents, receivedDate);
+            sendToActivity(context, sender, contents, receivedDate);    //context를 넘겨줘야 한다.
         }
 
     }
