@@ -46,6 +46,20 @@ public class MyService extends Service {
         String name = intent.getStringExtra("name");
 
         Log.d(TAG,"전달받은 데이터: "+command+","+name);
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Intent showIntent = new Intent(getApplicationContext(),MainActivity.class);
+        showIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|  //서비스는 화면이 없으므로 플래그 옵션을 줘야 한다.
+                            Intent.FLAG_ACTIVITY_SINGLE_TOP|    //만들어져있는 액티비티를 재활용하는 옵션 플래그
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP);    //만약 그 위에 다른 화면이 있으면 그 화면들을 제거해주는 역할을 하는 플래그
+        showIntent.putExtra("command","show");
+        showIntent.putExtra("name",name+" from service");
+        startActivity(showIntent);
     }
 
     @Override
