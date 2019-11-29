@@ -1,7 +1,9 @@
 package com.example.mymoviefiend;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -22,11 +24,12 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button likeButton;
-    TextView likeCountView;
-    Button dislikeButton;
-    TextView dislikeCountView;
-    ScrollView scrollView;
+    Button likeButton;  //좋아요 이미지
+    TextView likeCountView; //좋아요 숫자
+    Button dislikeButton;   //싫어요 이미지
+    TextView dislikeCountView;  //싫어요 숫자
+//    ScrollView scrollView;
+    Button writeCommentButton;  //작성하기 버튼
 
     boolean likeState = false;
     boolean dislikeState = false;
@@ -38,6 +41,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //작성하기 버튼을 눌렀을 때
+        writeCommentButton = findViewById(R.id.writeCommentButton);
+        writeCommentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent writeCommentIntent = new Intent(getApplicationContext(),WriteCommentActivity.class);
+                startActivityForResult(writeCommentIntent,102); //작성하기 activity실행
+                //ForResult를 하고 아무 Intent를 반환하지 않으면 activity가 실행되지 않는다. 근데 그냥 startActivity를 하면 된다.
+            }
+        });
+
         //모두보기 버튼을 눌렀을 때 스낵바 띄우기
         Button readMoreButton = findViewById(R.id.read_more);
         readMoreButton.setOnClickListener(new View.OnClickListener() {
@@ -48,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //작성하기 버튼을 눌렀을 때 토스트메시지(내가 직접 디자인한 모양으로)를 띄우는 코드
-        Button writeCommentButton = findViewById(R.id.writeCommentButton);
+/*        Button writeCommentButton = findViewById(R.id.writeCommentButton);
         writeCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -63,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 toast.setView(toastLayout); //View를 설정한다
                 toast.show();
             }
-        });
+        });*/
 
         /*스크롤 뷰 안에서는 리스트뷰가 스크롤이 안 되는 경우가 발생
         이는 같은 기능이 충돌하여 스크롤뷰만 기능하는 오류인데
@@ -81,11 +95,11 @@ public class MainActivity extends AppCompatActivity {
 
         CommentAdapter commentAdapter = new CommentAdapter();
 
-        commentAdapter.addItem(new CommentItem("DomMorello", "아주그지같군요!"));
-        commentAdapter.addItem(new CommentItem("DomMorello", "정말 환상적인 영화에요! 꼭 보세요!"));
-        commentAdapter.addItem(new CommentItem("DomMorello", "기존 영화와는 아주 다른 느낌입니다. 되게 독특한 영화이니 한 번쯤 봐도 시간 아깝지 않을 것 같아요ㅎㅎ"));
-        commentAdapter.addItem(new CommentItem("DomMorello", "연기 개 어색함.. 근데 나오는 사람들이 약간 스타일리시하긴 하네요"));
-        commentAdapter.addItem(new CommentItem("DomMorello", "음....노코멘트 하겠습니다."));
+        commentAdapter.addItem(new CommentItem("DomMorel**", "아주그지같군요!"));
+        commentAdapter.addItem(new CommentItem("BomnieK**", "정말 환상적인 영화에요! 꼭 보세요!"));
+        commentAdapter.addItem(new CommentItem("estelleCh**", "기존 영화와는 아주 다른 느낌입니다. 되게 독특한 영화이니 한 번쯤 봐도 시간 아깝지 않을 것 같아요ㅎㅎ"));
+        commentAdapter.addItem(new CommentItem("haha**", "연기 개 어색함.. 근데 나오는 사람들이 약간 스타일리시하긴 하네요"));
+        commentAdapter.addItem(new CommentItem("zuzud**", "음....노코멘트 하겠습니다."));
 
         commentListView.setAdapter(commentAdapter);
 
@@ -196,6 +210,19 @@ public class MainActivity extends AppCompatActivity {
             commentItemView.setComment(commentItem.getComment());
 
             return commentItemView;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        if(requestCode == 102){
+            float rating = intent.getFloatExtra("rating",0.0f);
+            String comment = intent.getStringExtra("comment");
+            //test
+            Toast.makeText(getApplicationContext(), "평점 : "+rating,Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),"한줄평 : "+comment,Toast.LENGTH_SHORT).show();
         }
     }
 }
