@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="한줄평 작성하기" />
+
+    <RatingBar
+        android:id="@+id/ratingBar"
+        style="?android:attr/ratingBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:rating="4.1"
+        android:stepSize="0.1" />
+
+    <EditText
+        android:id="@+id/contentsInput"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@drawable/border"
+        android:gravity="top"
+        android:hint="100자 이내로 작성해 주세요."
+        android:maxLength="100"
+        android:padding="10dp"
+        android:textCursorDrawable="@color/colorPrimaryDark"
+        android:textSize="18dp" />
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="저장" />
+</LinearLayout>
