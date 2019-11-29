@@ -199,56 +199,25 @@
                             android:layout_marginTop="10dp"
                             android:layout_marginRight="15dp"
                             android:layout_marginBottom="10dp"
-                            android:text="4.0"
+                            android:text="3.3"
                             android:textColor="#000000"
                             android:textSize="15dp"
                             android:textStyle="bold" />
 
-                        <ImageView
-                            android:id="@+id/first_star"
+                        <RatingBar
+                            android:id="@+id/topRatingBar"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            style="@style/Widget.AppCompat.RatingBar.Small"
                             android:layout_below="@+id/평점"
-                            android:layout_alignParentLeft="true"
-                            android:layout_marginLeft="5dp"
-                            android:layout_marginTop="11dp"
-                            android:src="@drawable/smallsolidstar" />
-
-                        <ImageView
-                            android:id="@+id/second_star"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/평점"
-                            android:layout_marginTop="11dp"
-                            android:layout_toRightOf="@+id/first_star"
-                            android:src="@drawable/smallsolidstar" />
-
-                        <ImageView
-                            android:id="@+id/third_star"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/평점"
-                            android:layout_marginTop="11dp"
-                            android:layout_toRightOf="@+id/second_star"
-                            android:src="@drawable/smallsolidstar" />
-
-                        <ImageView
-                            android:id="@+id/forth_star"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/평점"
-                            android:layout_marginTop="11dp"
-                            android:layout_toRightOf="@+id/third_star"
-                            android:src="@drawable/smallsolidstar" />
-
-                        <ImageView
-                            android:id="@+id/fifth_star"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/평점"
-                            android:layout_marginTop="11dp"
-                            android:layout_toRightOf="@+id/forth_star"
-                            android:src="@drawable/smallemptystar" />
+                            android:layout_toLeftOf="@+id/점수"
+                            android:numStars="5"
+                            android:rating="3.3"
+                            android:max="5"
+                            android:stepSize="0.5"
+                            android:layout_marginTop="12dp"
+                            android:layout_marginRight="5dp"
+                            />
 
                     </RelativeLayout>
 
