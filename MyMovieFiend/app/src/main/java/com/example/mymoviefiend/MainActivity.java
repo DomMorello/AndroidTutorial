@@ -21,6 +21,7 @@ import com.example.mymoviefiend.R;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     TextView dislikeCountView;  //싫어요 숫자
 //    ScrollView scrollView;
     Button writeCommentButton;  //작성하기 버튼
+    CommentAdapter commentAdapter;
 
     boolean likeState = false;
     boolean dislikeState = false;
@@ -49,15 +51,19 @@ public class MainActivity extends AppCompatActivity {
                 Intent writeCommentIntent = new Intent(getApplicationContext(),WriteCommentActivity.class);
                 startActivityForResult(writeCommentIntent,102); //작성하기 activity실행
                 //ForResult를 하고 아무 Intent를 반환하지 않으면 activity가 실행되지 않는다. 근데 그냥 startActivity를 하면 된다.
+                //startActivityForResult를 해놓은 상태에서 새로운 activity가 생성되고 취소버튼을 누를 때 그냥 finish()를 하면 런타임 오류가 발생한다.
+                //반환하는 result가 null이기 때문이다.
             }
         });
 
-        //모두보기 버튼을 눌렀을 때 스낵바 띄우기
-        Button readMoreButton = findViewById(R.id.read_more);
+        //모두보기 버튼을 눌렀을 때 한줄평 전체 listview를 보여주는 메소드
+        final Button readMoreButton = findViewById(R.id.read_more);
         readMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "모두보기를 눌렀습니다.", Snackbar.LENGTH_SHORT).show();
+                Intent readMoreIntent = new Intent(getApplicationContext(), ReadMoreActivity.class);
+                /*모두보기를 통해 새로운 activity로 넘어갈 때 listview를 넘겨주는 기능을 구현해야 함.*/
+                startActivity(readMoreIntent);  //보기만 하고 어떤 결과를 기대하지 않기 때문에 forResult를 하지 않음.
             }
         });
 
@@ -93,13 +99,13 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
-        CommentAdapter commentAdapter = new CommentAdapter();
+        commentAdapter = new CommentAdapter();
 
-        commentAdapter.addItem(new CommentItem("DomMorel**", "아주그지같군요!"));
-        commentAdapter.addItem(new CommentItem("BomnieK**", "정말 환상적인 영화에요! 꼭 보세요!"));
-        commentAdapter.addItem(new CommentItem("estelleCh**", "기존 영화와는 아주 다른 느낌입니다. 되게 독특한 영화이니 한 번쯤 봐도 시간 아깝지 않을 것 같아요ㅎㅎ"));
-        commentAdapter.addItem(new CommentItem("haha**", "연기 개 어색함.. 근데 나오는 사람들이 약간 스타일리시하긴 하네요"));
-        commentAdapter.addItem(new CommentItem("zuzud**", "음....노코멘트 하겠습니다."));
+        commentAdapter.addItem(new CommentItem("DomMorel**", "아주그지같군요!",4.5f));
+        commentAdapter.addItem(new CommentItem("BomnieK**", "정말 환상적인 영화에요! 꼭 보세요!",3.0f));
+        commentAdapter.addItem(new CommentItem("estelleCh**", "기존 영화와는 아주 다른 느낌입니다. 되게 독특한 영화이니 한 번쯤 봐도 시간 아깝지 않을 것 같아요ㅎㅎ",5.0f));
+        commentAdapter.addItem(new CommentItem("haha**", "연기 개 어색함.. 근데 나오는 사람들이 약간 스타일리시하긴 하네요",1.5f));
+        commentAdapter.addItem(new CommentItem("zuzud**", "음....노코멘트 하겠습니다.",2.5f));
 
         commentListView.setAdapter(commentAdapter);
 
@@ -198,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View getView(int i, View convertView, ViewGroup viewGroup) {
-            CommentItemView commentItemView = null;
+            CommentItemView commentItemView;
             //convertView가 있으면 그 자원을 다시 써서 메모리관리를 효과적으로 한다
             if (convertView == null) {
                 commentItemView = new CommentItemView(getApplicationContext());
@@ -206,13 +212,17 @@ public class MainActivity extends AppCompatActivity {
                 commentItemView = (CommentItemView) convertView;
             }
 
-            CommentItem commentItem = commentItems.get(i);
-            commentItemView.setComment(commentItem.getComment());
+            CommentItem commentItem = commentItems.get(commentItems.size()-1-i);    //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
+                                            //이렇게 하면 새로 등록한 한줄평이 제일 위로 나올 수 있게 됨.
+                                            //이거 지렸다...
+            commentItemView.setComment(commentItem.getComment());   //뷰에서 comment내용을 설정함.
+            commentItemView.setRating(commentItem.getRating()); //뷰에서 별점을 설정함.
 
             return commentItemView;
         }
     }
 
+    //한줄평 작성과 평점 데이터를 불러오는 것 코드
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -220,9 +230,10 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode == 102){
             float rating = intent.getFloatExtra("rating",0.0f);
             String comment = intent.getStringExtra("comment");
-            //test
-            Toast.makeText(getApplicationContext(), "평점 : "+rating,Toast.LENGTH_SHORT).show();
-            Toast.makeText(getApplicationContext(),"한줄평 : "+comment,Toast.LENGTH_SHORT).show();
+            if(rating > 0.0 && comment.length() > 0){
+                commentAdapter.addItem(new CommentItem("hkkim93",comment,rating)); //한줄평 리스트에 추가하기
+                commentAdapter.notifyDataSetChanged();  //변화가 있으면 갱신해라.
+            }
         }
     }
 }

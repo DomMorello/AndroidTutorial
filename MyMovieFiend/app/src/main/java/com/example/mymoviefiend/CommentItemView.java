@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.example.mymoviefiend.R;
@@ -11,6 +12,8 @@ import com.example.mymoviefiend.R;
 public class CommentItemView extends LinearLayout {
 
     TextView commentContent;
+    RatingBar commentRatingBar;
+
     public CommentItemView(Context context) {
         super(context);
 
@@ -28,10 +31,15 @@ public class CommentItemView extends LinearLayout {
         inflater.inflate(R.layout.one_line_comment, this, true);
 
         commentContent = findViewById(R.id.comment_content);
+        commentRatingBar = findViewById(R.id.commentRatingBar);
 
     }
 
     public void setComment(String comment){
-        commentContent.setText(comment);
+        commentContent.setText(comment);    //텍스트뷰에 작성한 comment가 나오게 한다.
+    }
+
+    public void setRating(float rating){
+        commentRatingBar.setRating(rating); //RatingBar에 입력한 rating이 색칠되게 한다.
     }
 }
