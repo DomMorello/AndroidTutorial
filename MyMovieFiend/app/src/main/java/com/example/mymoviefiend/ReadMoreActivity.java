@@ -3,6 +3,7 @@ package com.example.mymoviefiend;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,7 +30,9 @@ public class ReadMoreActivity extends AppCompatActivity {
         setContentView(R.layout.activity_read_more);
 
         Intent passedIntent = getIntent();  //전달받은 인텐트를
-        processIntent(passedIntent);    //process한다
+        if(passedIntent != null){
+            inCommentItems = (ArrayList<CommentItem>) passedIntent.getSerializableExtra("list"); //CommentItem을 Parcelable 구현해서 받아냄
+        }
 
         inCommentAdapter = new InCommentAdapter();  //이게 없어서 안됐었다. 어댑터를 쓰려면 어댑터 객체가 있어야지 당연히!
         ListView commentListView = findViewById(R.id.comment_listview);
@@ -45,6 +48,9 @@ public class ReadMoreActivity extends AppCompatActivity {
                 //작성하기 액티비티를 실행시키면서 결과를 기대한다.
             }
         });
+        /*ForResult였으니까 list에 변화가 없으면 그냥 빈 결과를 세팅하고 메인으로 전달해준다 test*/
+        Intent emptyIntent = new Intent(getApplicationContext(),MainActivity.class);
+        setResult(RESULT_OK,emptyIntent);
     }
 
     //작성하기 액티비티에서 받은 결과로 list에 추가한다.
@@ -59,16 +65,21 @@ public class ReadMoreActivity extends AppCompatActivity {
                 inCommentAdapter.addItem(new CommentItem("hkkim93", comment, rating)); //한줄평 리스트에 추가하기
                 inCommentAdapter.notifyDataSetChanged();  //변화가 있으면 갱신해라.
                 Snackbar.make(writeCommentButton, "한줄평이 저장되었습니다.", Snackbar.LENGTH_SHORT).show();
-                /*여기서 메인액티비티로 새롭게 변한 listview 정보를 담아서 보내줘야 한다.*/
+                //추가를 해서 모두보기 화면에서 갱신된 list가 보이도록 한 이후에
+                //뒤로가기 버튼을 누르면 메인 액티비티로 result를 설정해서 list를 부가데이터로 보내준다.
             }
         }
-
     }
 
-    private void processIntent(Intent intent){
-        if(intent != null){
-            inCommentItems = (ArrayList<CommentItem>) intent.getSerializableExtra("list");    //CommentItem을 Parcelable 구현해서 받아냄
-        }
+    //뒤로가기 버튼을 눌렀을 때 액티비티 종료 오버라이드한 이유? ForResult라서 Result값을 세팅해주기 위해
+    @Override
+    public void onBackPressed() {
+//        super.onBackPressed();    //이것을 없앤 이유는 super를 통해 액티비티를 종료해버리기 때문에 setResult가 효과가 없어짐. (내 생각)
+        //뒤로가기 버튼을 누르면 메인 액티비티로 result를 설정해서 list를 부가데이터로 보내준다.
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.putExtra("list",inCommentItems);
+        setResult(Activity.RESULT_OK, intent);  //startActivityForResult로 불러냈기 때문에 결과를 세팅해줘야 한다.
+        finish(); 
     }
 
     //모두 보기 클릭시 리스트뷰에 메인액티비티에 있는 것을 전부 보여주기 위한 어댑터
@@ -103,7 +114,7 @@ public class ReadMoreActivity extends AppCompatActivity {
                 commentItemView = (CommentItemView) convertView;
             }
 
-            CommentItem commentItem = inCommentItems.get(inCommentItems.size()-1-i);    //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
+            CommentItem commentItem = inCommentItems.get(inCommentItems.size()-1-i); //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
             //이렇게 하면 새로 등록한 한줄평이 제일 위로 나올 수 있게 됨.
             //이거 지렸다...
             commentItemView.setComment(commentItem.getComment());   //뷰에서 comment내용을 설정함.

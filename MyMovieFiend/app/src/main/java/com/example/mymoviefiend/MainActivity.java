@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent readMoreIntent = new Intent(getApplicationContext(), ReadMoreActivity.class);
 
                 readMoreIntent.putExtra("list",commentItems);   //그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
-                startActivity(readMoreIntent);  //새로운 activity에서 작성하기를 누른 후 리스트정보를 받아와야 하기 때문에 ForResult 테스트중
+                startActivityForResult(readMoreIntent,104);  //새로운 activity에서 작성하기를 누른 후 리스트정보를 받아와야 하기 때문에 ForResult 테스트중
             }
         });
 
@@ -237,6 +237,11 @@ public class MainActivity extends AppCompatActivity {
                 commentAdapter.notifyDataSetChanged();  //변화가 있으면 갱신해라.
                 Snackbar.make(likeButton, "한줄평이 저장되었습니다.", Snackbar.LENGTH_SHORT).show();
             }
+        }
+
+        if (requestCode == 104) {
+            commentItems = (ArrayList<CommentItem>) intent.getSerializableExtra("list");
+            commentAdapter.notifyDataSetChanged();  //갱신된 list로 어댑터한테 갱신하라고 말해줌
         }
 
     }
