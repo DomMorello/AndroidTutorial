@@ -88,7 +88,7 @@ public class WriteCommentActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 /*액티비티 종료하는 코드*/
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                setResult(Activity.RESULT_OK, intent);  //startActivityForResult로 불러냈기 때문에 결과를 세팅해줘야 한다.
+                setResult(Activity.RESULT_OK, intent);  //startActivityForResult로 불러냈기 때문에 아무 데이터없지만 결과를 세팅해줘야 한다.
                 finish();   //아무 데이터를 저장하지 않고 액티비티를 종료한다.
             }
         });

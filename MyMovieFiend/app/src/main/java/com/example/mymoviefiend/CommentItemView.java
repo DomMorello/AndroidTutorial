@@ -27,8 +27,8 @@ public class CommentItemView extends LinearLayout {
         init(context);
     }
 
-    public void init(Context context){
-        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    public void init(Context context) {
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.one_line_comment, this, true);
 
         commentContent = findViewById(R.id.comment_content);
@@ -37,15 +37,15 @@ public class CommentItemView extends LinearLayout {
 
     }
 
-    public void setComment(String comment){
+    public void setComment(String comment) {
         commentContent.setText(comment);    //텍스트뷰에 작성한 comment가 나오게 한다.
     }
 
-    public void setRating(float rating){
+    public void setRating(float rating) {
         commentRatingBar.setRating(rating); //RatingBar에 입력한 rating이 색칠되게 한다.
     }
 
-    public void setId(String id){   //id 표시
-        userId.setText(id);
+    public void setId(String id) {
+        userId.setText(id); //아이디를 텍스트뷰에 보이게 한다.
     }
 }

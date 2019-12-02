@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 public class CommentItem implements Parcelable {
 
-    String id;  //일단 내버려두자
+    String id;
     String comment;
     float rating;   //평점
 

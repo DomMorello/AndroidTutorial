@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     TextView likeCountView; //좋아요 숫자
     Button dislikeButton;   //싫어요 이미지
     TextView dislikeCountView;  //싫어요 숫자
-    //    ScrollView scrollView;
+//        ScrollView scrollView;
     Button writeCommentButton;  //작성하기 버튼
     CommentAdapter commentAdapter;
     ArrayList<CommentItem> commentItems = new ArrayList<>();    //어댑터에 사용되는 list인데 다른 메소드에서도 접근하기 위해 클래스변수로 위치를 변경함. 원래 어댑터 안에 있었음.
@@ -87,17 +87,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent readMoreIntent = new Intent(getApplicationContext(), ReadMoreActivity.class);
 
-                readMoreIntent.putExtra("list",commentItems);   //일단 ArrayList를 넘겨주는데 성공. 그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
-                /*모두보기를 통해 새로운 activity로 넘어갈 때 listview를 넘겨주는 기능을 구현해야 함.*/
-
-//                for(int i=0; i < commentItems.size(); i++){
-//                    String comment = commentItems.get(i).comment;
-//                    readMoreIntent.putExtra("comment",comment);
-//                    Float rating = commentItems.get(i).rating;
-//                    readMoreIntent.putExtra("rating",rating);
-//                }//items list에 있는 모든 정보들을 반복문을 이용해 intent를 통해 새로운 activity에 전달한다. 테스트중!!!
-
-                startActivity(readMoreIntent);  //보기만 하고 어떤 결과를 기대하지 않기 때문에 forResult를 하지 않음.
+                readMoreIntent.putExtra("list",commentItems);   //그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
+                startActivity(readMoreIntent);  //새로운 activity에서 작성하기를 누른 후 리스트정보를 받아와야 하기 때문에 ForResult 테스트중
             }
         });
 
@@ -191,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
     //한줄평 리스트를 보여주는 리스트뷰 어댑터
     class CommentAdapter extends BaseAdapter {
 
-//        ArrayList<CommentItem> commentItems = new ArrayList<>();    //CommentItem들을 담을 수 있는 ArrayList생성
+//        ArrayList<CommentItem> commentItems = new ArrayList<>();    //(위치를 클래스변수 위치로 올림)CommentItem들을 담을 수 있는 ArrayList생성
 
         @Override
         public int getCount() {
@@ -247,5 +238,6 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(likeButton, "한줄평이 저장되었습니다.", Snackbar.LENGTH_SHORT).show();
             }
         }
+
     }
 }
