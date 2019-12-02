@@ -1,6 +1,9 @@
 package com.example.mymoviefiend;
 
-public class CommentItem {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class CommentItem implements Parcelable {
 
     String id;  //일단 내버려두자
     String comment;
@@ -43,6 +46,37 @@ public class CommentItem {
                 ", comment='" + comment + '\'' +
                 ", rating=" + rating +
                 '}';
+    }
+
+    public CommentItem(Parcel src){
+        id = src.readString();
+        comment = src.readString();
+        rating = src.readFloat();
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator(){
+
+        @Override
+        public CommentItem createFromParcel(Parcel parcel) {
+            return new CommentItem(parcel);
+        }
+
+        @Override
+        public CommentItem[] newArray(int i) {
+            return new CommentItem[i];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(comment);
+        parcel.writeFloat(rating);
     }
 }
 

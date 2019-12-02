@@ -13,6 +13,7 @@ public class CommentItemView extends LinearLayout {
 
     TextView commentContent;
     RatingBar commentRatingBar;
+    TextView userId;
 
     public CommentItemView(Context context) {
         super(context);
@@ -32,6 +33,7 @@ public class CommentItemView extends LinearLayout {
 
         commentContent = findViewById(R.id.comment_content);
         commentRatingBar = findViewById(R.id.commentRatingBar);
+        userId = findViewById(R.id.user_id);
 
     }
 
@@ -41,5 +43,9 @@ public class CommentItemView extends LinearLayout {
 
     public void setRating(float rating){
         commentRatingBar.setRating(rating); //RatingBar에 입력한 rating이 색칠되게 한다.
+    }
+
+    public void setId(String id){   //id 표시
+        userId.setText(id);
     }
 }

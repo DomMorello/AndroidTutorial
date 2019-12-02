@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+
 public class WriteCommentActivity extends AppCompatActivity {
 
     @Override
@@ -22,7 +24,7 @@ public class WriteCommentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_write_comment);
 
         //취소 버튼을 눌렀을 때
-        Button cancelButton = findViewById(R.id.cancel);
+        final Button cancelButton = findViewById(R.id.cancel);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -30,8 +30,8 @@
 
     <LinearLayout
         android:layout_width="390dp"
-        android:layout_gravity="center"
         android:layout_height="1dp"
+        android:layout_gravity="center"
         android:background="#D3CECE" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -43,21 +43,21 @@
             android:id="@+id/participant"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
             android:text="(2,394명 참여)"
+            android:textSize="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:textSize="12dp"
-            android:layout_marginRight="5dp"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/rating"
-            android:layout_marginRight="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12dp"
-
+            android:layout_marginRight="5dp"
             android:text="8.2"
+
+            android:textSize="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/participant"
             app:layout_constraintTop_toTopOf="parent" />
@@ -65,9 +65,10 @@
         <RatingBar
             android:id="@+id/read_more_rating_bar"
             style="@style/Widget.AppCompat.RatingBar.Small"
-            android:layout_marginRight="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:rating="3.5"
+            android:layout_marginRight="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/rating"
             app:layout_constraintTop_toTopOf="parent" />
@@ -100,8 +101,8 @@
             android:layout_alignParentRight="true"
             android:layout_marginTop="4dp"
             android:layout_marginRight="15dp"
-            android:drawablePadding="5dp"
             android:drawableLeft="@drawable/ic_review_selected"
+            android:drawablePadding="5dp"
             android:text="작성하기"
             android:textColor="#FF3900"
             android:textSize="20dp"
@@ -109,16 +110,14 @@
 
         <ListView
             android:id="@+id/comment_listview"
-            android:layout_below="@+id/writeCommentButton"
-            android:layout_above="@+id/read_more"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_above="@+id/read_more"
+            android:layout_below="@+id/writeCommentButton"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp">
-        </ListView>
-
+            android:layout_marginBottom="10dp"></ListView>
 
 
     </RelativeLayout>

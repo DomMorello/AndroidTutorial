@@ -29,9 +29,10 @@ public class MainActivity extends AppCompatActivity {
     TextView likeCountView; //좋아요 숫자
     Button dislikeButton;   //싫어요 이미지
     TextView dislikeCountView;  //싫어요 숫자
-//    ScrollView scrollView;
+    //    ScrollView scrollView;
     Button writeCommentButton;  //작성하기 버튼
     CommentAdapter commentAdapter;
+    ArrayList<CommentItem> commentItems = new ArrayList<>();    //어댑터에 사용되는 list인데 다른 메소드에서도 접근하기 위해 클래스변수로 위치를 변경함. 원래 어댑터 안에 있었음.
 
     boolean likeState = false;
     boolean dislikeState = false;
@@ -43,13 +44,36 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /*스크롤 뷰 안에서는 리스트뷰가 스크롤이 안 되는 경우가 발생
+        이를 해결하기 위해서는 스크롤뷰의 스크롤 기능을 리스트뷰에 터치가 된 경우에는 기능을 멈추게 함으로써
+        리스트뷰가 스크롤하는 기능을 가져와 리스트뷰 안에서 가능하게 하는 것이다.*/
+//        scrollView = findViewById(R.id.scroll_view);
+        ListView commentListView = findViewById(R.id.comment_listview);
+//        commentListView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                scrollView.requestDisallowInterceptTouchEvent(true);
+//                return false;
+//            }
+//        });
+
+        commentAdapter = new CommentAdapter();
+
+        commentAdapter.addItem(new CommentItem("DomMorel**", "아주그지같군요!", 4.5f));
+        commentAdapter.addItem(new CommentItem("BomnieK**", "정말 환상적인 영화에요! 꼭 보세요!", 3.0f));
+        commentAdapter.addItem(new CommentItem("estelleCh**", "기존 영화와는 아주 다른 느낌입니다. 되게 독특한 영화이니 한 번쯤 봐도 시간 아깝지 않을 것 같아요ㅎㅎ", 5.0f));
+        commentAdapter.addItem(new CommentItem("haha**", "연기 개 어색함.. 근데 나오는 사람들이 약간 스타일리시하긴 하네요", 1.5f));
+        commentAdapter.addItem(new CommentItem("zuzud**", "음....노코멘트 하겠습니다.", 2.5f));
+
+        commentListView.setAdapter(commentAdapter);
+
         //작성하기 버튼을 눌렀을 때
         writeCommentButton = findViewById(R.id.writeCommentButton);
         writeCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent writeCommentIntent = new Intent(getApplicationContext(),WriteCommentActivity.class);
-                startActivityForResult(writeCommentIntent,102); //작성하기 activity실행
+                Intent writeCommentIntent = new Intent(getApplicationContext(), WriteCommentActivity.class);
+                startActivityForResult(writeCommentIntent, 102); //작성하기 activity실행
                 //ForResult를 하고 아무 Intent를 반환하지 않으면 activity가 실행되지 않는다. 근데 그냥 startActivity를 하면 된다.
                 //startActivityForResult를 해놓은 상태에서 새로운 activity가 생성되고 취소버튼을 누를 때 그냥 finish()를 하면 런타임 오류가 발생한다.
                 //반환하는 result가 null이기 때문이다.
@@ -62,7 +86,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent readMoreIntent = new Intent(getApplicationContext(), ReadMoreActivity.class);
+
+                readMoreIntent.putExtra("list",commentItems);   //일단 ArrayList를 넘겨주는데 성공. 그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
                 /*모두보기를 통해 새로운 activity로 넘어갈 때 listview를 넘겨주는 기능을 구현해야 함.*/
+
+//                for(int i=0; i < commentItems.size(); i++){
+//                    String comment = commentItems.get(i).comment;
+//                    readMoreIntent.putExtra("comment",comment);
+//                    Float rating = commentItems.get(i).rating;
+//                    readMoreIntent.putExtra("rating",rating);
+//                }//items list에 있는 모든 정보들을 반복문을 이용해 intent를 통해 새로운 activity에 전달한다. 테스트중!!!
+
                 startActivity(readMoreIntent);  //보기만 하고 어떤 결과를 기대하지 않기 때문에 forResult를 하지 않음.
             }
         });
@@ -84,30 +118,6 @@ public class MainActivity extends AppCompatActivity {
                 toast.show();
             }
         });*/
-
-        /*스크롤 뷰 안에서는 리스트뷰가 스크롤이 안 되는 경우가 발생
-        이는 같은 기능이 충돌하여 스크롤뷰만 기능하는 오류인데
-        이를 해결하기 위해서는 스크롤뷰의 스크롤 기능을 리스트뷰에 터치가 된 경우에는 기능을 멈추게 함으로써
-        리스트뷰가 스크롤하는 기능을 가져와 리스트뷰 안에서 가능하게 하는 것이다.*/
-//        scrollView = findViewById(R.id.scroll_view);
-        ListView commentListView = findViewById(R.id.comment_listview);
-//        commentListView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                scrollView.requestDisallowInterceptTouchEvent(true);
-//                return false;
-//            }
-//        });
-
-        commentAdapter = new CommentAdapter();
-
-        commentAdapter.addItem(new CommentItem("DomMorel**", "아주그지같군요!",4.5f));
-        commentAdapter.addItem(new CommentItem("BomnieK**", "정말 환상적인 영화에요! 꼭 보세요!",3.0f));
-        commentAdapter.addItem(new CommentItem("estelleCh**", "기존 영화와는 아주 다른 느낌입니다. 되게 독특한 영화이니 한 번쯤 봐도 시간 아깝지 않을 것 같아요ㅎㅎ",5.0f));
-        commentAdapter.addItem(new CommentItem("haha**", "연기 개 어색함.. 근데 나오는 사람들이 약간 스타일리시하긴 하네요",1.5f));
-        commentAdapter.addItem(new CommentItem("zuzud**", "음....노코멘트 하겠습니다.",2.5f));
-
-        commentListView.setAdapter(commentAdapter);
 
         likeButton = findViewById(R.id.likeButton);
         //likeButton을 눌렀을 때
@@ -181,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
     //한줄평 리스트를 보여주는 리스트뷰 어댑터
     class CommentAdapter extends BaseAdapter {
 
-        ArrayList<CommentItem> commentItems = new ArrayList<>();    //CommentItem들을 담을 수 있는 ArrayList생성
+//        ArrayList<CommentItem> commentItems = new ArrayList<>();    //CommentItem들을 담을 수 있는 ArrayList생성
 
         @Override
         public int getCount() {
@@ -212,11 +222,12 @@ public class MainActivity extends AppCompatActivity {
                 commentItemView = (CommentItemView) convertView;
             }
 
-            CommentItem commentItem = commentItems.get(commentItems.size()-1-i);    //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
-                                            //이렇게 하면 새로 등록한 한줄평이 제일 위로 나올 수 있게 됨.
-                                            //이거 지렸다...
+            CommentItem commentItem = commentItems.get(commentItems.size() - 1 - i);    //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
+            //이렇게 하면 새로 등록한 한줄평이 제일 위로 나올 수 있게 됨.
+            //이거 지렸다...
             commentItemView.setComment(commentItem.getComment());   //뷰에서 comment내용을 설정함.
             commentItemView.setRating(commentItem.getRating()); //뷰에서 별점을 설정함.
+            commentItemView.setId(commentItem.getId()); //id를 설정함.
 
             return commentItemView;
         }
@@ -227,12 +238,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
-        if(requestCode == 102){
-            float rating = intent.getFloatExtra("rating",0.0f);
+        if (requestCode == 102) {
+            float rating = intent.getFloatExtra("rating", 0.0f);
             String comment = intent.getStringExtra("comment");
-            if(rating > 0.0 && comment.length() > 0){
-                commentAdapter.addItem(new CommentItem("hkkim93",comment,rating)); //한줄평 리스트에 추가하기
+            if (rating > 0.0 && comment.length() > 0) {
+                commentAdapter.addItem(new CommentItem("hkkim93", comment, rating)); //한줄평 리스트에 추가하기
                 commentAdapter.notifyDataSetChanged();  //변화가 있으면 갱신해라.
+                Snackbar.make(likeButton, "한줄평이 저장되었습니다.", Snackbar.LENGTH_SHORT).show();
             }
         }
     }
