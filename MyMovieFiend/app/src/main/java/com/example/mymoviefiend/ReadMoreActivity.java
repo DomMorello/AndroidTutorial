@@ -48,9 +48,6 @@ public class ReadMoreActivity extends AppCompatActivity {
                 //작성하기 액티비티를 실행시키면서 결과를 기대한다.
             }
         });
-        /*ForResult였으니까 list에 변화가 없으면 그냥 빈 결과를 세팅하고 메인으로 전달해준다 test*/
-        Intent emptyIntent = new Intent(getApplicationContext(),MainActivity.class);
-        setResult(RESULT_OK,emptyIntent);
     }
 
     //작성하기 액티비티에서 받은 결과로 list에 추가한다.
@@ -76,10 +73,11 @@ public class ReadMoreActivity extends AppCompatActivity {
     public void onBackPressed() {
 //        super.onBackPressed();    //이것을 없앤 이유는 super를 통해 액티비티를 종료해버리기 때문에 setResult가 효과가 없어짐. (내 생각)
         //뒤로가기 버튼을 누르면 메인 액티비티로 result를 설정해서 list를 부가데이터로 보내준다.
+        //뒤로가기 버튼을 누를 때 list에 변화가 있던 없던 모두보기에 있는 리스트를 다시 메인으로 보내준다.
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.putExtra("list",inCommentItems);
         setResult(Activity.RESULT_OK, intent);  //startActivityForResult로 불러냈기 때문에 결과를 세팅해줘야 한다.
-        finish(); 
+        finish();
     }
 
     //모두 보기 클릭시 리스트뷰에 메인액티비티에 있는 것을 전부 보여주기 위한 어댑터

@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(likeButton, "한줄평이 저장되었습니다.", Snackbar.LENGTH_SHORT).show();
             }
         }
-
+        //모두보기에서 결과를 가져올 때
         if (requestCode == 104) {
             commentItems = (ArrayList<CommentItem>) intent.getSerializableExtra("list");
             commentAdapter.notifyDataSetChanged();  //갱신된 list로 어댑터한테 갱신하라고 말해줌
