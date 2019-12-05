@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">MovieFiendVer2</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Dom_Morello</string>
+    <string name="nav_header_subtitle">zuzudnf@gmail.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+
+    <string name="menu_movielist">영화 목록</string>
+    <string name="menu_movieapi">영화 API</string>
+    <string name="menu_book">예매하기</string>
+    <string name="menu_setting">사용자 설정</string>
+</resources>
