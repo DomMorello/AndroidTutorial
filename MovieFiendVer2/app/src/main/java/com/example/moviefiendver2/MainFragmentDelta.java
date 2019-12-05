@@ -1,5 +1,6 @@
 package com.example.moviefiendver2;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,29 +12,44 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 //델타보이즈 화면 프래그먼트
 public class MainFragmentDelta extends Fragment {
 
-    private String name;
+    FragmentCallback fragmentCallback;  //인터페이스 참조
 
-    public String getName() {
-        return name;
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        //인터페이스를 구현했으면 해당 activity에 context를 참조한다.
+        if(context instanceof FragmentCallback){
+            fragmentCallback = (FragmentCallback) context;
+        }
     }
 
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        if(fragmentCallback != null){
+            fragmentCallback = null;
+        }
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.main_fragment_delta,container,false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.main_fragment_delta, container, false);
         Button informationButton = rootView.findViewById(R.id.information_button);
         informationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /* 버튼을 클릭하면 상세화면이 떠야함. 프래그먼트에서 프래그먼트를 불러와야 함 */
+                if(fragmentCallback != null){
+                    fragmentCallback.onFragmentChange(0);   //상세화면 프래그먼트 실행
+                    //프래그먼트끼리 직접 호출하면 안 되므로 MainActivity에 정의한 메서드를 통해 호출한다.
+                }
             }
         });
         return rootView;

@@ -65,7 +65,8 @@ public class MovieListFragment extends Fragment {
     }
 
     //뷰페이저를 위한 어댑터 정의
-    //원래는 mainActivity에 했었는데 애초에 HomeFragment가 메인에 연결이 default로 돼있기 때문에 HomeFragment 안에 뷰페이저를 넣기 위해 어댑터를 이 위치에 정의
+    //원래는 mainActivity에 했었는데 애초에 HomeFragment(MovieListFragment)가 메인에 연결이 default로 돼있기 때문에
+    // HomeFragment 안에 뷰페이저를 넣기 위해 어댑터를 이 위치에 정의
     class MoviePagerAdapter extends FragmentStatePagerAdapter {
 
         ArrayList<Fragment> items = new ArrayList<>();

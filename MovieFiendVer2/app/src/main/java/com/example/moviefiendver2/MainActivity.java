@@ -4,6 +4,8 @@ import android.animation.ObjectAnimator;
 import android.animation.StateListAnimator;
 import android.os.Bundle;
 
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -17,13 +19,16 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.text.SpannableString;
-import android.text.style.TextAppearanceSpan;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FragmentCallback{
+
+    FragDeltaInfo fragDeltaInfo;
+    FragGongjoInfo fragGongjoInfo;
+    FragGundoInfo fragGundoInfo;
+    FragKingInfo fragKingInfo;
+    FragEvilInfo fragEvilInfo;
+    FragLuckyInfo fragLuckyInfo;
+    FragAsuraInfo fragAsuraInfo;
 
     private AppBarConfiguration mAppBarConfiguration;
 
@@ -52,6 +57,15 @@ public class MainActivity extends AppCompatActivity {
         stateListAnimator.addState(new int[0], ObjectAnimator.ofFloat(appBarLayout, "elevation", 0));
         appBarLayout.setStateListAnimator(stateListAnimator);
 
+        fragDeltaInfo = new FragDeltaInfo();
+        fragGongjoInfo = new FragGongjoInfo();
+        fragGundoInfo = new FragGundoInfo();
+        fragKingInfo = new FragKingInfo();
+        fragEvilInfo = new FragEvilInfo();
+        fragLuckyInfo = new FragLuckyInfo();
+        fragAsuraInfo = new FragAsuraInfo();
+
+        /* 상세보기를 들어가서 한줄평을 작성하고 나서 프래그먼트를 껏다 다시 키면 데이터가 다 날아가 있는 문제 수정해야 함 */
 
 
     }
@@ -62,4 +76,30 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
+    //상세보기를 눌렀을 때 프래그먼트에서 실행되는 메소드(다른 상세화면 프래그먼트를 실행)
+    public void onFragmentChange(int index){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.addToBackStack("frag"); //backstack에 추가를 해줘야 프래그먼트에서 뒤로가기를 눌렀을 때
+        //원래 상태로 돌아올 수 있다. 추가를 하지 않으면 바로 앱이 꺼진다.
+        if(index == 0){
+            fragmentTransaction.replace(R.id.movielist_container, fragDeltaInfo).commit();
+            //movielist 내부 constraint안에 프래그먼트를 담는다.
+        }else if(index == 1){
+            fragmentTransaction.replace(R.id.movielist_container, fragGongjoInfo).commit();
+        }else if(index == 2){
+            fragmentTransaction.replace(R.id.movielist_container, fragGundoInfo).commit();
+        }else if(index == 3){
+            fragmentTransaction.replace(R.id.movielist_container, fragKingInfo).commit();
+        }else if(index == 4){
+            fragmentTransaction.replace(R.id.movielist_container, fragEvilInfo).commit();
+        }else if(index == 5){
+            fragmentTransaction.replace(R.id.movielist_container, fragLuckyInfo).commit();
+        }else if(index == 6){
+            fragmentTransaction.replace(R.id.movielist_container, fragAsuraInfo).commit();
+        }
+    }
+
+
 }

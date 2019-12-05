@@ -18,7 +18,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 
-public class FragmentInformation extends Fragment {
+public class FragKingInfo extends Fragment {
 
     Button likeButton;  //좋아요 이미지
     TextView likeCountView; //좋아요 숫자
@@ -37,7 +37,7 @@ public class FragmentInformation extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_information, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_king_info, container, false);
 
         ListView commentListView = rootView.findViewById(R.id.comment_listview);
 
