@@ -65,9 +65,10 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback{
         fragLuckyInfo = new FragLuckyInfo();
         fragAsuraInfo = new FragAsuraInfo();
 
-        /* 상세보기를 들어가서 한줄평을 작성하고 나서 프래그먼트를 껏다 다시 키면 데이터가 다 날아가 있는 문제 수정해야 함 */
-
-
+        /* 1. activity_main 여기에 영화리스트 화면이 있어야 하는데, 다른 화면으로 갔다가 뒤로가기를 누르면 아무것도 없는 화면이 나옴
+           2. 새로운 activity인 한줄평 작성과 모두보기를 열 때 앱바의 기능을 구현하지 못함
+           3. 액티비티가 종료되면서 onDestroy되면서 intent를 통해 정보를 전달했던 것들이 다 초기화됨.(근데 이 문제는 데이터베이스를 연동하지 않아서 그런거라고 생각함)
+         */
     }
 
     @Override

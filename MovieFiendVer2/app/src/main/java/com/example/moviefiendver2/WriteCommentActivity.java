@@ -1,24 +1,58 @@
 package com.example.moviefiendver2;
 
+import android.animation.ObjectAnimator;
+import android.animation.StateListAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
+
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.navigation.NavigationView;
 
 public class WriteCommentActivity extends AppCompatActivity {
+
+    TextView titleView; //작성하기 액티비티에서 영화제목 뷰
+    ImageView rated; //몇세관람가 아이콘
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_write_comment);
+
+        titleView = findViewById(R.id.write_comment_title);
+        rated = findViewById(R.id.write_comment_rated);
+
+        Intent passedIntent = getIntent();  //상세보기 화면에서 보내준 intent를 받아서
+        String title = passedIntent.getStringExtra("title");    //부가data인 영화제목을 받아서
+
+        //이미지 받아오기
+        Bundle extras = getIntent().getExtras();
+        int i = extras.getInt("integer");
+        double d = extras.getDouble("double");
+        byte[] byteArray = getIntent().getByteArrayExtra("image");
+        Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+        rated.setImageBitmap(bitmap);   //받아온 이미지로 세팅
+
+        titleView.setText(title);   //이 액티비티 화면xml에 영화제목을 표시한다.
 
         //취소 버튼을 눌렀을 때
         final Button cancelButton = findViewById(R.id.cancel);

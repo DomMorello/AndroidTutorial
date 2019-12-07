@@ -19,8 +19,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:background="@drawable/background1"
+                android:background="@color/basicBackground"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -41,14 +40,16 @@
                         android:orientation="horizontal">
 
                         <TextView
+                            android:id="@+id/title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="군도"
-                            android:textColor="#000000"
+                            android:textColor="@color/accentText"
                             android:textSize="24dp"
                             android:textStyle="bold" />
 
                         <ImageView
+                            android:id="@+id/rated"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="10dp"
@@ -60,7 +61,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:text="2017. 6. 8 개봉"
-                        android:textColor="#000000"
+                        android:textColor="@color/basicText"
                         android:textSize="15dp"
                         android:textStyle="bold" />
 
@@ -69,7 +70,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:text="드라마, 코메디 / 120분"
-                        android:textColor="#000000"
+                        android:textColor="@color/basicText"
                         android:textStyle="bold" />
 
                     <RelativeLayout
@@ -101,7 +102,7 @@
                             android:layout_marginLeft="5dp"
                             android:layout_toRightOf="@id/likeButton"
                             android:text="1"
-                            android:textColor="#000000"
+                            android:textColor="@color/basicText"
                             android:textSize="15dp"
                             android:textStyle="bold" />
 
@@ -113,20 +114,27 @@
                             android:layout_marginLeft="5dp"
                             android:layout_toRightOf="@id/dislikeButton"
                             android:text="1"
-                            android:textColor="#000000"
+                            android:textColor="@color/basicText"
                             android:textSize="15dp"
                             android:textStyle="bold" />
 
                     </RelativeLayout>
 
                 </LinearLayout>
+
+
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/basicBorder"></LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:background="@color/basicBackground">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -144,7 +152,7 @@
                             android:layout_centerHorizontal="true"
                             android:layout_marginTop="10dp"
                             android:text="예매율"
-                            android:textColor="#646262"
+                            android:textColor="@color/accentText"
                             android:textSize="20dp"
                             android:textStyle="bold" />
 
@@ -156,7 +164,7 @@
                             android:layout_marginTop="10dp"
                             android:layout_marginBottom="10dp"
                             android:text="5위    1.8%"
-                            android:textColor="#000000"
+                            android:textColor="@color/basicText"
                             android:textSize="15dp"
                             android:textStyle="bold" />
 
@@ -168,7 +176,7 @@
                 <LinearLayout
                     android:layout_width="7px"
                     android:layout_height="match_parent"
-                    android:background="#E7E6E6"></LinearLayout>
+                    android:background="@color/basicBorder"></LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -186,7 +194,7 @@
                             android:layout_centerHorizontal="true"
                             android:layout_marginTop="10dp"
                             android:text="평점"
-                            android:textColor="#646262"
+                            android:textColor="@color/accentText"
                             android:textSize="20dp"
                             android:textStyle="bold" />
 
@@ -200,7 +208,7 @@
                             android:layout_marginRight="15dp"
                             android:layout_marginBottom="10dp"
                             android:text="3.3"
-                            android:textColor="#000000"
+                            android:textColor="@color/basicText"
                             android:textSize="15dp"
                             android:textStyle="bold" />
 
@@ -226,17 +234,12 @@
                 <LinearLayout
                     android:layout_width="7px"
                     android:layout_height="match_parent"
-                    android:background="#E7E6E6"></LinearLayout>
+                    android:background="@color/basicBorder"></LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
-
-                    <LinearLayout
-                        android:layout_width="5px"
-                        android:layout_height="match_parent"
-                        android:background="#FFFFFF"></LinearLayout>
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -249,7 +252,7 @@
                             android:layout_centerHorizontal="true"
                             android:layout_marginTop="10dp"
                             android:text="누적관객수"
-                            android:textColor="#646262"
+                            android:textColor="@color/accentText"
                             android:textSize="20dp"
                             android:textStyle="bold" />
 
@@ -261,7 +264,7 @@
                             android:layout_marginTop="10dp"
                             android:layout_marginBottom="10dp"
                             android:text="4,465명"
-                            android:textColor="#000000"
+                            android:textColor="@color/basicText"
                             android:textSize="15dp"
                             android:textStyle="bold" />
                     </RelativeLayout>
@@ -273,19 +276,20 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="30px"
-                android:background="#E7E6E6"></LinearLayout>
+                android:background="@color/basicBorder"></LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="@color/basicBackground">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="15dp"
                     android:text="줄거리"
-                    android:textColor="#000000"
+                    android:textColor="@color/accentText"
                     android:textSize="20dp"
                     android:textStyle="bold" />
 
@@ -300,7 +304,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="15dp"
                         android:text="감독 / 출연"
-                        android:textColor="#000000"
+                        android:textColor="@color/accentText"
                         android:textSize="20dp"
                         android:textStyle="bold" />
 
@@ -311,7 +315,7 @@
                         android:layout_below="@+id/head_line"
                         android:layout_marginLeft="15dp"
                         android:text="감독"
-                        android:textColor="#000000"
+                        android:textColor="@color/accentText"
                         android:textSize="15dp"
                         android:textStyle="bold" />
 
@@ -323,7 +327,7 @@
                         android:layout_marginLeft="10dp"
                         android:layout_toRightOf="@+id/감독"
                         android:text="고봉수"
-                        android:textColor="#646262"
+                        android:textColor="@color/basicText"
                         android:textSize="15dp" />
 
                     <TextView
@@ -333,7 +337,7 @@
                         android:layout_below="@+id/감독"
                         android:layout_marginLeft="15dp"
                         android:text="출연"
-                        android:textColor="#000000"
+                        android:textColor="@color/accentText"
                         android:textSize="15dp"
                         android:textStyle="bold" />
 
@@ -345,7 +349,7 @@
                         android:layout_marginLeft="10dp"
                         android:layout_toRightOf="@+id/출연"
                         android:text="백승환(강일록), 신민재(최대용), 김충길(노준세)"
-                        android:textColor="#646262"
+                        android:textColor="@color/basicText"
                         android:textSize="15dp" />
                 </RelativeLayout>
 
@@ -357,7 +361,7 @@
                     android:text="돈 없음!\n빽 없음!\n능력 없음!\n\n 하지만 무식하게 씩씩하고 대책 없이 당당하다! 돈에 대한 욕심도, 열정도 제로인 ‘일록’. 그에게 어느 날 친구 ‘예건’이 뜻밖의 제안을 하게 되는데 바로 남성 사중창 대회에 참가하는 것. 처음엔 어이가 없다고 생각했지만 ‘일록’은 은근히 끌리게 되고 그렇게 이름만 멋들어진 남성 사중창 그룹 ‘델타 보이즈’가 결성된다!
  \n\n
 비주얼을 담당하는 공장 알바남 ‘일록’, 시카고에서 날아온 또라이 ‘예건’, 빈손으로 등장하는 법이 없는 꽁치 파는 꽁지머리 청년 ‘대용’, 1+1으로 찾아온 도너츠 노점남 ‘준세’가 뭉쳤다! 우리가 바로 델타 보이즈!"
-                    android:textColor="#646262"
+                    android:textColor="@color/basicText"
                     android:textSize="15dp"
                     android:textStyle="normal" />
 
@@ -365,7 +369,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="30px"
                     android:layout_marginTop="10dp"
-                    android:background="#E7E6E6"></LinearLayout>
+                    android:background="@color/basicBorder"></LinearLayout>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -388,7 +392,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="15dp"
                         android:text="한줄평"
-                        android:textColor="#000000"
+                        android:textColor="@color/accentText"
                         android:textSize="20dp"
                         android:textStyle="bold" />
 
@@ -418,6 +422,7 @@
                         android:layout_marginBottom="15dp"
                         android:background="@drawable/linear_border_purple"
                         android:text="모두 보기"
+                        android:textColor="@color/accentText"
                         android:textSize="15dp"
                         android:textStyle="bold" />
                 </RelativeLayout>
@@ -426,7 +431,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="30px"
                     android:layout_marginTop="10dp"
-                    android:background="#E7E6E6"></LinearLayout>
+                    android:background="@color/basicBorder"></LinearLayout>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -463,14 +468,14 @@
                         android:layout_marginRight="15dp"
                         android:background="#FF3900"
                         android:text="예매하기"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/accentText"
                         android:textStyle="bold" />
                 </RelativeLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="30px"
-                    android:background="#E7E6E6"></LinearLayout>
+                    android:background="@color/basicBorder"></LinearLayout>
 
 
             </LinearLayout>

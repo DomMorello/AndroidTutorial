@@ -1,12 +1,15 @@
 package com.example.moviefiendver2;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -16,6 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 public class FragKingInfo extends Fragment {
@@ -28,6 +32,10 @@ public class FragKingInfo extends Fragment {
     Button writeCommentButton;  //작성하기 버튼
     CommentAdapter commentAdapter;
     ArrayList<CommentItem> commentItems = new ArrayList<>();
+    TextView title; //제목을 넘기기 위해 선언
+    String movieTitle;  //TextView에서 얻어온 title을 저장하기 위한 String변수
+    ImageView rated; //몇세 관람가 이미지뷰
+    byte[] byteArray;
 
     boolean likeState = false;
     boolean dislikeState = false;
@@ -40,6 +48,19 @@ public class FragKingInfo extends Fragment {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_king_info, container, false);
 
         ListView commentListView = rootView.findViewById(R.id.comment_listview);
+        title = rootView.findViewById(R.id.title);
+        movieTitle = title.getText().toString();    //영화 제목을 작성하기 액티비티에 넘겨주기 위해 얻어옴.
+        rated = rootView.findViewById(R.id.rated);  //몇세관람가 이미지아이콘을 얻어옴.
+
+        //이미지를 전달하기 위해 코드 작성(이미지 축소)
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        Bitmap bitmap = ((BitmapDrawable)rated.getDrawable()).getBitmap();
+        float scale = (float) (1024/(float)bitmap.getWidth());
+        int image_w = (int) (bitmap.getWidth() * scale);
+        int image_h = (int) (bitmap.getHeight() * scale);
+        Bitmap resize = Bitmap.createScaledBitmap(bitmap, image_w, image_h, true);
+        resize.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byteArray = stream.toByteArray();
 
         commentAdapter = new CommentAdapter();
 
@@ -57,6 +78,12 @@ public class FragKingInfo extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent writeCommentIntent = new Intent(getActivity(), WriteCommentActivity.class);
+                writeCommentIntent.putExtra("title",movieTitle);    //작성하기 activity에 영화제목을 넘겨줌
+                //이미지 보내주기
+                writeCommentIntent.putExtra("integer", 300);
+                writeCommentIntent.putExtra("double", 3.141592 );
+                writeCommentIntent.putExtra("image", byteArray);
+
                 startActivityForResult(writeCommentIntent, 102); //작성하기 activity실행
             }
         });
@@ -69,6 +96,12 @@ public class FragKingInfo extends Fragment {
                 Intent readMoreIntent = new Intent(getActivity(), ReadMoreActivity.class);
 
                 readMoreIntent.putExtra("list", commentItems);   //그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
+                readMoreIntent.putExtra("title",movieTitle);    //모두보기 activity에 영화제목을 넘겨줌
+                //이미지 보내주기
+                readMoreIntent.putExtra("integer", 300);
+                readMoreIntent.putExtra("double", 3.141592 );
+                readMoreIntent.putExtra("image", byteArray);
+
                 startActivityForResult(readMoreIntent, 104);  //새로운 activity에서 작성하기를 누른 후 리스트정보를 받아와야 하기 때문에 ForResult 테스트중
             }
         });

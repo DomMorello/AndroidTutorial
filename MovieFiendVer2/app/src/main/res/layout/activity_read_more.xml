@@ -4,28 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/basicBackground"
     android:orientation="vertical">
     tools:context=".ReadMoreActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="25dp"
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/read_more_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="델타 보이즈"
+            android:textColor="@color/accentText"
             android:textSize="30dp"
             android:textStyle="bold" />
 
         <ImageView
+            android:id="@+id/read_more_rated"
             android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginTop="12dp"
-            android:src="@drawable/ic_15" />
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <LinearLayout
@@ -45,6 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             android:text="(2,394명 참여)"
+            android:textColor="@color/basicText"
             android:textSize="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -56,7 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             android:text="8.2"
-
+            android:textColor="@color/basicText"
             android:textSize="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/participant"
@@ -67,8 +68,8 @@
             style="@style/Widget.AppCompat.RatingBar.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:rating="3.5"
             android:layout_marginRight="5dp"
+            android:rating="3.5"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/rating"
             app:layout_constraintTop_toTopOf="parent" />
@@ -89,7 +90,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
             android:text="한줄평"
-            android:textColor="#000000"
+            android:textColor="@color/accentText"
             android:textSize="20dp"
             android:textStyle="bold" />
 
@@ -123,3 +124,6 @@
     </RelativeLayout>
 
 </LinearLayout>
+
+
+

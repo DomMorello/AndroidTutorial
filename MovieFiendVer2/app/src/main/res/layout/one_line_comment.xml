@@ -66,14 +66,15 @@
             android:textSize="15sp"
             android:textColor="#000000"
             android:layout_below="@+id/time"/>
+
         <TextView
             android:id="@+id/추천"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/comment_content"
             android:text="추천"
-            android:textSize="10sp"
             android:textColor="#000000"
-            android:layout_below="@+id/comment_content"/>
+            android:textSize="10sp" />
         <TextView
             android:id="@+id/추천수"
             android:layout_width="wrap_content"
@@ -99,6 +100,7 @@
             />
 
         <Button
+            android:id="@+id/신고하기버튼"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="40dp"
             android:layout_height="15dp"

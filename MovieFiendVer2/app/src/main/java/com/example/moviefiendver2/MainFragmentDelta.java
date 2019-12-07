@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -43,6 +44,7 @@ public class MainFragmentDelta extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.main_fragment_delta, container, false);
         Button informationButton = rootView.findViewById(R.id.information_button);
+        TextView title = rootView.findViewById(R.id.textView2);
         informationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

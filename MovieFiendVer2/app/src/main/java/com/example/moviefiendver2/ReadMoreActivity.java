@@ -1,19 +1,35 @@
 package com.example.moviefiendver2;
 
+import android.animation.ObjectAnimator;
+import android.animation.StateListAnimator;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 public class ReadMoreActivity extends AppCompatActivity {
@@ -21,15 +37,33 @@ public class ReadMoreActivity extends AppCompatActivity {
     InCommentAdapter inCommentAdapter;  //내부클래스 어댑터를 사용하기 위해 이 위치에 선언
     ArrayList<CommentItem> inCommentItems = new ArrayList<>();  //다른 메서드에서도 사용하기 위해 여기에 선언
     Button writeCommentButton;  //작성하기 버튼
+    TextView title; //모두보기 화면에서 영화 제목뷰
+    String name;    //받아온 부가data로 영화뷰에 표시하기 위한 영화제목 String변수
+    ImageView rated;    //몇세 관람가 이미지뷰
+    byte[] byteArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_read_more);
 
+        title = findViewById(R.id.read_more_title);
+        rated = findViewById(R.id.read_more_rated);
+
         Intent passedIntent = getIntent();  //전달받은 인텐트를
         if(passedIntent != null){
+            name = passedIntent.getStringExtra("title");
+            title.setText(name);    //받아온 데이터로 영화제목을 뷰에 표시한다.
             inCommentItems = (ArrayList<CommentItem>) passedIntent.getSerializableExtra("list"); //CommentItem을 Parcelable 구현해서 받아냄
+
+            //이미지 받아오기
+            Bundle extras = getIntent().getExtras();
+            int i = extras.getInt("integer");
+            double d = extras.getDouble("double");
+            byte[] byteArray = getIntent().getByteArrayExtra("image");
+            Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+            rated.setImageBitmap(bitmap);   //받아온 이미지로 세팅
+
         }
 
         inCommentAdapter = new InCommentAdapter();  //이게 없어서 안됐었다. 어댑터를 쓰려면 어댑터 객체가 있어야지 당연히!
@@ -42,6 +76,22 @@ public class ReadMoreActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent writeCommentIntent = new Intent(getApplicationContext(), WriteCommentActivity.class);
+
+                //이미지를 전달하기 위해 코드 작성(이미지 축소)
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                Bitmap bitmap = ((BitmapDrawable)rated.getDrawable()).getBitmap();
+                float scale = (float) (1024/(float)bitmap.getWidth());
+                int image_w = (int) (bitmap.getWidth() * scale);
+                int image_h = (int) (bitmap.getHeight() * scale);
+                Bitmap resize = Bitmap.createScaledBitmap(bitmap, image_w, image_h, true);
+                resize.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                byteArray = stream.toByteArray();
+
+                //이미지 보내주기
+                writeCommentIntent.putExtra("integer", 300);
+                writeCommentIntent.putExtra("double", 3.141592 );
+                writeCommentIntent.putExtra("image", byteArray);
+
                 startActivityForResult(writeCommentIntent, 103); //작성하기 activity실행
                 //작성하기 액티비티를 실행시키면서 결과를 기대한다.
             }
