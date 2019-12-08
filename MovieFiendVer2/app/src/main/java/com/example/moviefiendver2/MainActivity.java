@@ -22,6 +22,7 @@ import androidx.appcompat.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity implements FragmentCallback{
 
+    //영화별 상세화면 fragment 참조
     FragDeltaInfo fragDeltaInfo;
     FragGongjoInfo fragGongjoInfo;
     FragGundoInfo fragGundoInfo;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback{
         stateListAnimator.addState(new int[0], ObjectAnimator.ofFloat(appBarLayout, "elevation", 0));
         appBarLayout.setStateListAnimator(stateListAnimator);
 
+        //영화별 상세화면 fragment 객체 생성
         fragDeltaInfo = new FragDeltaInfo();
         fragGongjoInfo = new FragGongjoInfo();
         fragGundoInfo = new FragGundoInfo();

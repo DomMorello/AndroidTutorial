@@ -78,6 +78,7 @@ public class MovieListFragment extends Fragment {
         public void addItem(Fragment item){
             items.add(item);
         }
+
         @NonNull
         @Override
         public Fragment getItem(int position) {
