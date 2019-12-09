@@ -13,6 +13,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 
 import org.w3c.dom.Text;
 
@@ -46,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendRequest(){
-        String url = "http://www.google.co.kr";
+//        String url = "http://www.google.co.kr";
+        String url = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=430156241533f1d058c603178cc3ca0e&targetDt=20120101";
         StringRequest request = new StringRequest(
                 Request.Method.GET, //get방식으로 요청하겠다
                 url,
@@ -54,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         println("응답 -> :" + response);
+
+                        processResponse(response);
                     }
                 },
                 new Response.ErrorListener() {
@@ -75,6 +79,17 @@ public class MainActivity extends AppCompatActivity {
         request.setShouldCache(false);  //매번 받은 결과를 그대로 보여주세요(이전 결과가 있더라도 새로 요청해서 응답을 보여주게 됨)
         AppHelper.requestQueue.add(request);    //이렇게 넣을 때 Volley 내부에서 캐싱을 한다
         println("요청 보냄.");
+    }
+
+    public void processResponse(String response){
+        Gson gson = new Gson();
+        MovieList movieList = gson.fromJson(response,MovieList.class);  //JSON 문자열을 자바객체로 변환하기
+
+        if(movieList != null){
+            int countmovie = movieList.boxOfficeResult.dailyBoxOfficeList.size();
+            println("박스오피스 타입: "+movieList.boxOfficeResult.boxofficeType);
+            println("응답받은 영화 개수: "+countmovie);
+        }
     }
 
     public void println(String data){
