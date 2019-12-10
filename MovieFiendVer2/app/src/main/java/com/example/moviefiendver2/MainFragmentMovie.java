@@ -6,19 +6,44 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+
+import org.w3c.dom.Text;
 
 //델타보이즈 화면 프래그먼트
-public class MainFragmentDelta extends Fragment {
+public class MainFragmentMovie extends Fragment {
 
     FragmentCallback fragmentCallback;  //인터페이스 참조
+    ImageView poster;
+    TextView mainTitle;
+    TextView reservationRate;
+    TextView grade;
+    TextView date;
+
+    public ImageView getPoster() {
+        return poster;
+    }
+
+    public TextView getMainTitle() {
+        return mainTitle;
+    }
+
+    public TextView getReservationRate() {
+        return reservationRate;
+    }
+
+    public TextView getGrade() {
+        return grade;
+    }
+
+    public TextView getDate() {
+        return date;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -42,9 +67,8 @@ public class MainFragmentDelta extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.main_fragment_delta, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.main_fragment_movie, container, false);
         Button informationButton = rootView.findViewById(R.id.information_button);
-        TextView title = rootView.findViewById(R.id.textView2);
         informationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,6 +78,14 @@ public class MainFragmentDelta extends Fragment {
                 }
             }
         });
+
+        //서버에서 받아온 정보들을 표시할 뷰들을 찾아온다.
+        poster = rootView.findViewById(R.id.main_poster); //영화 포스터
+        mainTitle = rootView.findViewById(R.id.main_title);    //영화 제목
+        reservationRate = rootView.findViewById(R.id.reservation_rate);    //예매율
+        grade = rootView.findViewById(R.id.grade); //영화 관람가 제한
+        date = rootView.findViewById(R.id.d_day);  //영화 개봉일
+
         return rootView;
     }
 }

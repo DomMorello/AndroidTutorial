@@ -14,7 +14,7 @@
 
         <fragment
             android:id="@+id/main_fragment"
-            android:name="com.example.moviefiendver2.MainFragmentDelta"
+            android:name="com.example.moviefiendver2.MainFragmentMovie"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

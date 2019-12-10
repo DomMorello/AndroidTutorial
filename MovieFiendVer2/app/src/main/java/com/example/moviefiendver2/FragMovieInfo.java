@@ -22,7 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
-public class FragAsuraInfo extends Fragment {
+public class FragMovieInfo extends Fragment {
 
     Button likeButton;  //좋아요 이미지
     TextView likeCountView; //좋아요 숫자
@@ -45,7 +45,7 @@ public class FragAsuraInfo extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_asura_info, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_movie_info, container, false);
 
         ListView commentListView = rootView.findViewById(R.id.comment_listview);
         title = rootView.findViewById(R.id.title);
@@ -56,7 +56,7 @@ public class FragAsuraInfo extends Fragment {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Bitmap bitmap = ((BitmapDrawable)rated.getDrawable()).getBitmap();
         float scale = (float) (1024/(float)bitmap.getWidth());
-        int image_w = (int) (bitmap.getWidth() * scale);
+        int image_w = (int) (bitmap.getHeight() * scale);
         int image_h = (int) (bitmap.getHeight() * scale);
         Bitmap resize = Bitmap.createScaledBitmap(bitmap, image_w, image_h, true);
         resize.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -94,15 +94,14 @@ public class FragAsuraInfo extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent readMoreIntent = new Intent(getActivity(), ReadMoreActivity.class);
-
-                readMoreIntent.putExtra("list", commentItems);   //그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
                 readMoreIntent.putExtra("title",movieTitle);    //모두보기 activity에 영화제목을 넘겨줌
+                readMoreIntent.putExtra("list", commentItems);   //그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
                 //이미지 보내주기
                 readMoreIntent.putExtra("integer", 300);
                 readMoreIntent.putExtra("double", 3.141592 );
                 readMoreIntent.putExtra("image", byteArray);
 
-                startActivityForResult(readMoreIntent, 104);  //새로운 activity에서 작성하기를 누른 후 리스트정보를 받아와야 하기 때문에 ForResult 테스트중
+                startActivityForResult(readMoreIntent, 104);  //새로운 activity에서 작성하기를 누른 후 리스트정보를 받아와야 하기 때문에 ForResult
             }
         });
 
@@ -202,6 +201,7 @@ public class FragAsuraInfo extends Fragment {
 
         @Override
         public View getView(int i, View convertView, ViewGroup viewGroup) {
+
             CommentItemView commentItemView;
             //convertView가 있으면 그 자원을 다시 써서 메모리관리를 효과적으로 한다
             if (convertView == null) {
