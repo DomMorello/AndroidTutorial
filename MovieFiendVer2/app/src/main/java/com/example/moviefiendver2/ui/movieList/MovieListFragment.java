@@ -1,36 +1,19 @@
 package com.example.moviefiendver2.ui.movieList;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
-
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.example.moviefiendver2.FragmentCallback;
-import com.example.moviefiendver2.MainActivity;
 import com.example.moviefiendver2.MainFragmentMovie;
-import com.example.moviefiendver2.MovieData.MovieInfo;
-import com.example.moviefiendver2.MovieData.MovieList;
-import com.example.moviefiendver2.MovieData.ResponseInfo;
 import com.example.moviefiendver2.R;
 import com.example.moviefiendver2.ZoomOutPageTransformer;
-import com.example.moviefiendver2.helper.AppHelper;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 

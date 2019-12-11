@@ -3,7 +3,7 @@ package com.example.moviefiendver2.MovieData;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-//Activity(MainActivity)에서 Fragment(MovieListFragment)로 데이터를 보내주기 위해서 Parcelable을 구현함.
+//서버에서 GSON으로 JSON을 읽어내기 위해 정의한 class
 public class MovieInfo {
 
     public int id;
@@ -18,5 +18,15 @@ public class MovieInfo {
     public int grade;
     public String thumb;
     public String image;
-
+    public String photos;
+    public String videos;
+    public String outlinks;
+    public String genre;
+    public int duration;
+    public int audience;
+    public String synopsis;
+    public String director;
+    public String actor;
+    public int like;
+    public int dislike;
 }

@@ -12,11 +12,11 @@
         android:layout_height="match_parent"
         android:background="#2B2A2A">
 
-        <fragment
+        <!--<fragment
             android:id="@+id/main_fragment"
             android:name="com.example.moviefiendver2.MainFragmentMovie"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent" />-->
 
     </androidx.viewpager.widget.ViewPager>
 

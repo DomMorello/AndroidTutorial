@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -23,6 +24,7 @@ import com.example.moviefiendver2.MovieData.MovieInfo;
 import com.example.moviefiendver2.MovieData.MovieList;
 import com.example.moviefiendver2.MovieData.ResponseInfo;
 import com.example.moviefiendver2.helper.AppHelper;
+import com.example.moviefiendver2.helper.ImageLoadTask;
 import com.google.gson.Gson;
 
 import org.w3c.dom.Text;
@@ -40,18 +42,6 @@ public class MainFragmentMovie extends Fragment {
     TextView date;
     int position; //영화 서버에서 넘어오는 것을 구분하기 위한 인덱스
 
-    //Fragment 객체를 생성하는 메서드 position int값을 갖는다
-    public static MainFragmentMovie newInstance(int position) {
-        MainFragmentMovie mainFragmentMovie = new MainFragmentMovie();
-        //position int값을 갖는다
-        Bundle args = new Bundle();
-        args.putInt("position", position);
-        Log.d("MainFragment position: ", String.valueOf(position));
-        mainFragmentMovie.setArguments(args);
-        return mainFragmentMovie;
-        /* 프래그먼트끼리 데이터를 주고 받을 때는 FragmentManager Transaction 등의 상황이 있어야 된다. 개 좆같네 시발 */
-    }
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -62,10 +52,22 @@ public class MainFragmentMovie extends Fragment {
         }
     }
 
+    //MainFragmentMovie 인스턴스를 생성할 때 position정보를 갖는 메소드
+    public static  MainFragmentMovie newInstance(int position){
+        MainFragmentMovie mainFragmentMovie = new MainFragmentMovie();
+        Bundle args = new Bundle();
+        args.putInt("position", position);
+        mainFragmentMovie.setArguments(args);
+
+        return mainFragmentMovie;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        //position 정보를 newInstance메소드를 통해서 받아온다.
+        position = getArguments().getInt("position", 0);
+        Log.d("MainFragmentMovie","position 정보가 넘어왔음: " + position);
     }
 
     @Override
@@ -82,16 +84,6 @@ public class MainFragmentMovie extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.main_fragment_movie, container, false);
 
-        Button informationButton = rootView.findViewById(R.id.information_button);
-        informationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (fragmentCallback != null) {
-                    fragmentCallback.onFragmentChange(0);   //상세화면 프래그먼트 실행
-                    //프래그먼트끼리 직접 호출하면 안 되므로 MainActivity에 정의한 메서드를 통해 호출한다.
-                }
-            }
-        });
 
         //서버에서 받아온 정보들을 표시할 뷰들을 찾아온다.
         poster = rootView.findViewById(R.id.main_poster); //영화 포스터
@@ -106,6 +98,17 @@ public class MainFragmentMovie extends Fragment {
         }
         requestMovieList(); //서버에 영화 목록 데이터를 요청하는 메소드
 
+        Button informationButton = rootView.findViewById(R.id.information_button);
+        informationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (fragmentCallback != null) {
+                    fragmentCallback.onFragmentChange();   //상세화면 프래그먼트 실행
+                    //프래그먼트끼리 직접 호출하면 안 되므로 MainActivity에 정의한 메서드를 통해 호출한다.
+                    /* 여기에 Bundle로 Parcelable 구현해서 보내면 되지 않을까? */
+                }
+            }
+        });
         return rootView;
     }
 
@@ -145,15 +148,15 @@ public class MainFragmentMovie extends Fragment {
         ResponseInfo info = gson.fromJson(response, ResponseInfo.class);
         if (info.code == 200) {
             MovieList movieList = gson.fromJson(response, MovieList.class); //movieList에 서버 데이터들이 다 넘어왔다.
-            Log.d("MainActivity", "" + movieList.result.size());
+            Log.d("MainActivity", "" + movieList.result.get(0).duration);
 
-            MovieInfo movieInfo = movieList.result.get(position);
+            MovieInfo movieInfo = movieList.result.get(position);   //서버로부터 받은 ArrayList에서 position에 맞게 객체를 얻는다.
             mainTitle.setText(movieInfo.title);
             grade.setText(movieInfo.grade + "세 관람가");
             reservationRate.setText(movieInfo.reservation_rate + "%");
             date.setText(movieInfo.date);
-
-            /* poster = rootView.findViewById(R.id.main_poster); 이미지 다운받기 해야됨. */
+            ImageLoadTask imageLoadTask = new ImageLoadTask(movieInfo.image, poster);   //클래스 내부에 set하게 정의해 놓음.
+            imageLoadTask.execute();
 
         }
     }

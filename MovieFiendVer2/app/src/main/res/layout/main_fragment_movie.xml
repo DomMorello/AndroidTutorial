@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_frag_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#1A1919"
@@ -15,14 +16,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/sample" />
+        app:srcCompat="@drawable/loading" />
 
     <TextView
         android:id="@+id/main_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="1. 델타 보이즈"
+        android:text="영화 제목"
         android:textColor="#DBDBDB"
         android:textSize="20dp"
         android:textStyle="bold"
@@ -43,78 +44,135 @@
         android:id="@+id/information_button"
         android:layout_width="130dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:background="@drawable/orange_button"
         android:text="상세보기"
         android:textColor="#000000"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/예매율" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintVertical_bias="0.14" />
 
-    <TextView
-        android:id="@+id/예매율"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="4dp"
-        android:text="예매율"
-        android:textColor="#DBDBDB"
-        app:layout_constraintEnd_toStartOf="@+id/reservation_rate"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
-
-    <TextView
-        android:id="@+id/reservation_rate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="4dp"
-        android:text="00.0%"
-        android:textColor="@color/basicText"
-        app:layout_constraintEnd_toStartOf="@+id/칸막이1"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
-
-    <TextView
-        android:id="@+id/칸막이1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="|"
-        android:textColor="@color/basicText"
-        android:layout_marginRight="5dp"
-        app:layout_constraintEnd_toStartOf="@+id/grade"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
-
-    <TextView
-        android:id="@+id/grade"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="0세 관람가"
-        android:layout_marginRight="5dp"
-        android:textColor="@color/basicText"
-        app:layout_constraintEnd_toStartOf="@+id/칸막이2"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
-
-    <TextView
-        android:id="@+id/칸막이2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="|"
-        android:layout_marginRight="5dp"
-        android:textColor="@color/basicText"
-        app:layout_constraintEnd_toStartOf="@+id/d_day"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
-
-    <TextView
-        android:id="@+id/d_day"
-        android:layout_width="wrap_content"
-        android:layout_marginRight="110dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="D-0"
-        android:textColor="@color/basicText"
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="300dp"
+        android:layout_height="30dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+        app:layout_constraintHorizontal_bias="0.477"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView3">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/예매율"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="예매율"
+                android:textColor="#DBDBDB"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/reservation_rate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00.0%"
+                android:layout_weight="1"
+                android:textColor="@color/basicText"/>
+
+            <TextView
+                android:id="@+id/칸막이1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="|"
+                android:layout_weight="1"
+                android:textColor="@color/basicText" />
+
+            <TextView
+                android:id="@+id/grade"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0세 관람가"
+                android:textColor="@color/basicText"/>
+
+            <TextView
+                android:id="@+id/칸막이2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="|"
+                android:textColor="@color/basicText"/>
+
+            <TextView
+                android:id="@+id/d_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="D-0"
+                android:layout_weight="1"
+                android:textColor="@color/basicText" />
+
+        </LinearLayout>
+
+        <!--<TextView
+            android:id="@+id/예매율"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="4dp"
+            android:text="예매율"
+            android:textColor="#DBDBDB" />
+
+        <TextView
+            android:id="@+id/reservation_rate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="4dp"
+            android:text="00.0%"
+            android:textColor="@color/basicText"/>
+
+        <TextView
+            android:id="@+id/칸막이1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="|"
+            android:textColor="@color/basicText"
+            android:layout_marginRight="5dp" />
+
+        <TextView
+            android:id="@+id/grade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="0세 관람가"
+            android:layout_marginRight="5dp"
+            android:textColor="@color/basicText"/>
+
+        <TextView
+            android:id="@+id/칸막이2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="|"
+            android:layout_marginRight="5dp"
+            android:textColor="@color/basicText" />
+
+        <TextView
+            android:id="@+id/d_day"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="110dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="D-0"
+            android:textColor="@color/basicText"/>-->
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
