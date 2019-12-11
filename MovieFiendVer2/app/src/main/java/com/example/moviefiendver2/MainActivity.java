@@ -2,10 +2,7 @@ package com.example.moviefiendver2;
 
 import android.animation.ObjectAnimator;
 import android.animation.StateListAnimator;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -14,25 +11,13 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.example.moviefiendver2.MovieData.MovieInfo;
-import com.example.moviefiendver2.MovieData.MovieList;
-import com.example.moviefiendver2.MovieData.ResponseInfo;
-import com.example.moviefiendver2.helper.AppHelper;
-import com.example.moviefiendver2.ui.movieList.MovieListFragment;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.navigation.NavigationView;
-import com.google.gson.Gson;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
 
 public class MainActivity extends AppCompatActivity implements FragmentCallback{
 
@@ -86,59 +71,64 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback{
            3. 액티비티가 종료되면서 onDestroy되면서 intent를 통해 정보를 전달했던 것들이 다 초기화됨.(근데 이 문제는 데이터베이스를 연동하지 않아서 그런거라고 생각함)
          */
 
-        //RequestQueue 객체를 생성한다.
-        if(AppHelper.requestQueue == null){
-            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
-        }
-        requestMovieList(); //서버에 영화 목록 데이터를 요청하는 메소드
+//        //RequestQueue 객체를 생성한다.
+//        if(AppHelper.requestQueue == null){
+//            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
+//        }
+//        requestMovieList(); //서버에 영화 목록 데이터를 요청하는 메소드
+
     }
 
-    //서버에 영화 목록 데이터를 요청하는 메소드
-    public void requestMovieList(){
-        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/readMovieList";
-        url += "?" + "type=1";
-
-        StringRequest request = new StringRequest(
-                Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("MainActivity","응답 받음 -> " + response);
-
-                        processResponse(response);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("MainActivity","에러 발생: "+error.getMessage());
-                    }
-                }
-        );
-
-        request.setShouldCache(false);
-        AppHelper.requestQueue.add(request);
-        Log.d("MainActivity", "영화 목록 요청 보냄");
-    }
-
-    //받아온 response를 파싱해서 자바 객체로 만든다.
-    public void processResponse(String response){
-        Gson gson = new Gson();
-
-        ResponseInfo info = gson.fromJson(response, ResponseInfo.class);
-        if(info.code == 200){
-            MovieList movieList = gson.fromJson(response, MovieList.class); //movieList에 서버 데이터들이 다 넘어왔다.
-            Log.d("MainActivity",""+movieList.result.size());
-
-            //서버에서 받아온 ArrayList를 Fragment(MovieListFragment)로 보내주기
-            MovieListFragment movieListFragment = new MovieListFragment();
-            Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList("MovieList",movieList.result);
-            movieListFragment.setArguments(bundle);
-            Log.d("MainActivity","서버에서 받은 ArrayList를 MovieListFragment로 보냄");
-        }
-    }
+//    //서버에 영화 목록 데이터를 요청하는 메소드
+//    public void requestMovieList(){
+//        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/readMovieList";
+//        url += "?" + "type=1";
+//
+//        StringRequest request = new StringRequest(
+//                Request.Method.GET,
+//                url,
+//                new Response.Listener<String>() {
+//                    @Override
+//                    public void onResponse(String response) {
+//                        Log.d("MainActivity","응답 받음 -> " + response);
+//
+//                        processResponse(response);
+//                    }
+//                },
+//                new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        Log.d("MainActivity","에러 발생: "+error.getMessage());
+//                    }
+//                }
+//        );
+//
+//        request.setShouldCache(false);
+//        AppHelper.requestQueue.add(request);
+//        Log.d("MainActivity", "영화 목록 요청 보냄");
+//    }
+//
+//    //받아온 response를 파싱해서 자바 객체로 만든다.
+//    public void processResponse(String response){
+//        Gson gson = new Gson();
+//
+//        ResponseInfo info = gson.fromJson(response, ResponseInfo.class);
+//        if(info.code == 200){
+//            MovieList movieList = gson.fromJson(response, MovieList.class); //movieList에 서버 데이터들이 다 넘어왔다.
+//            Log.d("MainActivity",""+movieList.result.size());
+//
+//            //서버에서 받아온 ArrayList를 Fragment(MovieListFragment)로 보내주기
+////            MovieListFragment movieListFragment = new MovieListFragment();
+////            Bundle bundle = new Bundle();
+////            bundle.putParcelableArrayList("MovieList", movieList.result);
+////            movieListFragment.setArguments(bundle);
+////            //아래 FragmentManager를 통한 코드로 하니까 위 Bundle data가 전달이 됐다. 그랬더니 원래 의도했던 뷰페이저가 보이지 않는다.
+////            FragmentManager fragmentManager = getSupportFragmentManager();
+////            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+////            fragmentTransaction.add(R.id.movielist_container, movieListFragment).commit();
+//
+//        }
+//    }
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -148,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback{
     }
 
     //메인 뷰페이저에서 상세보기를 눌렀을 때 프래그먼트에서 실행되는 메소드(메인프래그먼트에서 다른 상세화면 프래그먼트를 실행)
+    @Override
     public void onFragmentChange(int index){
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -170,6 +161,5 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback{
             fragmentTransaction.replace(R.id.movielist_container, fragAsuraInfo).commit();
         }
     }
-
 
 }

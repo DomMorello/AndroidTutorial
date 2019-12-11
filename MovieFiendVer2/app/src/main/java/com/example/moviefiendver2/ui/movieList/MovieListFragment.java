@@ -1,5 +1,6 @@
 package com.example.moviefiendver2.ui.movieList;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,22 +8,36 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.moviefiendver2.FragmentCallback;
+import com.example.moviefiendver2.MainActivity;
 import com.example.moviefiendver2.MainFragmentMovie;
 import com.example.moviefiendver2.MovieData.MovieInfo;
+import com.example.moviefiendver2.MovieData.MovieList;
+import com.example.moviefiendver2.MovieData.ResponseInfo;
 import com.example.moviefiendver2.R;
 import com.example.moviefiendver2.ZoomOutPageTransformer;
+import com.example.moviefiendver2.helper.AppHelper;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
 public class MovieListFragment extends Fragment {
 
     private MovieListViewModel movieListViewModel;
+    MoviePagerAdapter adapter;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -34,42 +49,19 @@ public class MovieListFragment extends Fragment {
         pager.setPageTransformer(true, new ZoomOutPageTransformer());   //페이지 슬라이드 시 축소되면서 넘어가는 애니메이션 효과
         pager.setOffscreenPageLimit(3);
 
-        MoviePagerAdapter adapter = new MoviePagerAdapter(getFragmentManager());
-
-        //MainActivity에서 보낸 서버로부터 받은 ArrayList 를 받아서 활용한다. !!! 이 부분이 잘 안 되는 것 같다! 
-        Bundle passedBundle = getArguments();
-        if (passedBundle != null) {
-//            Bundle passedBundle = getArguments();
-            ArrayList<MovieInfo> movieListFromServer = passedBundle.getParcelableArrayList("MovieList");
-            Log.d("MovieListFragment", "메인액티비에서 받아온 리스트 사이즈: " + movieListFromServer.size());
-            /* 서버에서 받아온 리스트를 Fragment로 만든 후 그 Fragment들을 여기 ViewPager adapter에 넣어야 한다 */
-            for(int i=0; i < movieListFromServer.size(); i++){
-                MainFragmentMovie mainFragmentMovie = new MainFragmentMovie();
-                /* 반복문을 통해 MainFragmentMovie 객체를 생성하고 adapter에 추가하여 ViewPager로 보여준다 */
-                mainFragmentMovie.getMainTitle().setText(movieListFromServer.get(0).title);
-                adapter.addItem(mainFragmentMovie);
-            }
-        }
-
-
+        adapter = new MoviePagerAdapter(getFragmentManager());
 
         //프래그먼트 객체 생성
-        /*MainFragmentMovie mainFragmentDelta = new MainFragmentMovie();
-        MainFragmentMovie mainFragmentGongjo = new MainFragmentMovie();
-        MainFragmentMovie mainFragmentGundo = new MainFragmentMovie();
-        MainFragmentMovie mainFragmentKing = new MainFragmentMovie();
-        MainFragmentMovie mainFragmentEvil = new MainFragmentMovie();
-        MainFragmentMovie mainFragmentLucky = new MainFragmentMovie();
-        MainFragmentMovie mainFragmentAsura = new MainFragmentMovie();*/
-
-        //프래그먼트를 어댑터 list에 추가
-        /*adapter.addItem(mainFragmentDelta);
-        adapter.addItem(mainFragmentGongjo);
-        adapter.addItem(mainFragmentGundo);
-        adapter.addItem(mainFragmentKing);
-        adapter.addItem(mainFragmentEvil);
-        adapter.addItem(mainFragmentLucky);
-        adapter.addItem(mainFragmentAsura);*/
+        MainFragmentMovie mainFragment1 = MainFragmentMovie.newInstance(0);
+        adapter.addItem(mainFragment1);
+        MainFragmentMovie mainFragment2 = MainFragmentMovie.newInstance(1);
+        adapter.addItem(mainFragment2);
+        MainFragmentMovie mainFragment3 = MainFragmentMovie.newInstance(2);
+        adapter.addItem(mainFragment3);
+        MainFragmentMovie mainFragment4 = MainFragmentMovie.newInstance(3);
+        adapter.addItem(mainFragment4);
+        MainFragmentMovie mainFragment5 = MainFragmentMovie.newInstance(4);
+        adapter.addItem(mainFragment5);
 
         pager.setAdapter(adapter);  //어댑터로 설정
 
