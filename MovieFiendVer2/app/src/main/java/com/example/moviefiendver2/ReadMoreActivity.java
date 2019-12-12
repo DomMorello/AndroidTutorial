@@ -1,7 +1,5 @@
 package com.example.moviefiendver2;
 
-import android.animation.ObjectAnimator;
-import android.animation.StateListAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -18,15 +16,8 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.navigation.NavigationView;
+import com.example.moviefiendver2.MovieData.CommentItem;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.ByteArrayOutputStream;
@@ -103,17 +94,17 @@ public class ReadMoreActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
-        if (requestCode == 103) {
-            float rating = intent.getFloatExtra("rating", 0.0f);
-            String comment = intent.getStringExtra("comment");
-            if (rating > 0.0 && comment.length() > 0) {
-                inCommentAdapter.addItem(new CommentItem("hkkim93", comment, rating)); //한줄평 리스트에 추가하기
-                inCommentAdapter.notifyDataSetChanged();  //변화가 있으면 갱신해라.
-                Snackbar.make(writeCommentButton, "한줄평이 저장되었습니다.", Snackbar.LENGTH_SHORT).show();
-                //추가를 해서 모두보기 화면에서 갱신된 list가 보이도록 한 이후에
-                //뒤로가기 버튼을 누르면 메인 액티비티로 result를 설정해서 list를 부가데이터로 보내준다.
-            }
-        }
+//        if (requestCode == 103) {
+//            float rating = intent.getFloatExtra("rating", 0.0f);
+//            String comment = intent.getStringExtra("comment");
+//            if (rating > 0.0 && comment.length() > 0) {
+//                inCommentAdapter.addItem(new CommentItem("hkkim93", comment, rating)); //한줄평 리스트에 추가하기
+//                inCommentAdapter.notifyDataSetChanged();  //변화가 있으면 갱신해라.
+//                Snackbar.make(writeCommentButton, "한줄평이 저장되었습니다.", Snackbar.LENGTH_SHORT).show();
+//                //추가를 해서 모두보기 화면에서 갱신된 list가 보이도록 한 이후에
+//                //뒤로가기 버튼을 누르면 메인 액티비티로 result를 설정해서 list를 부가데이터로 보내준다.
+//            }
+//        }
     }
 
     //뒤로가기 버튼을 눌렀을 때 액티비티 종료 오버라이드한 이유? ForResult라서 Result값을 세팅해주기 위해
@@ -163,9 +154,9 @@ public class ReadMoreActivity extends AppCompatActivity {
             CommentItem commentItem = inCommentItems.get(inCommentItems.size()-1-i); //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
             //이렇게 하면 새로 등록한 한줄평이 제일 위로 나올 수 있게 됨.
             //이거 지렸다...
-            commentItemView.setComment(commentItem.getComment());   //뷰에서 comment내용을 설정함.
-            commentItemView.setRating(commentItem.getRating()); //뷰에서 별점을 설정함.
-            commentItemView.setId(commentItem.getId()); //id를 설정함.
+//            commentItemView.setComment(commentItem.getComment());   //뷰에서 comment내용을 설정함.
+//            commentItemView.setRating(commentItem.getRating()); //뷰에서 별점을 설정함.
+//            commentItemView.setId(commentItem.getTmpid()); //id를 설정함.
 
             return commentItemView;
         }

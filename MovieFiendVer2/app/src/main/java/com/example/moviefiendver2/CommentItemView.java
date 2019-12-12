@@ -60,15 +60,25 @@ public class CommentItemView extends LinearLayout {
 
     }
 
-    public void setComment(String comment) {
-        commentContent.setText(comment);    //텍스트뷰에 작성한 comment가 나오게 한다.
+    public void setCommentContent(String data){
+        commentContent.setText(data);
     }
 
-    public void setRating(float rating) {
-        commentRatingBar.setRating(rating); //RatingBar에 입력한 rating이 색칠되게 한다.
+    public void setCommentRatingBar(float data){
+        commentRatingBar.setRating(data);
     }
 
-    public void setId(String id) {
-        userId.setText(id); //아이디를 텍스트뷰에 보이게 한다.
+    public void setUserId(String data){
+        userId.setText(data);
     }
+
+    public void setTime(String data){
+        time.setText(data);
+    }
+
+    public void setRecommendationNum(String data){
+        recommendationNum.setText(data);    //int로 받으면 오류나려나?
+    }
+
+
 }

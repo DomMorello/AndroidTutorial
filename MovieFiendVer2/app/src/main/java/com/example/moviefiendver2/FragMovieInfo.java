@@ -25,8 +25,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.moviefiendver2.MovieData.MovieList;
-import com.example.moviefiendver2.MovieData.ResponseInfo;
+import com.example.moviefiendver2.MovieData.CommentItem;
+import com.example.moviefiendver2.MovieData.CommentResponse;
+import com.example.moviefiendver2.MovieData.MovieResponse;
 import com.example.moviefiendver2.helper.AppHelper;
 import com.example.moviefiendver2.helper.ImageLoadTask;
 import com.google.android.material.snackbar.Snackbar;
@@ -35,11 +36,7 @@ import com.google.gson.Gson;
 import java.io.ByteArrayOutputStream;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,15 +73,16 @@ public class FragMovieInfo extends Fragment {
     int likeCount = 1;  //좋아요 수
     int dislikeCount = 1;   //싫어요 수
 
-    MovieList movieList;    //다른 액티비티에 넘겨주려면 다른 메소드에서도 사용해야 하므로 여기에 선언
+    MovieResponse movieResponse;    //다른 액티비티에 넘겨주려면 다른 메소드에서도 사용해야 하므로 여기에 선언
+    CommentResponse commentResponse;    //다른 액티비티에 넘겨주려면 다른 메소드에서도 사용해야 하므로 여기에 선언
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        position = getArguments().getInt("position", 0)+1;  //position정보를 MainFragmentMovie에서 객체를 생성할 때 매개변수로 받아서 상세보기 눌렀을 때
+        position = getArguments().getInt("position", 0) + 1;  //position정보를 MainFragmentMovie에서 객체를 생성할 때 매개변수로 받아서 상세보기 눌렀을 때
         //이 프래그먼트까지 보내준다. +1 인 이유는 서버상 id정보가 0부터가 아닌 1부터이기 때문이다.
-        Log.d("FragMovieInfo","MainFragmentMovie에서 넘어온position + 1 : "+position);
+        Log.d("FragMovieInfo", "MainFragmentMovie에서 넘어온position + 1 : " + position);
     }
 
     @Nullable
@@ -113,23 +111,14 @@ public class FragMovieInfo extends Fragment {
 
         //영화 상세정보를 서버에서 얻어오는 메소드
         requestMovieInfo();
+        //커멘트 정보를 서버에서 얻어오는 메소드
+        requestCommentList();
 
-        if(AppHelper.requestQueue == null){
+        if (AppHelper.requestQueue == null) {
             AppHelper.requestQueue = Volley.newRequestQueue(getContext());
         }
 
-        movieTitle = title.getText().toString();    //영화 제목을 작성하기 액티비티에 넘겨주기 위해 얻어옴.
-
-
-
-        commentAdapter = new CommentAdapter();
-
-        commentAdapter.addItem(new CommentItem("DomMorel**", "아주그지같군요!", 4.5f));
-        commentAdapter.addItem(new CommentItem("BomnieK**", "정말 환상적인 영화에요! 꼭 보세요!", 3.0f));
-        commentAdapter.addItem(new CommentItem("estelleCh**", "기존 영화와는 아주 다른 느낌입니다. 되게 독특한 영화이니 한 번쯤 봐도 시간 아깝지 않을 것 같아요ㅎㅎ", 5.0f));
-        commentAdapter.addItem(new CommentItem("haha**", "연기 개 어색함.. 근데 나오는 사람들이 약간 스타일리시하긴 하네요", 1.5f));
-        commentAdapter.addItem(new CommentItem("zuzud**", "음....노코멘트 하겠습니다.", 2.5f));
-
+        commentAdapter = new CommentAdapter();  //어댑터를 사용하기 위해 객체 생성
         commentListView.setAdapter(commentAdapter);
 
         //작성하기 버튼을 눌렀을 때
@@ -138,10 +127,10 @@ public class FragMovieInfo extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent writeCommentIntent = new Intent(getActivity(), WriteCommentActivity.class);
-                writeCommentIntent.putExtra("title",movieList.result.get(0).title);    //작성하기 activity에 영화제목을 넘겨줌
+                writeCommentIntent.putExtra("title", movieResponse.result.get(0).title);    //작성하기 activity에 영화제목을 넘겨줌
                 //이미지 보내주기
                 writeCommentIntent.putExtra("integer", 300);
-                writeCommentIntent.putExtra("double", 3.141592 );
+                writeCommentIntent.putExtra("double", 3.141592);
                 writeCommentIntent.putExtra("image", byteArray);
 
                 startActivityForResult(writeCommentIntent, 102); //작성하기 activity실행
@@ -154,11 +143,11 @@ public class FragMovieInfo extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent readMoreIntent = new Intent(getActivity(), ReadMoreActivity.class);
-                readMoreIntent.putExtra("title",movieList.result.get(0).title);    //모두보기 activity에 영화제목을 넘겨줌
+                readMoreIntent.putExtra("title", movieResponse.result.get(0).title);    //모두보기 activity에 영화제목을 넘겨줌
                 readMoreIntent.putExtra("list", commentItems);   //그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
                 //이미지 보내주기
                 readMoreIntent.putExtra("integer", 300);
-                readMoreIntent.putExtra("double", 3.141592 );
+                readMoreIntent.putExtra("double", 3.141592);
                 readMoreIntent.putExtra("image", byteArray);
 
                 startActivityForResult(readMoreIntent, 104);  //새로운 activity에서 작성하기를 누른 후 리스트정보를 받아와야 하기 때문에 ForResult
@@ -211,7 +200,7 @@ public class FragMovieInfo extends Fragment {
         return rootView;
     }//onCreatView 메서드 끝
 
-    public void requestMovieInfo(){
+    public void requestMovieInfo() {
         String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/readMovie";  //영화 상세정보 서버 url
 
         StringRequest request = new StringRequest(
@@ -220,7 +209,7 @@ public class FragMovieInfo extends Fragment {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("FragMainInfo","상세보기 화면에서 서버로부터 응답 받음: " + response);
+                        Log.d("FragMainInfo", "상세보기 화면에서 서버로부터 응답 받음: " + response);
 
                         //Dday얻는 메소드가 사용돼서 parseEception 예외처리
                         try {
@@ -233,71 +222,141 @@ public class FragMovieInfo extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("FragMainInfo","에러 발생! " + error.getMessage());
+                        Log.d("FragMainInfo", "에러 발생! " + error.getMessage());
                     }
                 }
-        ){
+        ) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
                 String id = Integer.toString(position);
-                params.put("id",id);    //id값을 서버에 전달하면 ?id=1 이런 식으로 서버에 대입이 돼서 해당 id를 가진 영화정보가 넘어온다.
+                params.put("id", id);    //id값을 서버에 전달하면 ?id=1 이런 식으로 서버에 대입이 돼서 해당 id를 가진 영화정보가 넘어온다.
                 return params;
             }
         };
         request.setShouldCache(false);
         AppHelper.requestQueue.add(request);
-        Log.d("FragMovieInfo","영화상세정보 서버에 요청함");
+        Log.d("FragMovieInfo", "영화상세정보 서버에 요청함");
 
     }
 
     public void processResponse(String response) throws ParseException {
         Gson gson = new Gson();
 
-        ResponseInfo info = gson.fromJson(response, ResponseInfo.class);
-        if(info.code == 200){
-            movieList = gson.fromJson(response, MovieList.class);
-            Log.d("FragMovieInfo","서버에서 얻어온 데이터 감독: " + movieList.result.get(0).director);  //result에 id값으로 한 영화만 받아오기 때문에 서버상 list size가 1이다.
-                                                                                                                //그래서 인덱스가 0인 데이터만 접근할 수 있다.
-            /* 포스터 이미지 받아와서 해야됨 */
-            title.setText(movieList.result.get(0).title);
-            date.setText(movieList.result.get(0).date.replace("-",". ")+" 개봉"); //2017-10-1 을 2017. 10. 1 로 바꿔줌.
-            genre.setText(movieList.result.get(0).genre);
-            duration.setText(movieList.result.get(0).duration+"분");
-            like.setText(movieList.result.get(0).like+"");
-            dislike.setText(movieList.result.get(0).dislike+"");
-            reservation_grade.setText(movieList.result.get(0).reservation_grade+"위");
-            reservation_rate.setText(movieList.result.get(0).reservation_rate+" %");
-            audience_rating.setText(movieList.result.get(0).audience_rating+" 점");
-            infoRatingBar.setRating((movieList.result.get(0).audience_rating)/2);   //레이팅바 서버 평점 정보로 표시, 2로 나눠야 별 색깔이 수치에 맞게 채워짐
+        MovieResponse info = gson.fromJson(response, MovieResponse.class);
+        if (info.code == 200) {
+            movieResponse = gson.fromJson(response, MovieResponse.class);
+            Log.d("FragMovieInfo", "서버에서 얻어온 데이터 감독: " + movieResponse.result.get(0).director);  //result에 id값으로 한 영화만 받아오기 때문에 서버상 list size가 1이다. //그래서 인덱스가 0인 데이터만 접근할 수 있다.
+
+            title.setText(movieResponse.result.get(0).title);
+            date.setText(movieResponse.result.get(0).date.replace("-", ". ") + " 개봉"); //2017-10-1 을 2017. 10. 1 로 바꿔줌.
+            genre.setText(movieResponse.result.get(0).genre);
+            duration.setText(movieResponse.result.get(0).duration + "분");
+            like.setText(movieResponse.result.get(0).like + "");
+            dislike.setText(movieResponse.result.get(0).dislike + "");
+            reservation_grade.setText(movieResponse.result.get(0).reservation_grade + "위");
+            reservation_rate.setText(movieResponse.result.get(0).reservation_rate + " %");
+            audience_rating.setText(movieResponse.result.get(0).audience_rating + " 점");
+            infoRatingBar.setRating((movieResponse.result.get(0).audience_rating) / 2);   //레이팅바 서버 평점 정보로 표시, 2로 나눠야 별 색깔이 수치에 맞게 채워짐
             DecimalFormat formatter = new DecimalFormat("###,###"); //숫자 사이에 , 를 넣는 코드
-            audience.setText(formatter.format(movieList.result.get(0).audience)+"명");
-            synopsis.setText(movieList.result.get(0).synopsis);
-            director.setText(movieList.result.get(0).director);
-            actor.setText(movieList.result.get(0).actor);
-            ImageLoadTask imageLoadTask = new ImageLoadTask(movieList.result.get(0).thumb, poster);   //클래스 내부에 set하게 정의해 놓음.
+            audience.setText(formatter.format(movieResponse.result.get(0).audience) + "명");
+            synopsis.setText(movieResponse.result.get(0).synopsis);
+            director.setText(movieResponse.result.get(0).director);
+            actor.setText(movieResponse.result.get(0).actor);
+            ImageLoadTask imageLoadTask = new ImageLoadTask(movieResponse.result.get(0).thumb, poster);   //클래스 내부에 set하게 정의해 놓음.
             imageLoadTask.execute();
 
             //서버에서 데이터가 12,15,19이냐에 따라 몇세 관람가 이미지를 다르게 설정한다.
-            switch (movieList.result.get(0).grade){
-                case 12: grade.setImageResource(R.drawable.ic_12);
-                break;
-                case 15: grade.setImageResource(R.drawable.ic_15);
-                break;
-                case 19: grade.setImageResource(R.drawable.ic_19);
-                break;
-                default: grade.setImageResource(R.drawable.announcement);
+            switch (movieResponse.result.get(0).grade) {
+                case 12:
+                    grade.setImageResource(R.drawable.ic_12);
+                    break;
+                case 15:
+                    grade.setImageResource(R.drawable.ic_15);
+                    break;
+                case 19:
+                    grade.setImageResource(R.drawable.ic_19);
+                    break;
+                default:
+                    grade.setImageResource(R.drawable.announcement);
             }
 
             //이미지를 전달하기 위해 코드 작성(이미지 축소) -> 여기서 축소를 해줘야 서버에서 받아온 파일을 축소해서 보낼 수가 있다.
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            Bitmap bitmap = ((BitmapDrawable)grade.getDrawable()).getBitmap();
-            float scale = (1024/(float)bitmap.getWidth());
+            Bitmap bitmap = ((BitmapDrawable) grade.getDrawable()).getBitmap();
+            float scale = (1024 / (float) bitmap.getWidth());
             int image_w = (int) (bitmap.getHeight() * scale);
             int image_h = (int) (bitmap.getHeight() * scale);
             Bitmap resize = Bitmap.createScaledBitmap(bitmap, image_w, image_h, true);
             resize.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             byteArray = stream.toByteArray();
+
+
+        }
+    }
+
+    //서버에 한줄평 데이터를 요청하는 메소드
+    public void requestCommentList() {
+        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/readCommentList";  //한줄평 서버 url
+
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("FragMainInfo", "상세보기에서 한줄평 정보 받아옴: " + response);
+
+                        //받아온 JSON데이터를 GSON을 이용해 파싱해서 처리한다.
+                        processCommentResponse(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("FragMainInfo", "에러 발생! " + error.getMessage());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                String id = Integer.toString(position);
+                params.put("id", id);    //id값을 서버에 전달하면 ?id=1 이런 식으로 서버에 대입이 돼서 해당 id를 가진 영화의 한줄평정보가 넘어온다.
+                return params;
+            }
+        };
+        request.setShouldCache(false);
+        AppHelper.requestQueue.add(request);
+        Log.d("FragMovieInfo", "한줄평 정보 서버에 요청함");
+
+    }
+
+
+    public void processCommentResponse(String response) {
+        Gson gson = new Gson();
+
+        CommentResponse info = gson.fromJson(response, CommentResponse.class);
+        if (info.message.equals("movie readCommentList 성공")) {
+            commentResponse = gson.fromJson(response, CommentResponse.class);
+            Log.d("FragMovieInfo", "테스트중: " + commentResponse.result.size()); //서버상 list가 여러개이므로 전부(10개로 세팅) 다 온다.
+
+            if (commentItems.size() == 0) {
+                for (int i = 0; i < commentResponse.result.size(); i++) {
+                    commentResponse.result.get(i).setWriter(commentResponse.result.get(i).writer);
+                    commentResponse.result.get(i).setTime(commentResponse.result.get(i).time);
+                    commentResponse.result.get(i).setRating(commentResponse.result.get(i).rating);
+                    commentResponse.result.get(i).setContents(commentResponse.result.get(i).contents);
+                    commentResponse.result.get(i).setRecommend(commentResponse.result.get(i).recommend);
+                    CommentItem commentItem = new CommentItem();    //CommentItem객체를 생성해서
+                    commentItems.add(commentItem);  //어댑터에 들어갈 items ArrayList에 추가한다.
+                }
+            }
+            commentAdapter.notifyDataSetChanged();
+            Log.d("FragMovieInfo", "어댑터 리스트에 추가: " + commentItems.size());
+            //반복문만 있으면 상세화면에 들어갈 때 마다 commentItems list에 10개씩 추가로 들어간다.
+            //1. 그래서 뒤로 가기를 누르거나 프래그먼트를 나갈 때 사이즈 0으로 초기화 해줘야 한다.
+            //2. size가 0이면 반복문을 실행하게 한다.(Test)->일단 되는데 나중에 서버에 한줄평을 저장하고 난 후에는 어떻게 될지 봐야된다.
 
 
         }
@@ -367,33 +426,44 @@ public class FragMovieInfo extends Fragment {
             CommentItem commentItem = commentItems.get(commentItems.size() - 1 - i);    //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
             //이렇게 하면 새로 등록한 한줄평이 제일 위로 나올 수 있게 됨.
             //이거 지렸다...
-            commentItemView.setComment(commentItem.getComment());   //뷰에서 comment내용을 설정함.
-            commentItemView.setRating(commentItem.getRating()); //뷰에서 별점을 설정함.
-            commentItemView.setId(commentItem.getId()); //id를 설정함.
+
+            //CommentItem에 서버로부터 정보를 받아와서 그 정보를 listView에 보일 뷰들에 세팅한다.
+            //위에 int i 가 position의 역할을 하므로 i값을 얻어오면 commentItems list에 있는 인덱스에 적용돼서 잘 된다.
+            commentItemView.setUserId(commentResponse.result.get(i).writer);
+            commentItemView.setCommentContent(commentResponse.result.get(i).contents);
+            commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating);
+            commentItemView.setTime(commentResponse.result.get(i).time);
+            commentItemView.setRecommendationNum(commentResponse.result.get(i).recommend + "");
+            Log.d("FragMovieInfo", "CommentItemView에서 세팅한 것 TEST: " + commentResponse.result.get(i).contents);
+
 
             return commentItemView;
         }
     }//어댑터 클래스 끝
 
+    /* 이 부분도 서버에 한줄평작성을 저장하면 필요가 없을 것 같군! */
+    /* 1. 모두보기를 눌렀을 때 서버에 저장된 정보들이 똑같이 보여지는 것 구현해야함.
+       2. 한줄평 작성해서 서버에 저장하는 것 구현해야함.
+    */
     //한줄평 작성과 평점 데이터를 불러오는 것 코드
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
-        if (requestCode == 102) {
-            float rating = intent.getFloatExtra("rating", 0.0f);
-            String comment = intent.getStringExtra("comment");
-            if (rating > 0.0 && comment.length() > 0) {
-                commentAdapter.addItem(new CommentItem("hkkim93", comment, rating)); //한줄평 리스트에 추가하기
-                commentAdapter.notifyDataSetChanged();  //변화가 있으면 갱신해라.
-                Snackbar.make(likeButton, "한줄평이 저장되었습니다.", Snackbar.LENGTH_SHORT).show();
-            }
-        }
-        //모두보기에서 결과를 가져올 때
-        if (requestCode == 104) {
-            commentItems = (ArrayList<CommentItem>) intent.getSerializableExtra("list");
-            commentAdapter.notifyDataSetChanged();  //갱신된 list로 어댑터한테 갱신하라고 말해줌
-        }
+//        if (requestCode == 102) {
+//            float rating = intent.getFloatExtra("rating", 0.0f);
+//            String comment = intent.getStringExtra("comment");
+//            if (rating > 0.0 && comment.length() > 0) {
+//                commentAdapter.addItem(new CommentItem("DomMorello", comment, rating)); //한줄평 리스트에 추가하기
+//                commentAdapter.notifyDataSetChanged();  //변화가 있으면 갱신해라.
+//                Snackbar.make(likeButton, "한줄평이 저장되었습니다.", Snackbar.LENGTH_SHORT).show();
+//            }
+//        }
+//        //모두보기에서 결과를 가져올 때
+//        if (requestCode == 104) {
+//            commentItems = (ArrayList<CommentItem>) intent.getSerializableExtra("list");
+//            commentAdapter.notifyDataSetChanged();  //갱신된 list로 어댑터한테 갱신하라고 말해줌
+//        }
 
     }
 

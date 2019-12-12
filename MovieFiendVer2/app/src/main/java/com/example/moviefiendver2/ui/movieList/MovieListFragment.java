@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import com.example.moviefiendver2.MainFragmentMovie;
 import com.example.moviefiendver2.R;
-import com.example.moviefiendver2.ZoomOutPageTransformer;
+import com.example.moviefiendver2.helper.ZoomOutPageTransformer;
 
 import java.util.ArrayList;
 

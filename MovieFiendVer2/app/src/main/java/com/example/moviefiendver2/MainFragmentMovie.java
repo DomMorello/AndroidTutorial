@@ -13,7 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -21,17 +20,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.moviefiendver2.MovieData.MovieInfo;
-import com.example.moviefiendver2.MovieData.MovieList;
-import com.example.moviefiendver2.MovieData.ResponseInfo;
+import com.example.moviefiendver2.MovieData.MovieResponse;
 import com.example.moviefiendver2.helper.AppHelper;
 import com.example.moviefiendver2.helper.ImageLoadTask;
 import com.google.gson.Gson;
 
-import org.w3c.dom.Text;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 //델타보이즈 화면 프래그먼트
@@ -172,12 +167,12 @@ public class MainFragmentMovie extends Fragment {
     public void processResponse(String response) throws ParseException {
         Gson gson = new Gson();
 
-        ResponseInfo info = gson.fromJson(response, ResponseInfo.class);
+        MovieResponse info = gson.fromJson(response, MovieResponse.class);
         if (info.code == 200) {
-            MovieList movieList = gson.fromJson(response, MovieList.class); //movieList에 서버 데이터들이 다 넘어왔다.
-            Log.d("MainActivity", "" + movieList.result.get(0).duration);
+            MovieResponse movieResponse = gson.fromJson(response, MovieResponse.class); //movieList에 서버 데이터들이 다 넘어왔다.
+            Log.d("MainActivity", "" + movieResponse.result.get(0).duration);
 
-            MovieInfo movieInfo = movieList.result.get(position);   //서버로부터 받은 ArrayList에서 position에 맞게 객체를 얻는다.
+            MovieInfo movieInfo = movieResponse.result.get(position);   //서버로부터 받은 ArrayList에서 position에 맞게 객체를 얻는다.
             mainTitle.setText(movieInfo.title);
             grade.setText(movieInfo.grade + "세 관람가");
             reservationRate.setText(movieInfo.reservation_rate + "%");
