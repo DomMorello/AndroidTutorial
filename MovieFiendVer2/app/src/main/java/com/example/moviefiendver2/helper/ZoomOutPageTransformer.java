@@ -1,4 +1,4 @@
-package com.example.moviefiendver2;
+package com.example.moviefiendver2.helper;
 
 import android.view.View;
 
