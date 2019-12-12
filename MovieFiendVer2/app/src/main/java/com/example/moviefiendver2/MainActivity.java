@@ -3,6 +3,7 @@ package com.example.moviefiendver2;
 import android.animation.ObjectAnimator;
 import android.animation.StateListAnimator;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -69,7 +70,9 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback 
 
     //메인 뷰페이저에서 상세보기를 눌렀을 때 프래그먼트에서 실행되는 메소드(메인프래그먼트에서 다른 상세화면 프래그먼트를 실행)
     @Override
-    public void onFragmentChange() {
+    public void onFragmentChange(Bundle bundle) {
+        fragMovieInfo.setArguments(bundle); //position정보를 bundle에 담고 있기 때문에 이를 새로 띄우는 fragment에 전달한다.
+        Log.d("MainActivity","상세보기 클릭시 MainActivity로 넘어온 position: " + bundle.toString());
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.addToBackStack("frag"); //backstack에 추가를 해줘야 프래그먼트에서 뒤로가기를 눌렀을 때

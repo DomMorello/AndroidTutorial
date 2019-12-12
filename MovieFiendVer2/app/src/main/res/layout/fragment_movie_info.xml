@@ -22,11 +22,27 @@
                 android:background="@color/basicBackground"
                 android:orientation="horizontal">
 
+                ImageView poster;   //영화 포스터 뷰
+                TextView title; //제목을 넘기기 위해 선언 //영화 제목
+                TextView date;  //개봉일자
+                TextView genre; //장르
+                TextView duration; //러닝타임
+                TextView like;  //좋아요 개수
+                TextView dislike;   //싫어요 개수
+                TextView reservation_grade; //예매율 순위
+                TextView reservation_rate; //예매율
+                TextView audience_rating;   //평점
+                TextView audience;  //누적관객수
+                TextView synopsis;  //줄거리
+                TextView director;  //감독
+                TextView actor; //출연
+
                 <ImageView
+                    android:id="@+id/info_poster"
                     android:layout_width="100dp"
                     android:layout_height="140dp"
                     android:layout_margin="10dp"
-                    android:src="@drawable/sample" />
+                    android:src="@drawable/loading" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -40,38 +56,69 @@
                         android:orientation="horizontal">
 
                         <TextView
-                            android:id="@+id/title"
+                            android:id="@+id/info_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="델타 보이즈"
+                            android:text="영화 제목"
                             android:textColor="@color/accentText"
                             android:textSize="24dp"
                             android:textStyle="bold" />
 
                         <ImageView
-                            android:id="@+id/rated"
+                            android:id="@+id/info_grade"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="10dp"
-                            android:src="@drawable/ic_15" />
+                            android:src="@drawable/announcement" />
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/info_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="2017. 6. 8 개봉"
+                        android:text="영화 개봉일자"
                         android:textColor="@color/basicText"
                         android:textSize="15dp"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:text="드라마, 코메디 / 120분"
-                        android:textColor="@color/basicText"
-                        android:textStyle="bold" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/info_genre"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:text="영화 장르"
+                            android:textColor="@color/basicText"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/slash"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:layout_marginTop="5dp"
+                            android:layout_toRightOf="@+id/info_genre"
+                            android:text="/"
+                            android:textColor="@color/basicText"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/info_duration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:layout_marginTop="5dp"
+                            android:layout_toRightOf="@+id/slash"
+                            android:text="러닝타임"
+                            android:textColor="@color/basicText"
+                            android:textStyle="bold" />
+
+                    </RelativeLayout>
+
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -80,40 +127,40 @@
 
                         <Button
                             android:id="@+id/likeButton"
+                            style="@style/Widget.AppCompat.Button.Borderless"
                             android:layout_width="25dp"
                             android:layout_height="25dp"
-                            style="@style/Widget.AppCompat.Button.Borderless"
                             android:background="@drawable/thumb_up_selector" />
 
                         <Button
                             android:id="@+id/dislikeButton"
+                            style="@style/Widget.AppCompat.Button.Borderless"
                             android:layout_width="25dp"
                             android:layout_height="25dp"
-                            style="@style/Widget.AppCompat.Button.Borderless"
-                            android:layout_marginLeft="50dp"
+                            android:layout_marginLeft="70dp"
                             android:layout_toRightOf="@id/likeButton"
                             android:background="@drawable/thumb_down_selector" />
 
                         <TextView
-                            android:id="@+id/likeCountView"
+                            android:id="@+id/info_like"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
                             android:layout_marginLeft="5dp"
                             android:layout_toRightOf="@id/likeButton"
-                            android:text="1"
+                            android:text="0"
                             android:textColor="@color/basicText"
                             android:textSize="15dp"
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/dislikeCountView"
+                            android:id="@+id/info_dislike"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
                             android:layout_marginLeft="5dp"
                             android:layout_toRightOf="@id/dislikeButton"
-                            android:text="1"
+                            android:text="0"
                             android:textColor="@color/basicText"
                             android:textSize="15dp"
                             android:textStyle="bold" />
@@ -133,8 +180,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@color/basicBackground">
+                android:background="@color/basicBackground"
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -157,13 +204,30 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/info_reservation_grade"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_below="@id/예매율"
+                            android:layout_alignParentLeft="true"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginLeft="25dp"
+                            android:layout_marginBottom="10dp"
+                            android:text="0위"
+                            android:textColor="@color/basicText"
+                            android:textSize="15dp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/info_reservation_rate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/예매율"
+                            android:layout_alignParentRight="true"
                             android:layout_centerHorizontal="true"
                             android:layout_marginTop="10dp"
+                            android:layout_marginRight="25dp"
                             android:layout_marginBottom="10dp"
-                            android:text="5위    1.8%"
+                            android:text="0.0%"
                             android:textColor="@color/basicText"
                             android:textSize="15dp"
                             android:textStyle="bold" />
@@ -199,33 +263,32 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/점수"
+                            android:id="@+id/info_audience_rating"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_below="@id/평점"
                             android:layout_alignParentRight="true"
                             android:layout_marginTop="10dp"
-                            android:layout_marginRight="15dp"
+                            android:layout_marginRight="3dp"
                             android:layout_marginBottom="10dp"
-                            android:text="3.3"
+                            android:text="0.0"
                             android:textColor="@color/basicText"
                             android:textSize="15dp"
                             android:textStyle="bold" />
 
                         <RatingBar
-                            android:id="@+id/topRatingBar"
+                            android:id="@+id/info_ratingBar"
+                            style="@style/Widget.AppCompat.RatingBar.Small"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            style="@style/Widget.AppCompat.RatingBar.Small"
                             android:layout_below="@+id/평점"
-                            android:layout_toLeftOf="@+id/점수"
-                            android:numStars="5"
-                            android:max="5"
-                            android:rating="4.0"
-                            android:stepSize="1.0"
                             android:layout_marginTop="12dp"
                             android:layout_marginRight="5dp"
-                            />
+                            android:layout_marginLeft="2dp"
+                            android:layout_toLeftOf="@+id/점수"
+                            android:max="10"
+                            android:numStars="5"
+                            android:stepSize="0.1"/>
 
                     </RelativeLayout>
 
@@ -257,13 +320,14 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/info_audience"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_below="@id/누적관객수"
                             android:layout_centerHorizontal="true"
                             android:layout_marginTop="10dp"
                             android:layout_marginBottom="10dp"
-                            android:text="4,465명"
+                            android:text="0명"
                             android:textColor="@color/basicText"
                             android:textSize="15dp"
                             android:textStyle="bold" />
@@ -281,8 +345,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:background="@color/basicBackground">
+                android:background="@color/basicBackground"
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -292,6 +356,17 @@
                     android:textColor="@color/accentText"
                     android:textSize="20dp"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/info_synopsis"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:text="domMorello"
+                    android:textColor="@color/basicText"
+                    android:textSize="15dp"
+                    android:textStyle="normal" />
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -320,13 +395,13 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/고봉수"
+                        android:id="@+id/info_director"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/head_line"
                         android:layout_marginLeft="10dp"
                         android:layout_toRightOf="@+id/감독"
-                        android:text="고봉수"
+                        android:text="DomMorello"
                         android:textColor="@color/basicText"
                         android:textSize="15dp" />
 
@@ -342,28 +417,17 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/백승환"
+                        android:id="@+id/info_actor"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/고봉수"
+                        android:layout_below="@+id/info_director"
                         android:layout_marginLeft="10dp"
                         android:layout_toRightOf="@+id/출연"
-                        android:text="백승환(강일록), 신민재(최대용), 김충길(노준세)"
+                        android:text="DomMorello"
                         android:textColor="@color/basicText"
                         android:textSize="15dp" />
                 </RelativeLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp"
-                    android:text="돈 없음!\n빽 없음!\n능력 없음!\n\n 하지만 무식하게 씩씩하고 대책 없이 당당하다! 돈에 대한 욕심도, 열정도 제로인 ‘일록’. 그에게 어느 날 친구 ‘예건’이 뜻밖의 제안을 하게 되는데 바로 남성 사중창 대회에 참가하는 것. 처음엔 어이가 없다고 생각했지만 ‘일록’은 은근히 끌리게 되고 그렇게 이름만 멋들어진 남성 사중창 그룹 ‘델타 보이즈’가 결성된다!
- \n\n
-비주얼을 담당하는 공장 알바남 ‘일록’, 시카고에서 날아온 또라이 ‘예건’, 빈손으로 등장하는 법이 없는 꽁치 파는 꽁지머리 청년 ‘대용’, 1+1으로 찾아온 도너츠 노점남 ‘준세’가 뭉쳤다! 우리가 바로 델타 보이즈!"
-                    android:textColor="@color/basicText"
-                    android:textSize="15dp"
-                    android:textStyle="normal" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -377,14 +441,13 @@
 
                     <ListView
                         android:id="@+id/comment_listview"
-                        android:layout_below="@+id/writeCommentButton"
-                        android:layout_above="@+id/read_more"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:layout_above="@+id/read_more"
+                        android:layout_below="@+id/writeCommentButton"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
-                        android:layout_marginBottom="10dp">
-                    </ListView>
+                        android:layout_marginBottom="10dp"></ListView>
 
                     <TextView
                         android:id="@+id/한줄평"
@@ -404,8 +467,8 @@
                         android:layout_alignParentRight="true"
                         android:layout_marginTop="4dp"
                         android:layout_marginRight="15dp"
-                        android:drawablePadding="5dp"
                         android:drawableLeft="@drawable/ic_review_selected"
+                        android:drawablePadding="5dp"
                         android:text="작성하기"
                         android:textColor="#FF3900"
                         android:textSize="20dp"

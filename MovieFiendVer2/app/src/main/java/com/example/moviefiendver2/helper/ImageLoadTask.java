@@ -39,7 +39,7 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
     protected Bitmap doInBackground(Void... voids) {
         Bitmap bitmap = null;
         try {
-            //전에 비트맵 파일이 이미 받아온 것이라면 삭제해버이고 새로 받는다. 메모리 효율을 위해
+            //전에 비트맵 파일이 이미 받아온 것이라면 삭제해버이고 새로 받는다. 메모리 효율을 위해(out of memory 예방)
             if(bitmapHash.containsKey(urlStr)){
                 Bitmap oldBitmap = bitmapHash.remove(urlStr);
                 if(oldBitmap != null){

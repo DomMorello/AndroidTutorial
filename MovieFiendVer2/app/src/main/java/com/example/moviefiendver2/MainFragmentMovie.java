@@ -29,7 +29,10 @@ import com.google.gson.Gson;
 
 import org.w3c.dom.Text;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 //델타보이즈 화면 프래그먼트
 public class MainFragmentMovie extends Fragment {
@@ -53,6 +56,8 @@ public class MainFragmentMovie extends Fragment {
     }
 
     //MainFragmentMovie 인스턴스를 생성할 때 position정보를 갖는 메소드
+    //MovieListFragmnet에서 이 메서드를 호출할 때 입력하는 매개변수를 Bundle을 통해 이 메소드가 받아온다.
+    //position매개 변수를 받아와서 ArrayList에서 영화 정보를 뽑을 때 사용된다.
     public static  MainFragmentMovie newInstance(int position){
         MainFragmentMovie mainFragmentMovie = new MainFragmentMovie();
         Bundle args = new Bundle();
@@ -90,7 +95,7 @@ public class MainFragmentMovie extends Fragment {
         mainTitle = rootView.findViewById(R.id.main_title);    //영화 제목
         reservationRate = rootView.findViewById(R.id.reservation_rate);    //예매율
         grade = rootView.findViewById(R.id.grade); //영화 관람가 제한
-        date = rootView.findViewById(R.id.d_day);  //영화 개봉일
+        date = rootView.findViewById(R.id.d_day);  //영화 개봉일 -> d-day로 바꿔야 된다.
 
         //RequestQueue 객체를 생성한다.
         if (AppHelper.requestQueue == null) {
@@ -103,9 +108,11 @@ public class MainFragmentMovie extends Fragment {
             @Override
             public void onClick(View v) {
                 if (fragmentCallback != null) {
-                    fragmentCallback.onFragmentChange();   //상세화면 프래그먼트 실행
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("position",position);
+                    fragmentCallback.onFragmentChange(bundle);   //상세화면 프래그먼트 실행
                     //프래그먼트끼리 직접 호출하면 안 되므로 MainActivity에 정의한 메서드를 통해 호출한다.
-                    /* 여기에 Bundle로 Parcelable 구현해서 보내면 되지 않을까? */
+
                 }
             }
         });
@@ -125,7 +132,12 @@ public class MainFragmentMovie extends Fragment {
                     public void onResponse(String response) {
                         Log.d("MainActivity", "응답 받음 -> " + response);
 
-                        processResponse(response);
+                        //processResponse 메소드 안에 Dday얻는 메소드가 있는데 여기서 예외처리를 해주었기 때문에 여기서도 예외처리
+                        try {
+                            processResponse(response);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -141,8 +153,23 @@ public class MainFragmentMovie extends Fragment {
         Log.d("MainActivity", "영화 목록 요청 보냄");
     }
 
+    //Dday 계산하는 메소드
+    public static long getDday(String date) throws ParseException {
+        String future = date;
+        String current = "2017-10-01";
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd");
+        Date serverTime = format.parse(future);
+        Date currentTime = format.parse(current);
+
+        long calDate = serverTime.getTime() - currentTime.getTime();
+        long dDay = calDate / (24 * 60 * 60 * 1000);
+        dDay = Math.abs(dDay);
+
+        return dDay;
+    }
+
     //받아온 response를 파싱해서 자바 객체로 만든다.
-    public void processResponse(String response) {
+    public void processResponse(String response) throws ParseException {
         Gson gson = new Gson();
 
         ResponseInfo info = gson.fromJson(response, ResponseInfo.class);
@@ -154,10 +181,9 @@ public class MainFragmentMovie extends Fragment {
             mainTitle.setText(movieInfo.title);
             grade.setText(movieInfo.grade + "세 관람가");
             reservationRate.setText(movieInfo.reservation_rate + "%");
-            date.setText(movieInfo.date);
+            date.setText("D - " + getDday(movieInfo.date));   //dDay 메소드를 통해 날짜 차이를 얻어 낸 후 뷰에 표시
             ImageLoadTask imageLoadTask = new ImageLoadTask(movieInfo.image, poster);   //클래스 내부에 set하게 정의해 놓음.
             imageLoadTask.execute();
-
         }
     }
 

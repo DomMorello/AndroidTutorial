@@ -1,6 +1,8 @@
 package com.example.moviefiendver2;
 
+import android.os.Bundle;
+
 public interface FragmentCallback {
 
-    void onFragmentChange();
+    void onFragmentChange(Bundle bundle);
 }

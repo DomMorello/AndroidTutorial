@@ -64,7 +64,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView3">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal">
@@ -75,49 +75,67 @@
                 android:layout_height="wrap_content"
                 android:text="예매율"
                 android:textColor="#DBDBDB"
-                android:layout_weight="1"/>
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.545" />
 
             <TextView
                 android:id="@+id/reservation_rate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="00.0%"
-                android:layout_weight="1"
-                android:textColor="@color/basicText"/>
+                android:textColor="@color/basicText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/예매율"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.545" />
 
             <TextView
                 android:id="@+id/칸막이1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="|"
-                android:layout_weight="1"
-                android:textColor="@color/basicText" />
+                android:textColor="@color/basicText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/grade"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.545" />
 
             <TextView
                 android:id="@+id/grade"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="0세 관람가"
-                android:textColor="@color/basicText"/>
+                android:textColor="@color/basicText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/칸막이2"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.545" />
 
             <TextView
                 android:id="@+id/칸막이2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="|"
-                android:textColor="@color/basicText"/>
+                android:textColor="@color/basicText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/reservation_rate"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.545" />
 
             <TextView
                 android:id="@+id/d_day"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="D-0"
-                android:layout_weight="1"
-                android:textColor="@color/basicText" />
+                android:textColor="@color/basicText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/칸막이1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.545" />
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!--<TextView
             android:id="@+id/예매율"
