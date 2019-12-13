@@ -30,7 +30,6 @@ import com.example.moviefiendver2.MovieData.CommentResponse;
 import com.example.moviefiendver2.MovieData.MovieResponse;
 import com.example.moviefiendver2.helper.AppHelper;
 import com.example.moviefiendver2.helper.ImageLoadTask;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
@@ -80,9 +79,26 @@ public class FragMovieInfo extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        position = getArguments().getInt("position", 0) + 1;  //position정보를 MainFragmentMovie에서 객체를 생성할 때 매개변수로 받아서 상세보기 눌렀을 때
+        position = getArguments().getInt("position", 0) + 1;
+        //position정보를 MainFragmentMovie에서 객체를 생성할 때 매개변수로 받아서 상세보기 눌렀을 때
         //이 프래그먼트까지 보내준다. +1 인 이유는 서버상 id정보가 0부터가 아닌 1부터이기 때문이다.
         Log.d("FragMovieInfo", "MainFragmentMovie에서 넘어온position + 1 : " + position);
+    }
+
+    //onResume에 한 이유: 한줄평을 작성하고 나서 프래그먼트로 다시 돌아왔을 때 작성한 최신화된 한줄평을 보여주기 위해서는
+    //프래그먼트가 화면에 보여질 때마다 최신화된 서버정보를 가져오기 위해서 onResume에 작성함.
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        //영화 상세정보를 서버에서 얻어오는 메소드
+        requestMovieInfo();
+        //한줄평 정보를 서버에서 얻어오는 메소드
+        requestCommentList();
+
+        if (AppHelper.requestQueue == null) {
+            AppHelper.requestQueue = Volley.newRequestQueue(getContext());
+        }
     }
 
     @Nullable
@@ -109,15 +125,6 @@ public class FragMovieInfo extends Fragment {
         director = rootView.findViewById(R.id.info_director);
         actor = rootView.findViewById(R.id.info_actor);
 
-        //영화 상세정보를 서버에서 얻어오는 메소드
-        requestMovieInfo();
-        //커멘트 정보를 서버에서 얻어오는 메소드
-        requestCommentList();
-
-        if (AppHelper.requestQueue == null) {
-            AppHelper.requestQueue = Volley.newRequestQueue(getContext());
-        }
-
         commentAdapter = new CommentAdapter();  //어댑터를 사용하기 위해 객체 생성
         commentListView.setAdapter(commentAdapter);
 
@@ -134,7 +141,7 @@ public class FragMovieInfo extends Fragment {
                 writeCommentIntent.putExtra("double", 3.141592);
                 writeCommentIntent.putExtra("image", byteArray);
 
-                startActivityForResult(writeCommentIntent, 102); //작성하기 activity실행
+                startActivity(writeCommentIntent); //작성하기 activity실행
             }
         });
 

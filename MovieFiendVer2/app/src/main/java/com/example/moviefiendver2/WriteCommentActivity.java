@@ -34,9 +34,11 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.moviefiendver2.MovieData.CommentItem;
 import com.example.moviefiendver2.MovieData.CommentResponse;
+import com.example.moviefiendver2.MovieData.WriteCommentResponse;
 import com.example.moviefiendver2.helper.AppHelper;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -47,10 +49,9 @@ public class WriteCommentActivity extends AppCompatActivity {
     TextView title; //작성하기 액티비티에서 영화제목 뷰
     ImageView grade; //몇세관람가 아이콘
     int position;   //서버에서 접근할 영화의 인덱스
-    CommentResponse commentResponse;    //다른 메소드에서도 사용해야 하므로 여기에 선언
+
     float rating;
     String comment;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,8 +92,8 @@ public class WriteCommentActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 //                Intent intent = new Intent(getApplicationContext(), MainActivity.class); -> 서버에 저장하면 되니까 intent필요없음.
-                rating = ratingBar.getRating();
-                comment = editText.getText().toString();
+                rating = ratingBar.getRating(); //작성한 평점 정보를 가져온다
+                comment = editText.getText().toString();    //작성한 한줄평 내용 정보를 가져온다.
 
                 //평점과 한줄평을 입력하지 않았을 때
                 if(rating < 0.5f && comment.length() < 1){
@@ -120,7 +121,6 @@ public class WriteCommentActivity extends AppCompatActivity {
 
                     //커멘트를 작성해서 서버로 보내는 메소드
                     sendCommentToServer();
-
                 }
             }
         });
@@ -138,8 +138,8 @@ public class WriteCommentActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         Log.d("WriteCommentActivity", "작성하기에서 한줄평 작성을 시도함: " + response);
 
-                        //받아온 JSON데이터를 GSON을 이용해 파싱해서 처리한다.
-//                        processCommentResponse(response);
+                        //받아온 JSON 데이터를 GSON을 이용해 파싱해서 처리한다.
+                        processCommentResponse(response);
                     }
                 },
                 new Response.ErrorListener() {
@@ -152,11 +152,10 @@ public class WriteCommentActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("id", Integer.toString(position));    //id값을 서버에 전달하면 ?id=1 이런 식으로 서버에 대입이 돼서 해당 id를 가진 영화의 한줄평정보가 넘어온다.
-                /* 이 부분에서 한줄평에 들어갈 params를 짜야한다. */
-                params.put("writer","domMorello");
-                params.put("rating",Float.toString(rating));
-                params.put("contents",comment);
+                params.put("id", Integer.toString(position));    //id값을 서버에 전달하면 ?id=1 이런 식으로 서버에 대입이 돼서 해당 id를 가진 영화의 한줄평정보를 나타낸다.
+                params.put("writer","domMorello");  //작성자는 나의 아이디인 domMorello로 고정
+                params.put("rating",Float.toString(rating));    //작성자가 설정한 rating값을 전달
+                params.put("contents",comment); //작성자가 작성한 한줄평 내용을 전달
                 return params;
             }
         };
@@ -166,35 +165,18 @@ public class WriteCommentActivity extends AppCompatActivity {
 
     }
 
-    /* response로 status가 온다는데 그걸 확인해서 로그를 찍어보자! */
+    /* response로 status가 온다는데 그걸 확인해서 로그를 찍어보자! ?*/
     public void processCommentResponse(String response) {
         Gson gson = new Gson();
 
-        CommentResponse info = gson.fromJson(response, CommentResponse.class);
-        if (info.message.equals("movie createComment 성공")) {
-            commentResponse = gson.fromJson(response, CommentResponse.class);
-            Log.d("ReadMoreActivity", "테스트중: " + commentResponse.result.size()); //서버상 list가 여러개이므로 전부(10개로 세팅) 다 온다.
-
-//            //서버에 default로 지정된 최근 10개 한줄평을 다 얻어와서 commentItem에 세팅한 후 10개를 전부 어댑터 내부에 있는 commentItems List에 add한다.
-//            if (inCommentItems.size() == 0) {
-//                for (int i = 0; i < commentResponse.result.size(); i++) {
-//                    CommentItem commentItem = new CommentItem();    //CommentItem객체를 생성해서
-//                    //아이템의 각 필드에 서버에서 얻어온 데이터를 set한다.
-//                    commentItem.setWriter(commentResponse.result.get(i).writer);
-//                    commentItem.setTime(commentResponse.result.get(i).time);
-//                    commentItem.setRating(commentResponse.result.get(i).rating);
-//                    commentItem.setContents(commentResponse.result.get(i).contents);
-//                    commentItem.setRecommend(commentResponse.result.get(i).recommend);
-//                    inCommentItems.add(commentItem);  //어댑터에 들어갈 items ArrayList에 추가한다.
-//                }
-//            }
-//            inCommentAdapter.notifyDataSetChanged();
-//            Log.d("ReadMoreActivity", "어댑터 리스트에 추가: " + inCommentItems.size());
-//
-//            //1. 뒤로 가기를 누르거나 프래그먼트를 나갈 때 사이즈 0으로 초기화 해줘야 한다.
-//            //2. size가 0이면 반복문을 실행하게 한다.(Test)->일단 되는데 나중에 서버에 한줄평을 저장하고 난 후에는 어떻게 될지 봐야된다.
-
+        WriteCommentResponse writeCommentResponse = gson.fromJson(response, WriteCommentResponse.class);
+        if (writeCommentResponse.code == 200) {
+            Log.d("ReadMoreActivity", "테스트 한줄평 작성 성공: " + writeCommentResponse.message);
+            Toast.makeText(getApplicationContext(), "한줄평이 저장되었습니다.", Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(getApplicationContext(), "한줄평 작성 에러 발생!", Toast.LENGTH_SHORT).show();
         }
+        finish();
     }
 
     //뒤로가기 버튼을 눌렀을 때 액티비티 종료 오버라이드한 이유? ForResult라서 Result값을 세팅해주기 위해 -> 서버에 저장하면 되니까 일단 없어도 된다

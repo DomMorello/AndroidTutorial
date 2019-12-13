@@ -48,6 +48,20 @@ public class ReadMoreActivity extends AppCompatActivity {
 
     CommentResponse commentResponse;    //다른 액티비티에 넘겨주려면 다른 메소드에서도 사용해야 하므로 여기에 선언
 
+    //onResume에 한 이유: 한줄평을 작성하고 나서 프래그먼트로 다시 돌아왔을 때 작성한 최신화된 한줄평을 보여주기 위해서는
+    //프래그먼트가 화면에 보여질 때마다 최신화된 서버정보를 가져오기 위해서 onResume에 작성함.
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //커멘트 정보를 서버에서 얻어오는 메소드
+        requestCommentList();
+
+        if (AppHelper.requestQueue == null) {
+            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,13 +87,6 @@ public class ReadMoreActivity extends AppCompatActivity {
             Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
             rated.setImageBitmap(bitmap);   //받아온 이미지로 세팅
 
-        }
-
-        //커멘트 정보를 서버에서 얻어오는 메소드
-        requestCommentList();
-
-        if (AppHelper.requestQueue == null) {
-            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
 
         inCommentAdapter = new InCommentAdapter();  //이게 없어서 안됐었다. 어댑터를 쓰려면 어댑터 객체가 있어야지 당연히!
@@ -146,6 +153,7 @@ public class ReadMoreActivity extends AppCompatActivity {
                 Map<String, String> params = new HashMap<>();
                 String id = Integer.toString(position);
                 params.put("id", id);    //id값을 서버에 전달하면 ?id=1 이런 식으로 서버에 대입이 돼서 해당 id를 가진 영화의 한줄평정보가 넘어온다.
+                params.put("limit",Integer.toString(50));   //전체는 너무 많으니까 50개만 보여줘라
                 return params;
             }
         };
