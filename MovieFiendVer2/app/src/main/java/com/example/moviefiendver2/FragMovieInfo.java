@@ -128,6 +128,7 @@ public class FragMovieInfo extends Fragment {
             public void onClick(View view) {
                 Intent writeCommentIntent = new Intent(getActivity(), WriteCommentActivity.class);
                 writeCommentIntent.putExtra("title", movieResponse.result.get(0).title);    //작성하기 activity에 영화제목을 넘겨줌
+                writeCommentIntent.putExtra("position",position);   //영화 인덱스인 position을 넘겨준다.
                 //이미지 보내주기
                 writeCommentIntent.putExtra("integer", 300);
                 writeCommentIntent.putExtra("double", 3.141592);
@@ -144,13 +145,17 @@ public class FragMovieInfo extends Fragment {
             public void onClick(View view) {
                 Intent readMoreIntent = new Intent(getActivity(), ReadMoreActivity.class);
                 readMoreIntent.putExtra("title", movieResponse.result.get(0).title);    //모두보기 activity에 영화제목을 넘겨줌
-                readMoreIntent.putExtra("list", commentItems);   //그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
+//                readMoreIntent.putExtra("list", commentItems);   //그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
+//                -> 일단 주석. 왜? readMoreActivity에서도 서버에서 받아올 거니까 보내줄 필요 없음.
+                readMoreIntent.putExtra("position",position);   //모두보기 activity에 영화 인덱스인 position정보를 보내준다.
+                Log.d("FragMovieInfo","보내려는 position값: " + position);
+
                 //이미지 보내주기
                 readMoreIntent.putExtra("integer", 300);
                 readMoreIntent.putExtra("double", 3.141592);
                 readMoreIntent.putExtra("image", byteArray);
 
-                startActivityForResult(readMoreIntent, 104);  //새로운 activity에서 작성하기를 누른 후 리스트정보를 받아와야 하기 때문에 ForResult
+                startActivity(readMoreIntent);  //새로운 activity에서 작성하기를 누른 후 리스트정보를 받아와야 하기 때문에 ForResult
             }
 
 
@@ -248,6 +253,7 @@ public class FragMovieInfo extends Fragment {
             movieResponse = gson.fromJson(response, MovieResponse.class);
             Log.d("FragMovieInfo", "서버에서 얻어온 데이터 감독: " + movieResponse.result.get(0).director);  //result에 id값으로 한 영화만 받아오기 때문에 서버상 list size가 1이다. //그래서 인덱스가 0인 데이터만 접근할 수 있다.
 
+            //서버에서 얻은 데이터를 이용해 FragMovieInfo 뷰들에 세팅한다.
             title.setText(movieResponse.result.get(0).title);
             date.setText(movieResponse.result.get(0).date.replace("-", ". ") + " 개봉"); //2017-10-1 을 2017. 10. 1 로 바꿔줌.
             genre.setText(movieResponse.result.get(0).genre);
@@ -265,8 +271,7 @@ public class FragMovieInfo extends Fragment {
             actor.setText(movieResponse.result.get(0).actor);
             ImageLoadTask imageLoadTask = new ImageLoadTask(movieResponse.result.get(0).thumb, poster);   //클래스 내부에 set하게 정의해 놓음.
             imageLoadTask.execute();
-
-            //서버에서 데이터가 12,15,19이냐에 따라 몇세 관람가 이미지를 다르게 설정한다.
+            //서버에서 grade 데이터가 12,15,19이냐에 따라 몇세 관람가 이미지를 다르게 설정한다.
             switch (movieResponse.result.get(0).grade) {
                 case 12:
                     grade.setImageResource(R.drawable.ic_12);
@@ -341,20 +346,23 @@ public class FragMovieInfo extends Fragment {
             commentResponse = gson.fromJson(response, CommentResponse.class);
             Log.d("FragMovieInfo", "테스트중: " + commentResponse.result.size()); //서버상 list가 여러개이므로 전부(10개로 세팅) 다 온다.
 
+            //서버에 default로 지정된 최근 10개 한줄평을 다 얻어와서 commentItem에 세팅한 후 10개를 전부 어댑터 내부에 있는 commentItems List에 add한다.
             if (commentItems.size() == 0) {
                 for (int i = 0; i < commentResponse.result.size(); i++) {
-                    commentResponse.result.get(i).setWriter(commentResponse.result.get(i).writer);
-                    commentResponse.result.get(i).setTime(commentResponse.result.get(i).time);
-                    commentResponse.result.get(i).setRating(commentResponse.result.get(i).rating);
-                    commentResponse.result.get(i).setContents(commentResponse.result.get(i).contents);
-                    commentResponse.result.get(i).setRecommend(commentResponse.result.get(i).recommend);
                     CommentItem commentItem = new CommentItem();    //CommentItem객체를 생성해서
+                    //아이템의 각 필드에 서버에서 얻어온 데이터를 set한다.
+                    commentItem.setWriter(commentResponse.result.get(i).writer);
+                    commentItem.setTime(commentResponse.result.get(i).time);
+                    commentItem.setRating(commentResponse.result.get(i).rating);
+                    commentItem.setContents(commentResponse.result.get(i).contents);
+                    commentItem.setRecommend(commentResponse.result.get(i).recommend);
                     commentItems.add(commentItem);  //어댑터에 들어갈 items ArrayList에 추가한다.
                 }
             }
             commentAdapter.notifyDataSetChanged();
             Log.d("FragMovieInfo", "어댑터 리스트에 추가: " + commentItems.size());
             //반복문만 있으면 상세화면에 들어갈 때 마다 commentItems list에 10개씩 추가로 들어간다.
+
             //1. 그래서 뒤로 가기를 누르거나 프래그먼트를 나갈 때 사이즈 0으로 초기화 해줘야 한다.
             //2. size가 0이면 반복문을 실행하게 한다.(Test)->일단 되는데 나중에 서버에 한줄평을 저장하고 난 후에는 어떻게 될지 봐야된다.
 
@@ -446,10 +454,10 @@ public class FragMovieInfo extends Fragment {
        2. 한줄평 작성해서 서버에 저장하는 것 구현해야함.
     */
     //한줄평 작성과 평점 데이터를 불러오는 것 코드
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
+//        super.onActivityResult(requestCode, resultCode, intent);
+//
 //        if (requestCode == 102) {
 //            float rating = intent.getFloatExtra("rating", 0.0f);
 //            String comment = intent.getStringExtra("comment");
@@ -464,7 +472,7 @@ public class FragMovieInfo extends Fragment {
 //            commentItems = (ArrayList<CommentItem>) intent.getSerializableExtra("list");
 //            commentAdapter.notifyDataSetChanged();  //갱신된 list로 어댑터한테 갱신하라고 말해줌
 //        }
-
-    }
+//
+//    }
 
 }
