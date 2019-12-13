@@ -182,7 +182,8 @@ public class ReadMoreActivity extends AppCompatActivity {
                     commentItem.setRating(commentResponse.result.get(i).rating);
                     commentItem.setContents(commentResponse.result.get(i).contents);
                     commentItem.setRecommend(commentResponse.result.get(i).recommend);
-                    inCommentItems.add(commentItem);  //어댑터에 들어갈 items ArrayList에 추가한다.
+                    commentItem.setId(commentResponse.result.get(i).id);    //id값을 얻어와야 추천할 때 사용할 수 있다.
+                    inCommentAdapter.addItem(commentItem);  //어댑터에 들어갈 items ArrayList에 추가한다.
                 }
             }
             inCommentAdapter.notifyDataSetChanged();

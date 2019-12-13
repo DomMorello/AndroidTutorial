@@ -3,13 +3,18 @@ package com.example.moviefiendver2;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.example.moviefiendver2.MovieData.CommentItem;
 
 import org.w3c.dom.Text;
 
@@ -19,7 +24,7 @@ public class CommentItemView extends LinearLayout {
     RatingBar commentRatingBar;
     TextView userId;
     TextView time;
-    TextView recommendation;
+    Button recommendation;
     TextView recommendationNum;
     TextView border;
     Button call;
@@ -44,8 +49,8 @@ public class CommentItemView extends LinearLayout {
         commentRatingBar = findViewById(R.id.commentRatingBar);
         userId = findViewById(R.id.user_id);
         time = findViewById(R.id.time);
-        recommendation = findViewById(R.id.추천);
-        recommendationNum = findViewById(R.id.추천수);
+        recommendation = findViewById(R.id.comment_recommend);
+        recommendationNum = findViewById(R.id.comment_recommend_num);
         border = findViewById(R.id.칸막이);
         call = findViewById(R.id.신고하기버튼);
 
@@ -53,10 +58,22 @@ public class CommentItemView extends LinearLayout {
         commentContent.setTextColor(Color.WHITE);
         userId.setTextColor(Color.WHITE);
         time.setTextColor(Color.GRAY);
-        recommendation.setTextColor(Color.GRAY);
+//        recommendation.setTextColor(Color.GRAY);  눌렀을 때 색깔바뀌는 selector적용하려고 주석처리함
         recommendationNum.setTextColor(Color.GRAY);
         border.setTextColor(Color.GRAY);
         call.setTextColor(Color.GRAY);
+
+        recommendation.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /* 서버에 추천을 저장하는 코드 */
+                //id값이 있어야 추천을 할 수 있다. commentItem에 id값을 세팅을 하긴 했는데 어떻게 여기서 사용할 수 있지..?
+
+            }
+        });
+
+
+
 
     }
 

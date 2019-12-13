@@ -15,6 +15,10 @@ public class CommentItem {
     public String contents;
     public int recommend;
 
+    public int getId() {
+        return id;
+    }
+
     public void setId(int id) {
         this.id = id;
     }

@@ -437,7 +437,7 @@
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="370dp">
+                    android:layout_height="500dp">
 
                     <ListView
                         android:id="@+id/comment_listview"

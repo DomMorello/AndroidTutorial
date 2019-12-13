@@ -8,11 +8,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RatingBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -41,6 +43,7 @@ import java.util.Map;
 
 public class FragMovieInfo extends Fragment {
 
+    ScrollView scrollView;
     Button likeButton;  //좋아요 이미지
     Button dislikeButton;   //싫어요 이미지
     Button writeCommentButton;  //작성하기 버튼
@@ -91,6 +94,8 @@ public class FragMovieInfo extends Fragment {
     public void onResume() {
         super.onResume();
 
+        scrollView.smoothScrollTo(0,0); //프래그먼트가 화면에 보여질때마다 스크롤뷰의 최초 위치가 최상단으로 고정되게 함
+
         //영화 상세정보를 서버에서 얻어오는 메소드
         requestMovieInfo();
         //한줄평 정보를 서버에서 얻어오는 메소드
@@ -107,6 +112,7 @@ public class FragMovieInfo extends Fragment {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_movie_info, container, false);
 
         ListView commentListView = rootView.findViewById(R.id.comment_listview);
+        scrollView = rootView.findViewById(R.id.scroll_view);
 
         grade = rootView.findViewById(R.id.info_grade);
         poster = rootView.findViewById(R.id.info_poster);
@@ -335,6 +341,7 @@ public class FragMovieInfo extends Fragment {
                 Map<String, String> params = new HashMap<>();
                 String id = Integer.toString(position);
                 params.put("id", id);    //id값을 서버에 전달하면 ?id=1 이런 식으로 서버에 대입이 돼서 해당 id를 가진 영화의 한줄평정보가 넘어온다.
+                params.put("limit",Integer.toString(3));    //상세보기 화면에서는 3개만 요청해서 보여줘라
                 return params;
             }
         };
@@ -363,7 +370,8 @@ public class FragMovieInfo extends Fragment {
                     commentItem.setRating(commentResponse.result.get(i).rating);
                     commentItem.setContents(commentResponse.result.get(i).contents);
                     commentItem.setRecommend(commentResponse.result.get(i).recommend);
-                    commentItems.add(commentItem);  //어댑터에 들어갈 items ArrayList에 추가한다.
+                    commentItem.setId(commentResponse.result.get(i).id);    //id값을 저장해놔야 추천할 때 사용할 수 있다.
+                    commentAdapter.addItem(commentItem);    //어댑터에 들어갈 items ArrayList에 추가한다.
                 }
             }
             commentAdapter.notifyDataSetChanged();
