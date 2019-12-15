@@ -154,7 +154,8 @@ public class WriteCommentActivity extends AppCompatActivity {
                 Map<String, String> params = new HashMap<>();
                 params.put("id", Integer.toString(position));    //id값을 서버에 전달하면 ?id=1 이런 식으로 서버에 대입이 돼서 해당 id를 가진 영화의 한줄평정보를 나타낸다.
                 params.put("writer","domMorello");  //작성자는 나의 아이디인 domMorello로 고정
-                params.put("rating",Float.toString(rating));    //작성자가 설정한 rating값을 전달
+                params.put("rating",Float.toString(rating*2));    //작성자가 설정한 rating값을 전달
+                Log.d("WriteCommentActivity","작성하기에서 서버에 보내는 평점: " + rating);
                 params.put("contents",comment); //작성자가 작성한 한줄평 내용을 전달
                 return params;
             }

@@ -370,7 +370,7 @@ public class FragMovieInfo extends Fragment {
                     commentItem.setRating(commentResponse.result.get(i).rating);
                     commentItem.setContents(commentResponse.result.get(i).contents);
                     commentItem.setRecommend(commentResponse.result.get(i).recommend);
-                    commentItem.setId(commentResponse.result.get(i).id);    //id값을 저장해놔야 추천할 때 사용할 수 있다.
+                    commentItem.setId(commentResponse.result.get(i).id);    //id값을 저장해놔야 추천할 때 사용할 수 있다. ??
                     commentAdapter.addItem(commentItem);    //어댑터에 들어갈 items ArrayList에 추가한다.
                 }
             }
@@ -446,7 +446,8 @@ public class FragMovieInfo extends Fragment {
                 commentItemView = (CommentItemView) convertView;
             }
 
-            CommentItem commentItem = commentItems.get(commentItems.size() - 1 - i);    //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
+            CommentItem commentItem = commentItems.get(i);  //서버에 연결한 이후에는 이렇게 해야 순서대로 나온다.
+//            CommentItem commentItem = commentItems.get(commentItems.size() - 1 - i);    //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
             //이렇게 하면 새로 등록한 한줄평이 제일 위로 나올 수 있게 됨.
             //이거 지렸다...
 
@@ -454,11 +455,24 @@ public class FragMovieInfo extends Fragment {
             //위에 int i 가 position의 역할을 하므로 i값을 얻어오면 commentItems list에 있는 인덱스에 적용돼서 잘 된다.
             commentItemView.setUserId(commentResponse.result.get(i).writer);
             commentItemView.setCommentContent(commentResponse.result.get(i).contents);
-            commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating);
+            commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating/2);    //나누기2를 하는 이유는 곱하기 2를 해서 서버에 저장하기 때문에 다시 리스트에 보여질 때는 자신이 입력한 별점만큼 보여야 하기 때문이다.
             commentItemView.setTime(commentResponse.result.get(i).time);
             commentItemView.setRecommendationNum(commentResponse.result.get(i).recommend + "");
             Log.d("FragMovieInfo", "CommentItemView에서 세팅한 것 TEST: " + commentResponse.result.get(i).contents);
 
+            //이 메소드 내부적으로 순서대로 item들에 아래 값들을 적용 시키는 것 같다.
+            //->이렇게 하면 작성한 이후에 서버에 요청한 정보가 들어오는 것이 아니고 기존에 저장돼있는 정보가 넘어와서 바로 최신화된 정보가 보이지 않는다.
+//            commentItemView.setUserId(commentItem.writer);
+//            commentItemView.setCommentContent(commentItem.contents);
+//            commentItemView.setCommentRatingBar(commentItem.rating);
+//            commentItemView.setTime(commentItem.time);
+//            commentItemView.setRecommendationNum(commentItem.recommend+"");
+//            Log.d("FragMovieInfo","상세화면에서 한줄평리스트 정보TEST: " + commentItem.writer);
+
+            Log.d("ReadMoreActivity","한줄평의 고유 id값: "+ commentResponse.result.get(i).id);
+            commentItemView.setId(commentResponse.result.get(i).id);    //각 한줄평 리스트 아이템들에 고유 id값을 서버에서 받아와 적용시킨다.
+            commentItemView.setRecommendation_num(commentResponse.result.get(i).recommend); //원래 서버에 저장된 값을 commentItemView에 저장한다.
+            //그 후에 거기서 1 증가한 수를 즉각적으로 보여주기 위해 저장함.
 
             return commentItemView;
         }

@@ -264,23 +264,30 @@ public class ReadMoreActivity extends AppCompatActivity {
 
             //CommentItem에 서버로부터 정보를 받아와서 그 정보를 listView에 보일 뷰들에 세팅한다.
             //위에 int i 가 position의 역할을 하므로 i값을 얻어오면 commentItems list에 있는 인덱스에 적용돼서 잘 된다.
-//            commentItemView.setUserId(commentResponse.result.get(i).writer);
-//            commentItemView.setCommentContent(commentResponse.result.get(i).contents);
-//            commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating);
-//            commentItemView.setTime(commentResponse.result.get(i).time);
-//            commentItemView.setRecommendationNum(commentResponse.result.get(i).recommend + "");
-//            Log.d("ReadMoreActivity", "CommentItemView에서 세팅한 것 TEST: " + commentResponse.result.get(i).contents);
+            commentItemView.setUserId(commentResponse.result.get(i).writer);
+            commentItemView.setCommentContent(commentResponse.result.get(i).contents);
+            commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating/2);
+            commentItemView.setTime(commentResponse.result.get(i).time);
+            commentItemView.setRecommendationNum(commentResponse.result.get(i).recommend + "");
+            Log.d("ReadMoreActivity", "CommentItemView에서 세팅한 것 TEST: " + commentResponse.result.get(i).contents);
 
             //이 메소드 내부적으로 순서대로 item들에 아래 값들을 적용 시키는 것 같다.
-            commentItemView.setUserId(commentItem.writer);
-            commentItemView.setCommentContent(commentItem.contents);
-            commentItemView.setCommentRatingBar(commentItem.rating);
-            commentItemView.setTime(commentItem.time);
-            commentItemView.setRecommendationNum(commentItem.recommend+"");
+            //->이렇게 하면 작성한 이후에 서버에 요청한 정보가 들어오는 것이 아니고 기존에 저장돼있는 정보가 넘어와서 바로 최신화된 정보가 보이지 않는다.
+//            commentItemView.setUserId(commentItem.writer);
+//            commentItemView.setCommentContent(commentItem.contents);
+//            commentItemView.setCommentRatingBar(commentItem.rating);
+//            commentItemView.setTime(commentItem.time);
+//            commentItemView.setRecommendationNum(commentItem.recommend+"");
+
+            Log.d("ReadMoreActivity","한줄평의 고유 id값: "+ commentResponse.result.get(i).id);
+            commentItemView.setId(commentResponse.result.get(i).id);    //각 한줄평 리스트 아이템들에 고유 id값을 서버에서 받아와 적용시킨다.
+            commentItemView.setRecommendation_num(commentResponse.result.get(i).recommend); //원래 서버에 저장된 값을 commentItemView에 저장한다.
+            //그 후에 거기서 1 증가한 수를 즉각적으로 보여주기 위해 저장함.
 
             return commentItemView;
         }
     }
+
 }
 
 

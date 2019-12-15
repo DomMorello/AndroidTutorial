@@ -42,7 +42,7 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
             //전에 비트맵 파일이 이미 받아온 것이라면 삭제해버이고 새로 받는다. 메모리 효율을 위해(out of memory 예방)
             if(bitmapHash.containsKey(urlStr)){
                 Bitmap oldBitmap = bitmapHash.remove(urlStr);
-                if(oldBitmap != null && !oldBitmap.isRecycled()){
+                if(oldBitmap != null || !oldBitmap.isRecycled()){   //가끔씩 런타임 에러가 발생한다. 어떻게 해결해야 하나;
                     oldBitmap.recycle();
                     oldBitmap = null;
                 }
