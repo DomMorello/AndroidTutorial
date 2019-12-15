@@ -5,15 +5,15 @@ import android.os.Parcelable;
 
 public class CommentItem {
 
-    public int id;
-    public String writer;
-    public int movieId;
-    public String writer_image;
-    public String time;
-    public int timestamp;
-    public float rating;
-    public String contents;
-    public int recommend;
+    public int id;  //한줄평 고유 번호
+    public String writer;   //한줄평 작성자 아이디
+    public int movieId; //한줄평 해당 영화 인덱스
+    public String writer_image; //한줄평 작성자 프로필
+    public String time; //한줄평 작성 시간
+    public int timestamp;   //작성 시간
+    public float rating;    //한줄평 작성시 메긴 평점
+    public String contents; //한줄평 내용
+    public int recommend;   //한줄평 추천받은 수
 
     public int getId() {
         return id;

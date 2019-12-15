@@ -68,6 +68,7 @@ public class CommentItemView extends LinearLayout {
             public void onClick(View v) {
                 /* 서버에 추천을 저장하는 코드 */
                 //id값이 있어야 추천을 할 수 있다. commentItem에 id값을 세팅을 하긴 했는데 어떻게 여기서 사용할 수 있지..?
+                recommendation.setTextColor(Color.MAGENTA); //추천을 누르면 색깔이 바뀐다. 추천을 취소하는 기능은 없다.
 
             }
         });

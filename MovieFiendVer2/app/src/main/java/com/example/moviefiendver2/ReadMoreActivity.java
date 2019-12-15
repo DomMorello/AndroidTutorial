@@ -257,18 +257,26 @@ public class ReadMoreActivity extends AppCompatActivity {
                 commentItemView = (CommentItemView) convertView;
             }
 
-            CommentItem commentItem = inCommentItems.get(inCommentItems.size()-1-i); //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
+            CommentItem commentItem = inCommentItems.get(i);    //서버 연결 이후에는 이렇게 해야 순서대로 나온다.
+//            CommentItem commentItem = inCommentItems.get(inCommentItems.size()-1-i); //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
             //이렇게 하면 새로 등록한 한줄평이 제일 위로 나올 수 있게 됨.
             //이거 지렸다...
 
             //CommentItem에 서버로부터 정보를 받아와서 그 정보를 listView에 보일 뷰들에 세팅한다.
             //위에 int i 가 position의 역할을 하므로 i값을 얻어오면 commentItems list에 있는 인덱스에 적용돼서 잘 된다.
-            commentItemView.setUserId(commentResponse.result.get(i).writer);
-            commentItemView.setCommentContent(commentResponse.result.get(i).contents);
-            commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating);
-            commentItemView.setTime(commentResponse.result.get(i).time);
-            commentItemView.setRecommendationNum(commentResponse.result.get(i).recommend + "");
-            Log.d("ReadMoreActivity", "CommentItemView에서 세팅한 것 TEST: " + commentResponse.result.get(i).contents);
+//            commentItemView.setUserId(commentResponse.result.get(i).writer);
+//            commentItemView.setCommentContent(commentResponse.result.get(i).contents);
+//            commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating);
+//            commentItemView.setTime(commentResponse.result.get(i).time);
+//            commentItemView.setRecommendationNum(commentResponse.result.get(i).recommend + "");
+//            Log.d("ReadMoreActivity", "CommentItemView에서 세팅한 것 TEST: " + commentResponse.result.get(i).contents);
+
+            //이 메소드 내부적으로 순서대로 item들에 아래 값들을 적용 시키는 것 같다.
+            commentItemView.setUserId(commentItem.writer);
+            commentItemView.setCommentContent(commentItem.contents);
+            commentItemView.setCommentRatingBar(commentItem.rating);
+            commentItemView.setTime(commentItem.time);
+            commentItemView.setRecommendationNum(commentItem.recommend+"");
 
             return commentItemView;
         }
