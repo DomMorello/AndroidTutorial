@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -282,7 +283,7 @@ public class ReadMoreActivity extends AppCompatActivity {
             Log.d("ReadMoreActivity","한줄평의 고유 id값: "+ commentResponse.result.get(i).id);
             commentItemView.setId(commentResponse.result.get(i).id);    //각 한줄평 리스트 아이템들에 고유 id값을 서버에서 받아와 적용시킨다.
             commentItemView.setRecommendation_num(commentResponse.result.get(i).recommend); //원래 서버에 저장된 값을 commentItemView에 저장한다.
-            //그 후에 거기서 1 증가한 수를 즉각적으로 보여주기 위해 저장함.
+            //그 후에 추천을 누르면 거기서 1 증가한 수를 즉각적으로 보여주기 위해 저장함.
 
             return commentItemView;
         }

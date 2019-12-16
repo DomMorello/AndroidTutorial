@@ -37,13 +37,22 @@ public class CommentItemView extends LinearLayout {
     RatingBar commentRatingBar;
     TextView userId;
     TextView time;
-    Button recommendation;
+    public Button recommendation;   //public으로 한 이유는 다른 클래스에서 색을 바꾸기 위해
     TextView recommendationNum;
     TextView border;
     Button call;
 
     int review_id; //한줄평 어댑터에서 이 변수로 값을 전달해주기 위해 선언. TEST
     int recommendation_num; //추천을 누르면 바로 값이 증가한 것이 보여지게 하기 위한 int변수
+    int count_pressed;  //추천을 누른 횟수
+
+    public int getCount_pressed() {
+        return count_pressed;
+    }
+
+    public void setCount_pressed(int count_pressed) {
+        this.count_pressed = count_pressed;
+    }
 
     public int getRecommendation_num() {
         return recommendation_num;
@@ -96,21 +105,29 @@ public class CommentItemView extends LinearLayout {
         recommendationNum.setTextColor(Color.GRAY);
         border.setTextColor(Color.GRAY);
         call.setTextColor(Color.GRAY);
+        if(count_pressed > 0){  //한 번이라도 추천을 눌렀으면
+            recommendation.setTextColor(Color.MAGENTA); //색깔을 이 색으로 해놔라
+        }
 
         recommendation.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 /* 서버에 추천을 저장하는 코드 */
                 //id값이 있어야 추천을 할 수 있다. commentItem에 id값을 세팅을 하긴 했는데 어떻게 여기서 사용할 수 있지..?
-                recommendation.setTextColor(Color.MAGENTA); //추천을 누르면 색깔이 바뀐다. 추천을 취소하는 기능은 없다.
 
-                Log.d("CommentItemView","과연 getId로 고유id를 받아올까? " + getId());    //된다. 지렸다 ...
-                if (AppHelper.requestQueue == null) {
-                    AppHelper.requestQueue = Volley.newRequestQueue(getContext());  //getContext 될까..?
+                count_pressed++;    //한 번 누를 때마다 누른 횟수를 증가시킨다.
+                if(count_pressed == 1){  //한 번 이상 누르면 추천이 안 된다.
+                    recommendation.setTextColor(Color.MAGENTA); //추천을 누르면 색깔이 바뀐다. 추천을 취소하는 기능은 없다.
+
+                    Log.d("CommentItemView", "과연 getId로 고유id를 받아올까? " + getId());    //된다. 지렸다 ...
+                    if (AppHelper.requestQueue == null) {
+                        AppHelper.requestQueue = Volley.newRequestQueue(getContext());  //getContext 될까..? 된다.
+                    }
+
+                    //추천을 누르면 그 결과를 서버로 보내는 메소드
+                    sendRecommendToServer();
                 }
-
-                //추천을 누르면 그 결과를 서버로 보내는 메소드
-                sendRecommendToServer();
+                /* 추천 관련 문제점: 다양한 상황(프래그먼트 종료 이후, 모두보기 액티비티 실행시마다 초기화 등)에서 추천을 한 번 누르고 나서 한 한줄평 아이템에 대해서 계속 추천을 누를 수가 있다. */
 
             }
         });
@@ -153,7 +170,7 @@ public class CommentItemView extends LinearLayout {
         Log.d("CommentItemView", "커멘트아이템뷰에서 추천 정보 서버에 저장 요청함");
     }
 
-    /* response로 status가 온다는데 그걸 확인해서 로그를 찍어보자! ?*/
+    /* response로 status가 온다는데 그걸 확인해서 로그를 찍어보자!*/
     public void processCommentResponse(String response) {
         Gson gson = new Gson();
 
@@ -161,8 +178,8 @@ public class CommentItemView extends LinearLayout {
         if (writeCommentResponse.code == 200) {
             Log.d("ReadMoreActivity", "추천 서버에 보내기 성공: " + writeCommentResponse.message);
             Toast.makeText(getContext(), "추천을 성공했습니다.", Toast.LENGTH_SHORT).show();
-            recommendationNum.setText(getRecommendation_num()+1+"");    //추천을 누르면 바로 서버에 저장된것처럼 보여주기 위해 하나 증가시킨 뷰를 보여줌
-        }else{
+            recommendationNum.setText(getRecommendation_num() + 1 + "");    //추천을 누르면 바로 서버에 저장된것처럼 보여주기 위해 하나 증가시킨 뷰를 보여줌
+        } else {
             Toast.makeText(getContext(), "추천 에러 발생!", Toast.LENGTH_SHORT).show();
         }
     }
