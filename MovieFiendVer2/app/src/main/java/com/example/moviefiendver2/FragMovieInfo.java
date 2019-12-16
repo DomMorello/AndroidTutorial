@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,7 +30,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.moviefiendver2.MovieData.CommentItem;
 import com.example.moviefiendver2.MovieData.CommentResponse;
+import com.example.moviefiendver2.MovieData.LikeResponse;
 import com.example.moviefiendver2.MovieData.MovieResponse;
+import com.example.moviefiendver2.MovieData.WriteCommentResponse;
 import com.example.moviefiendver2.helper.AppHelper;
 import com.example.moviefiendver2.helper.ImageLoadTask;
 import com.google.gson.Gson;
@@ -72,8 +75,8 @@ public class FragMovieInfo extends Fragment {
 
     boolean likeState = false;
     boolean dislikeState = false;
-    int likeCount = 1;  //좋아요 수
-    int dislikeCount = 1;   //싫어요 수
+    String likeyn;  //좋아요 버튼을 눌렀을 때 서버에 요청할 parameter
+    String dislikeyn;   //싫어요 버튼을 눌렀을 때 서버에 요청할 parameter
 
     MovieResponse movieResponse;    //다른 액티비티에 넘겨주려면 다른 메소드에서도 사용해야 하므로 여기에 선언
     CommentResponse commentResponse;    //다른 액티비티에 넘겨주려면 다른 메소드에서도 사용해야 하므로 여기에 선언
@@ -94,7 +97,7 @@ public class FragMovieInfo extends Fragment {
     public void onResume() {
         super.onResume();
 
-        scrollView.smoothScrollTo(0,0); //프래그먼트가 화면에 보여질때마다 스크롤뷰의 최초 위치가 최상단으로 고정되게 함
+        scrollView.smoothScrollTo(0, 0); //프래그먼트가 화면에 보여질때마다 스크롤뷰의 최초 위치가 최상단으로 고정되게 함
 
         //영화 상세정보를 서버에서 얻어오는 메소드
         requestMovieInfo();
@@ -104,6 +107,21 @@ public class FragMovieInfo extends Fragment {
         if (AppHelper.requestQueue == null) {
             AppHelper.requestQueue = Volley.newRequestQueue(getContext());
         }
+
+        Log.d("FragMovieInfo","이 프래그먼트가 다시 실행됐을 때 좋아요버튼상태: " + likeState);
+        Log.d("FragMovieInfo","이 프래그먼트가 다시 실행됐을 때 싫어요버튼상태: " + dislikeState);
+        if(likeState){
+            likeButton.setBackgroundResource(R.drawable.ic_thumb_up_selected);
+        }else{
+            likeButton.setBackgroundResource(R.drawable.thumb_up_selector);
+        }
+
+        if(dislikeState){
+            dislikeButton.setBackgroundResource(R.drawable.ic_thumb_down_selected);
+        }else{
+            dislikeButton.setBackgroundResource(R.drawable.thumb_down_selector);
+        }
+        /* 색깔은 변해있지만 적용이 안 되는 예외상황이 있음  */
     }
 
     @Nullable
@@ -141,7 +159,7 @@ public class FragMovieInfo extends Fragment {
             public void onClick(View view) {
                 Intent writeCommentIntent = new Intent(getActivity(), WriteCommentActivity.class);
                 writeCommentIntent.putExtra("title", movieResponse.result.get(0).title);    //작성하기 activity에 영화제목을 넘겨줌
-                writeCommentIntent.putExtra("position",position);   //영화 인덱스인 position을 넘겨준다.
+                writeCommentIntent.putExtra("position", position);   //영화 인덱스인 position을 넘겨준다.
                 //이미지 보내주기
                 writeCommentIntent.putExtra("integer", 300);
                 writeCommentIntent.putExtra("double", 3.141592);
@@ -160,8 +178,8 @@ public class FragMovieInfo extends Fragment {
                 readMoreIntent.putExtra("title", movieResponse.result.get(0).title);    //모두보기 activity에 영화제목을 넘겨줌
 //                readMoreIntent.putExtra("list", commentItems);   //그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
 //                -> 일단 주석. 왜? readMoreActivity에서도 서버에서 받아올 거니까 보내줄 필요 없음.
-                readMoreIntent.putExtra("position",position);   //모두보기 activity에 영화 인덱스인 position정보를 보내준다.
-                Log.d("FragMovieInfo","보내려는 position값: " + position);
+                readMoreIntent.putExtra("position", position);   //모두보기 activity에 영화 인덱스인 position정보를 보내준다.
+                Log.d("FragMovieInfo", "보내려는 position값: " + position);
 
                 //이미지 보내주기
                 readMoreIntent.putExtra("integer", 300);
@@ -174,18 +192,30 @@ public class FragMovieInfo extends Fragment {
 
         });
 
-
+        like = rootView.findViewById(R.id.info_like);
         likeButton = rootView.findViewById(R.id.likeButton);
         //likeButton을 눌렀을 때
         likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                //여기에 요청하는 것을 위치시키고 전하는 파라미터만 각 경우에 맞는 메소드 안에 코드를 짜면 될 것 같다.
+                if (AppHelper.requestQueue == null) {
+                    AppHelper.requestQueue = Volley.newRequestQueue(getActivity());  //getActivity 될까..? 된다.
+                }
+
                 if (likeState) {
                     decrLikeCount();
+                    likeyn = "N";   //좋아요를 1감소하는 메소드 이므로 서버에 N으로 전달
+                    sendLikeynToServer(likeyn);
                 } else {
                     incrLikeCount();
+                    likeyn = "Y"; //좋아요를 1증가하는 메소드 이므로 서버에 Y로 전달
+                    sendLikeynToServer(likeyn);
                     if (dislikeState) {   //싫어요 버튼 눌러져있는 상태였다면 상태를 안 눌린 상태로 바꾸고 싫어요 숫자도 하나 줄인다.
                         decrDislikeCount();
+                        dislikeyn = "N";    //싫어요를 1감소하는 메소드 이므로 서버에 N으로 전달
+                        sendDisLikeynToServer(dislikeyn);
                         dislikeState = !dislikeState;
                     }
                 }
@@ -193,8 +223,8 @@ public class FragMovieInfo extends Fragment {
                 likeState = !likeState; //클릭을 했기 때문에 상태가 눌린상태에서 안눌린상태로, 안눌린 상태에서 눌린 상태로 변해야 함.
             }
         });
-        like = rootView.findViewById(R.id.info_like);
 
+        dislike = rootView.findViewById(R.id.info_dislike);
         dislikeButton = rootView.findViewById(R.id.dislikeButton);
         //dislikeButton을 눌렀을 때
         dislikeButton.setOnClickListener(new View.OnClickListener() {
@@ -202,18 +232,22 @@ public class FragMovieInfo extends Fragment {
             public void onClick(View view) {
                 if (dislikeState) {
                     decrDislikeCount();
+                    dislikeyn = "N";    //싫어요를 1감소하는 메소드 이므로 서버에 N으로 전달
+                    sendDisLikeynToServer(dislikeyn);
                 } else {
                     incrDislikeCount();
+                    dislikeyn = "Y";   //좋아요를 1증가하는 메소드 이므로 서버에 Y로 전달
+                    sendDisLikeynToServer(dislikeyn);
                     if (likeState) {  //좋아요 버튼 눌러져있는 상태였다면 상태를 안 눌린 상태로 바꾸고 좋아요 숫자도 하나 줄인다.
                         decrLikeCount();
+                        likeyn = "N";   //좋아요를 1감소하는 메소드 이므로 서버에 N으로 전달
+                        sendLikeynToServer(likeyn);
                         likeState = !likeState;
                     }
                 }
-
                 dislikeState = !dislikeState;   //클릭을 했기 때문에 상태가 눌린상태에서 안눌린상태로, 안눌린 상태에서 눌린 상태로 변해야 함.
             }
         });
-        dislike = rootView.findViewById(R.id.info_dislike);
 
         return rootView;
     }//onCreatView 메서드 끝
@@ -341,7 +375,7 @@ public class FragMovieInfo extends Fragment {
                 Map<String, String> params = new HashMap<>();
                 String id = Integer.toString(position);
                 params.put("id", id);    //id값을 서버에 전달하면 ?id=1 이런 식으로 서버에 대입이 돼서 해당 id를 가진 영화의 한줄평정보가 넘어온다.
-                params.put("limit",Integer.toString(3));    //상세보기 화면에서는 3개만 요청해서 보여줘라
+                params.put("limit", Integer.toString(3));    //상세보기 화면에서는 3개만 요청해서 보여줘라
                 return params;
             }
         };
@@ -370,7 +404,7 @@ public class FragMovieInfo extends Fragment {
                     commentItem.setRating(commentResponse.result.get(i).rating);
                     commentItem.setContents(commentResponse.result.get(i).contents);
                     commentItem.setRecommend(commentResponse.result.get(i).recommend);
-                    commentItem.setId(commentResponse.result.get(i).id);    //id값을 저장해놔야 추천할 때 사용할 수 있다. ??
+                    commentItem.setId(commentResponse.result.get(i).id);    //id값을 저장해놔야 추천할 때 사용할 수 있다.
                     commentAdapter.addItem(commentItem);    //어댑터에 들어갈 items ArrayList에 추가한다.
                 }
             }
@@ -378,39 +412,119 @@ public class FragMovieInfo extends Fragment {
             Log.d("FragMovieInfo", "어댑터 리스트에 추가: " + commentItems.size());
             //반복문만 있으면 상세화면에 들어갈 때 마다 commentItems list에 10개씩 추가로 들어간다.
 
-            //1. 그래서 뒤로 가기를 누르거나 프래그먼트를 나갈 때 사이즈 0으로 초기화 해줘야 한다.
-            //2. size가 0이면 반복문을 실행하게 한다.(Test)->일단 되는데 나중에 서버에 한줄평을 저장하고 난 후에는 어떻게 될지 봐야된다.
-
 
         }
     }
 
     //좋아요 수를 증가
     public void incrLikeCount() {
-        likeCount += 1; //좋아요 수를 하나 증가시키고
-        like.setText(String.valueOf(likeCount));   //증가된 int likeCount를 문자열로 변환하여 텍스트뷰에 보이게 한다.
+        Log.d("FragMovieInfo", "이 영화가 갖고 있는 좋아요 숫자: " + movieResponse.result.get(0).like);
+        like.setText(String.valueOf(movieResponse.result.get(0).like + 1));   //증가된 int likeCount를 문자열로 변환하여 텍스트뷰에 보이게 한다.
         likeButton.setBackgroundResource(R.drawable.ic_thumb_up_selected);  //버튼을 눌렀을 때만 실행되는 메소드이므로 버튼의 배경을 누른상태이미지로 바꿔서 유지한다.
     }
 
     //좋아요 수를 감소
     public void decrLikeCount() {
-        likeCount -= 1; //좋아요 수를 하나 감소시키고
-        like.setText(String.valueOf(likeCount));   //감소된 int likeCount를 문자열로 변환하여 텍스트뷰에 보이게 한다.
+        like.setText(String.valueOf(movieResponse.result.get(0).like));   //감소된 int likeCount를 문자열로 변환하여 텍스트뷰에 보이게 한다.
         likeButton.setBackgroundResource(R.drawable.thumb_up_selector); //버튼을 눌렀을 때만 실행되는 메소드이므로 버튼의 배경을 안눌린 상태로 바꿔서 유지한다. (클릭상태를 유지하면 눌린이미지가 보이게함.)
+        /* 이 부분에서 프래그먼트 나갔다가 다시 들어왔을 때 좋아요를 취소했는데 그냥 그대로 보이는 문제; 해결해야 된다. */
     }
 
     //싫어요 수를 증가
     public void incrDislikeCount() {
-        dislikeCount += 1;
-        dislike.setText(String.valueOf(dislikeCount));
+        dislike.setText(String.valueOf(movieResponse.result.get(0).dislike + 1));
         dislikeButton.setBackgroundResource(R.drawable.ic_thumb_down_selected);
     }
 
     //싫어요 수를 감소
     public void decrDislikeCount() {
-        dislikeCount -= 1;
-        dislike.setText(String.valueOf(dislikeCount));
+        dislike.setText(String.valueOf(movieResponse.result.get(0).dislike));
         dislikeButton.setBackgroundResource(R.drawable.thumb_down_selector);
+    }
+
+    //좋아요 정보를 서버에 전달하는 메소드
+    public void sendLikeynToServer(final String likeyn) {
+        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/increaseLikeDisLike";  //좋아요싫어요 적용 서버 url
+
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("FragMovieInfo", "상세화면에서 좋아요 서버에 요청함: " + response);
+
+                        //받아온 JSON 데이터를 GSON을 이용해 파싱해서 처리한다.
+                        processMovieResponse(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("FragMovieInfo", "에러 발생! " + error.getMessage());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("id", Integer.toString(position));    //id값을 서버에 전달하면 ?id=1 이런 식으로 서버에 대입이 돼서 해당 id를 가진 영화에 좋아요 수를 전달한다.
+                params.put("likeyn", likeyn);  //좋아요 정보를 서버에 parameter로 넘긴다
+                return params;
+            }
+        };
+        request.setShouldCache(false);
+        AppHelper.requestQueue.add(request);
+        Log.d("FragMovieInfo", "상세화면에서 좋아요 정보 서버에 저장 요청함");
+    }
+
+    //싫어요 정보를 서버에 전달하는 메소드
+    public void sendDisLikeynToServer(final String dislikeyn) {
+        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/increaseLikeDisLike";  //좋아요싫어요 적용 서버 url
+
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("FragMovieInfo", "상세화면에서 좋아요 서버에 요청함: " + response);
+
+                        //받아온 JSON 데이터를 GSON을 이용해 파싱해서 처리한다.
+                        processMovieResponse(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("FragMovieInfo", "에러 발생! " + error.getMessage());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("id", Integer.toString(position));    //id값을 서버에 전달하면 ?id=1 이런 식으로 서버에 대입이 돼서 해당 id를 가진 영화에 좋아요 수를 전달한다.
+                params.put("dislikeyn", dislikeyn); //싫어요 정보를 서버에 parameter로 넘긴다.
+                return params;
+            }
+        };
+        request.setShouldCache(false);
+        AppHelper.requestQueue.add(request);
+        Log.d("FragMovieInfo", "상세화면에서 좋아요 정보 서버에 저장 요청함");
+    }
+
+    //좋아요 서버에 요청한 자료를 갖고 파싱하는 메소드
+    public void processMovieResponse(String response) {
+        Gson gson = new Gson();
+
+        //성공했는지 실패했는지 로그를 찍어보자
+        LikeResponse likeResponse = gson.fromJson(response, LikeResponse.class);
+        if (likeResponse.code == 200) {
+            Log.d("FragMovieInfo", "좋아요,싫어요 정보 서버에 보내기 성공: " + likeResponse.message);
+        } else {
+            Log.d("FragMovieInfo", "좋아요,싫어요 정보 서버에 보내기 실패: " + likeResponse.message);
+        }
     }
 
     //한줄평 리스트를 보여주는 리스트뷰 어댑터
@@ -455,7 +569,7 @@ public class FragMovieInfo extends Fragment {
             //위에 int i 가 position의 역할을 하므로 i값을 얻어오면 commentItems list에 있는 인덱스에 적용돼서 잘 된다.
             commentItemView.setUserId(commentResponse.result.get(i).writer);
             commentItemView.setCommentContent(commentResponse.result.get(i).contents);
-            commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating/2);    //나누기2를 하는 이유는 곱하기 2를 해서 서버에 저장하기 때문에 다시 리스트에 보여질 때는 자신이 입력한 별점만큼 보여야 하기 때문이다.
+            commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating / 2);    //나누기2를 하는 이유는 곱하기 2를 해서 서버에 저장하기 때문에 다시 리스트에 보여질 때는 자신이 입력한 별점만큼 보여야 하기 때문이다.
             commentItemView.setTime(commentResponse.result.get(i).time);
             commentItemView.setRecommendationNum(commentResponse.result.get(i).recommend + "");
             Log.d("FragMovieInfo", "CommentItemView에서 세팅한 것 TEST: " + commentResponse.result.get(i).contents);
@@ -469,7 +583,7 @@ public class FragMovieInfo extends Fragment {
 //            commentItemView.setRecommendationNum(commentItem.recommend+"");
 //            Log.d("FragMovieInfo","상세화면에서 한줄평리스트 정보TEST: " + commentItem.writer);
 
-            Log.d("ReadMoreActivity","한줄평의 고유 id값: "+ commentResponse.result.get(i).id);
+            Log.d("ReadMoreActivity", "한줄평의 고유 id값: " + commentResponse.result.get(i).id);
             commentItemView.setId(commentResponse.result.get(i).id);    //각 한줄평 리스트 아이템들에 고유 id값을 서버에서 받아와 적용시킨다.
             commentItemView.setRecommendation_num(commentResponse.result.get(i).recommend); //원래 서버에 저장된 값을 commentItemView에 저장한다.
             //그 후에 거기서 1 증가한 수를 즉각적으로 보여주기 위해 저장함.
