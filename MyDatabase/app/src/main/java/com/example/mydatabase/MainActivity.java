@@ -1,9 +1,14 @@
 package com.example.mydatabase;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -60,9 +65,10 @@ public class MainActivity extends AppCompatActivity {
                 String mobile = editText5.getText().toString().trim();
 
                 int age = -1;
-                try{
+                try {
                     Integer.parseInt(ageStr);
-                }catch (Exception e){}
+                } catch (Exception e) {
+                }
 
                 insertDate(name, age, mobile);
             }
@@ -78,67 +84,103 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void selectData(String tableName){
+    public void selectData(String tableName) {
         println("selectData() 호출됨.");
 
-        if(database != null){
-            String sql = "select name, age, mobile from "+ tableName;
+        if (database != null) {
+            String sql = "select name, age, mobile from " + tableName;
             Cursor cursor = database.rawQuery(sql, null);
             println("조회된 데이터 개수: " + cursor.getCount());
 
-            for(int i=0; i < cursor.getCount(); i++){
+            for (int i = 0; i < cursor.getCount(); i++) {
                 cursor.moveToNext();
                 String name = cursor.getString(0);
                 int age = cursor.getInt(1);
                 String mobile = cursor.getString(2);
 
-                println("#"+i+" -> "+name+", "+age+", "+mobile);
+                println("#" + i + " -> " + name + ", " + age + ", " + mobile);
             }
             cursor.close();
-        }else{
+        } else {
             println("먼저 데이터베이스를 오픈하세요.");
         }
     }
 
-    public void insertDate(String name, int age, String mobile){
+    public void insertDate(String name, int age, String mobile) {
         println("insertData() 호출됨.");
 
-        if(database != null){
-            String sql ="insert into customer(name, age, mobile) values(?,?,?)";
+        if (database != null) {
+            String sql = "insert into customer(name, age, mobile) values(?,?,?)";
             Object[] params = {name, age, mobile};  //저 위에 물음표들이 여기에 있는 것들로 대체가 된다.
 
             database.execSQL(sql, params);
 
             println("데이터 추가됨.");
-        }else{
+        } else {
             println("먼저 데이터베이스를 오픈하세요.");
         }
     }
 
-    public void createTable(String tableName){
+    public void createTable(String tableName) {
         println("createTable() 호출됨.");
 
-        if(database != null){
+        if (database != null) {
             String sql = "create table " + tableName + "(_id integer PRIMARY KEY autoincrement, name text, age integer, mobile text)";
             database.execSQL(sql);
 
             println("테이블 생성됨.");
-        }else{
+        } else {
             println("먼저 데이터베이스를 오픈하세요.");
         }
     }
 
-    public void openDatabase(String databaseName){
+    public void openDatabase(String databaseName) {
         println("openDatabase() 호출됨.");
 
-        database = openOrCreateDatabase(databaseName, MODE_PRIVATE, null);
-        if(database != null){
-            println("데이터베이스 오픈됨.");
-        }
+//        database = openOrCreateDatabase(databaseName, MODE_PRIVATE, null);
+//        if (database != null) {
+//            println("데이터베이스 오픈됨.");
+//        }
 
+        DatabaseHelper helper = new DatabaseHelper(this,databaseName,null,3);
+        database = helper.getWritableDatabase();
+        //이런 식으로 헬퍼객체를 만들어서 사용할 수 있다.
     }
 
-    public void println(String data){
-        textView.append(data+"\n");
+    public void println(String data) {
+        textView.append(data + "\n");
+    }
+
+    class DatabaseHelper extends SQLiteOpenHelper {
+
+        public DatabaseHelper(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
+            super(context, name, factory, version);
+        }
+
+        //createCustomer를 그대로 구현해주는데 매개변수로 넘어오는 SQLiteDatabase를 이용해서 구현한다.
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            println("createTable() 호출됨.");
+
+            String tableName = "customer";
+            String sql = "create table if not exists " + tableName + "(_id integer PRIMARY KEY autoincrement, name text, age integer, mobile text)";
+            db.execSQL(sql);
+            println("테이블 생성됨.");
+
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            println("onUpgrade()호출됨: " + oldVersion + ", " + newVersion);
+            String tableName = "customer";
+            if(newVersion > 1){
+                db.execSQL("drop table if exists " + tableName);    //이건 테이블을 삭제하는 건데 보통 이렇게 하면 기존 사용자들 데이터가 다 날라가니까 이러면 안 되고 alter table 명령어를 사용해서 칼럼정보를 수정한다고 함
+                println("테이블 삭제함.");
+            }
+            String sql = "create table if not exists " + tableName + "(_id integer PRIMARY KEY autoincrement, name text, age integer, mobile text)";
+            db.execSQL(sql);
+            println("테이블 새로 생성됨.");
+
+        }
     }
 }
