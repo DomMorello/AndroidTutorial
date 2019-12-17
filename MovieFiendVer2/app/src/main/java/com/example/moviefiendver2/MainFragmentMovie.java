@@ -98,6 +98,7 @@ public class MainFragmentMovie extends Fragment {
         }
         requestMovieList(); //서버에 영화 목록 데이터를 요청하는 메소드
 
+        //상세보기를 눌렀을 때
         Button informationButton = rootView.findViewById(R.id.information_button);
         informationButton.setOnClickListener(new View.OnClickListener() {
             @Override
