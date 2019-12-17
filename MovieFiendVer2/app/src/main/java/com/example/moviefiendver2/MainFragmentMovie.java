@@ -181,6 +181,4 @@ public class MainFragmentMovie extends Fragment {
             imageLoadTask.execute();
         }
     }
-
-
 }

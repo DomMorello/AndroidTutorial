@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -16,7 +15,6 @@ import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,7 +30,6 @@ import com.example.moviefiendver2.MovieData.CommentItem;
 import com.example.moviefiendver2.MovieData.CommentResponse;
 import com.example.moviefiendver2.MovieData.LikeResponse;
 import com.example.moviefiendver2.MovieData.MovieResponse;
-import com.example.moviefiendver2.MovieData.WriteCommentResponse;
 import com.example.moviefiendver2.helper.AppHelper;
 import com.example.moviefiendver2.helper.ImageLoadTask;
 import com.google.gson.Gson;
@@ -55,6 +52,7 @@ public class FragMovieInfo extends Fragment {
     String movieTitle;  //TextView에서 얻어온 title을 저장하기 위한 String변수
     byte[] byteArray;   //이미지를 보내줄 때 사용됨
     int position;   //영화API 서버에서 id값을 구분하기 위한 영화 인덱스
+    int tmpPosition;    //영화 프래그먼트마다 좋아요, 싫어요 버튼 눌러져있는 상태를 구분하기 위한 비교변수 TEST
 
     ImageView poster;   //영화 포스터 뷰
     ImageView grade;    //몇세 관람가 이미지
@@ -78,8 +76,8 @@ public class FragMovieInfo extends Fragment {
     String likeyn;  //좋아요 버튼을 눌렀을 때 서버에 요청할 parameter
     String dislikeyn;   //싫어요 버튼을 눌렀을 때 서버에 요청할 parameter
 
-    MovieResponse movieResponse;    //다른 액티비티에 넘겨주려면 다른 메소드에서도 사용해야 하므로 여기에 선언
-    CommentResponse commentResponse;    //다른 액티비티에 넘겨주려면 다른 메소드에서도 사용해야 하므로 여기에 선언
+    MovieResponse movieResponse;    //JAON 다른 액티비티에 넘겨주려면 다른 메소드에서도 사용해야 하므로 여기에 선언
+    CommentResponse commentResponse;    //JSON 다른 액티비티에 넘겨주려면 다른 메소드에서도 사용해야 하므로 여기에 선언
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -88,7 +86,8 @@ public class FragMovieInfo extends Fragment {
         position = getArguments().getInt("position", 0) + 1;
         //position정보를 MainFragmentMovie에서 객체를 생성할 때 매개변수로 받아서 상세보기 눌렀을 때
         //이 프래그먼트까지 보내준다. +1 인 이유는 서버상 id정보가 0부터가 아닌 1부터이기 때문이다.
-        Log.d("FragMovieInfo", "MainFragmentMovie에서 넘어온position + 1 : " + position);
+        Log.d("FragMovieInfo", "MainFragmentMovie에서 넘어온 position + 1 : " + position);
+
     }
 
     //onResume에 한 이유: 한줄평을 작성하고 나서 프래그먼트로 다시 돌아왔을 때 작성한 최신화된 한줄평을 보여주기 위해서는
@@ -108,20 +107,27 @@ public class FragMovieInfo extends Fragment {
             AppHelper.requestQueue = Volley.newRequestQueue(getContext());
         }
 
-        Log.d("FragMovieInfo","이 프래그먼트가 다시 실행됐을 때 좋아요버튼상태: " + likeState);
-        Log.d("FragMovieInfo","이 프래그먼트가 다시 실행됐을 때 싫어요버튼상태: " + dislikeState);
-        if(likeState){
-            likeButton.setBackgroundResource(R.drawable.ic_thumb_up_selected);
-        }else{
-            likeButton.setBackgroundResource(R.drawable.thumb_up_selector);
-        }
+        likeState = false;
+        dislikeState = false;
+        Log.d("FragMovieInfo","onResume likeState: " + likeState);
+        Log.d("FragMovieInfo","onResume dislikeState: " + dislikeState);
+        //프래그먼트가 재실행될때마다 좋아요를 안 누른 걸로 한다. 이렇게 하지 않았을 때 프래그먼트를 종료하고 다시 돌아왔을 때 로직에 문제가 생김.
+        //이러한 문제들은 영화 고유아이디 정보 등을 데이터베이스에 저장을 하면 가능할 것 같음. 현재 단계에서는 해결하기가 어려움.
 
-        if(dislikeState){
-            dislikeButton.setBackgroundResource(R.drawable.ic_thumb_down_selected);
-        }else{
-            dislikeButton.setBackgroundResource(R.drawable.thumb_down_selector);
-        }
-        /* 색깔은 변해있지만 적용이 안 되는 예외상황이 있음  */
+        /* 좋아요 문제점: 프래그먼트를 종료하고 다시 돌아왔을 때 좋아요를 눌렀었다면 좋아요 눌러져있는 이미지로 보이게 하고 다시 눌렀을 때 취소되는 기능 구현 못함
+        *               프래그먼트를 종료하고 다시 들어왔을 때 좋아요를 눌러져있는 이미지로 보이게 하는 것은 가능하지만 다른 영화정보와 구분할 방법을 못찾음.
+        *               예를 들어, 상세화면에서 좋아요를 눌러 놓고 나갔다가 다시 들어왔을 때 좋아요 이미지가 눌러져있는 이미지로 세팅해 놓으면 likeState가 true인
+        *               것을 인지하고 코딩을 하는 것이다. 그렇게 하면 꾼에서 좋아요를 눌러놓은 상태에서 프래그먼트를 나가고 저스티스 리그 상세화면을 키면 저스티스리그
+        *               상세화면에 있는 좋아요 버튼이 눌러져있는 이미지로 돼있는 오류가 발생함. 그래서 아예 그 기능을 없앰. 좋아요를 누른 경험을 기억하지 못하는 코딩으로 대체함.
+        *               영화상세화면이 갖고 있는 고유정보인 position을 활용해서 이 position을 갖는 영화마다 likeState dislikeState 정보를 각각 따로 저장하면 가능할 것으로 보임.
+        *               내 생각엔 현재 프로젝트에서 사용하는 API를 가지고는 불가능할 것으로 보임.
+        *               좋아요를 누른 적이 있는지 없는지를 저장할 수 있는 데이터베이스 요소가 없기 때문에 이 부분은 구현이 어렵다고 판단.
+        *
+        *  + API 자체적으로 문제가 있는건지 모르겠는데 싫어요를 누른 상태에서 좋아요를 누르면 싫어요 취소요청을 보내고 좋아요 증가요청을 보내도록 코드를 짰다.
+        * Log를 찍어봤을 때 메소드는 정상적으로 성공했다는 메세지를 받았다. 그런데 실제 서버상에 저장되는 데이터가 의도된대로 될 때가 있고 안 될 때가 있다.
+        * 싫어요를 누른 상태에서 좋아요를 누르거나 좋아요를 누른 상태에서 싫어요를 누를 때 어떤 한 동작이 서버에 저장되지 않는다. 여기서 성공하였다라는 메세지를 받았음에도 불구하고
+        * 서버에 저장이 안 되는 문제가 있기 때문에 API의 문제라고 생각한다.
+        *  */
     }
 
     @Nullable
@@ -198,11 +204,6 @@ public class FragMovieInfo extends Fragment {
         likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                //여기에 요청하는 것을 위치시키고 전하는 파라미터만 각 경우에 맞는 메소드 안에 코드를 짜면 될 것 같다.
-                if (AppHelper.requestQueue == null) {
-                    AppHelper.requestQueue = Volley.newRequestQueue(getActivity());  //getActivity 될까..? 된다.
-                }
 
                 if (likeState) {
                     decrLikeCount();

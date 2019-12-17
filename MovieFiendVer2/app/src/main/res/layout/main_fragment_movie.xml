@@ -12,7 +12,7 @@
         android:id="@+id/main_poster"
         android:layout_width="286dp"
         android:layout_height="404dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

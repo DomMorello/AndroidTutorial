@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.addToBackStack("frag"); //backstack에 추가를 해줘야 프래그먼트에서 뒤로가기를 눌렀을 때
         //원래 상태로 돌아올 수 있다. 추가를 하지 않으면 바로 앱이 꺼진다.
-        fragmentTransaction.add(R.id.movielist_container, fragMovieInfo).commit();
+        fragmentTransaction.replace(R.id.movielist_container, fragMovieInfo).commit();
         //movielist 내부 constraint안에 프래그먼트를 담는다.
     }
 
