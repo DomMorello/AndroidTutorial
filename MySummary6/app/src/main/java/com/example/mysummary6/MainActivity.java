@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity {
 
         AppHelper.openDatabase(getApplicationContext(), "movie");
         AppHelper.createTable("outline");
-
+        AppHelper.insertData(2,"df","dsg","sdfg",3.4f,3.3f,2.8f,4.5f,2,3,"df","dffss");
+        AppHelper.selectData("outline");
     }
 }
