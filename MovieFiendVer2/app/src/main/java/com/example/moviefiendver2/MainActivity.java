@@ -12,6 +12,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.moviefiendver2.helper.AppHelper;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.navigation.NavigationView;
 
@@ -57,8 +58,13 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback 
 
         /* 1. activity_main 여기에 영화리스트 화면이 있어야 하는데, 다른 화면으로 갔다가 뒤로가기를 누르면 아무것도 없는 화면(content_main)이 나옴
            2. 새로운 activity인 한줄평 작성과 모두보기를 열 때 앱바의 기능을 구현하지 못함
-           3. 액티비티가 종료되면서 onDestroy되면서 intent를 통해 정보를 전달했던 것들이 다 초기화됨.(근데 이 문제는 데이터베이스를 연동하지 않아서 그런거라고 생각함)
-         */
+        */
+
+        AppHelper.openDatabase(getApplicationContext(),"Dom's DB"); //앱이 실행되면 데이터베이스를 열어라.
+        AppHelper.createTable("MainMovie"); //앱이 실행되면 MainMovie table을 생성
+        AppHelper.selectMainMovieData("MainMovie");
+        /* 인터넷 연결 유무에 따라 서버에서 정보를 받아와 최초에 insert를 하고 그 이후부터는 update를 한다. */
+
     }
 
     @Override
