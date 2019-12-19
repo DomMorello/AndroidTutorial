@@ -16,7 +16,9 @@ public class AppHelper {
     //데이터베이스 관련 코드 시작
     private static SQLiteDatabase database;
     private static final String TAG = "AppHelper";
-    //뷰페이저로 보이는 뮤비에 나오는 정보들
+    public static final String MAIN_MOVIE = "MainMovie";
+
+    //뷰페이저로 보이는 뮤비에 나오는 정보관련 sql 명령어
     private static String createTableMainMovieSql = "create table if not exists MainMovie" +
             "("+
             "    _id integer PRIMARY KEY autoincrement, " + //자동으로 늘어나는 고유 순서번호
@@ -33,6 +35,7 @@ public class AppHelper {
             "     thumb text, "+
             "     image text"+
             " )";
+
     private static String insertTupleMainMovieSql =
             "insert into MainMovie(" +
                     "id, title, " +
@@ -67,7 +70,7 @@ public class AppHelper {
 
         if(database != null){
             //MainMovie table 생성시
-            if(tableName.equals("MainMovie")){
+            if(tableName.equals(MAIN_MOVIE)){
                 database.execSQL(createTableMainMovieSql);
                 println("MainMovie 테이블 생성됨.");
             }
@@ -95,7 +98,7 @@ public class AppHelper {
 
         if(database != null){
             //MainMovie table data 조회
-            if(tableName.equals("MainMovie")){
+            if(tableName.equals(MAIN_MOVIE)){
                 String sql = "select id, title, title_eng, dateValue, user_rating, audience_rating, reviewer_rating, reservation_rate, reservation_grade, grade, thumb, image from " + tableName;
                 Cursor cursor = database.rawQuery(sql,null);
                 println("조회된 데이터 개수: " + cursor.getCount());
@@ -122,6 +125,20 @@ public class AppHelper {
             println("database가 null이라 조회할 데이터가 없음!");
         }
     }//메소드 끝
+
+    //MainMovie 데이터 업데이트하기
+    public static void updateMainMovieData(int id, String title, String title_eng, String dateValue, float user_rating, float audience_rating, float reviewer_rating, float reservation_rate, int reservation_grade, int grade, String thumb, String image){
+        println("updateMainMovieData 데이터 갱신호출!");
+
+        if(database != null){
+            String updateDataSql = "update outline set id="+id+", title='"+title+"', title_eng='"+title_eng+"', dateValue='"+dateValue+"', user_rating="+user_rating+", audience_rating="+audience_rating+", reviewer_rating="+reviewer_rating+", reservation_rate="+reservation_rate+", reservation_grade="+reservation_grade+", grade="+grade+", thumb='"+thumb+"', image='"+image+"'";
+
+            database.execSQL(updateDataSql);
+            println("데이터 추가함!");
+        }else{
+            println("먼저 데이터베이스를 오픈하세요.");
+        }
+    }
 
     //데이터베이스 관련 로그찍기
     public static void println(String data){

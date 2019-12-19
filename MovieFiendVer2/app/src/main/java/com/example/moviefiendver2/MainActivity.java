@@ -61,9 +61,8 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback 
         */
 
         AppHelper.openDatabase(getApplicationContext(),"Dom's DB"); //앱이 실행되면 데이터베이스를 열어라.
-        AppHelper.createTable("MainMovie"); //앱이 실행되면 MainMovie table을 생성
-        AppHelper.selectMainMovieData("MainMovie");
-        /* 인터넷 연결 유무에 따라 서버에서 정보를 받아와 최초에 insert를 하고 그 이후부터는 update를 한다. */
+        AppHelper.createTable(AppHelper.MAIN_MOVIE); //앱이 실행되면 MainMovie table을 생성
+        AppHelper.selectMainMovieData(AppHelper.MAIN_MOVIE);    //데이터가 어떻게 저장돼있나 조회하는 메소드.
 
     }
 

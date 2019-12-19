@@ -50,18 +50,6 @@ public class MainFragmentMovie extends Fragment {
         }
     }
 
-    //MainFragmentMovie 인스턴스를 생성할 때 position정보를 갖는 메소드
-    //MovieListFragmnet에서 이 메서드를 호출할 때 입력하는 매개변수를 Bundle을 통해 이 메소드가 받아온다.
-    //position매개 변수를 받아와서 ArrayList에서 영화 정보를 뽑을 때 사용된다.
-    public static  MainFragmentMovie newInstance(int position){
-        MainFragmentMovie mainFragmentMovie = new MainFragmentMovie();
-        Bundle args = new Bundle();
-        args.putInt("position", position);
-        mainFragmentMovie.setArguments(args);
-
-        return mainFragmentMovie;
-    }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +71,6 @@ public class MainFragmentMovie extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.main_fragment_movie, container, false);
-
 
         //서버에서 받아온 정보들을 표시할 뷰들을 찾아온다.
         poster = rootView.findViewById(R.id.main_poster); //영화 포스터
@@ -126,7 +113,7 @@ public class MainFragmentMovie extends Fragment {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("MainActivity", "응답 받음 -> " + response);
+                        Log.d("MainFragmentMovie", "응답 받음 -> " + response);
 
                         //processResponse 메소드 안에 Dday얻는 메소드가 있는데 여기서 예외처리를 해주었기 때문에 여기서도 예외처리
                         try {
@@ -149,21 +136,6 @@ public class MainFragmentMovie extends Fragment {
         Log.d("MainActivity", "영화 목록 요청 보냄");
     }
 
-    //Dday 계산하는 메소드
-    public static long getDday(String date) throws ParseException {
-        String future = date;
-        String current = "2017-10-01";
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd");
-        Date serverTime = format.parse(future);
-        Date currentTime = format.parse(current);
-
-        long calDate = serverTime.getTime() - currentTime.getTime();
-        long dDay = calDate / (24 * 60 * 60 * 1000);
-        dDay = Math.abs(dDay);
-
-        return dDay;
-    }
-
     //받아온 response를 파싱해서 자바 객체로 만든다.
     public void processResponse(String response) throws ParseException {
         Gson gson = new Gson();
@@ -180,6 +152,35 @@ public class MainFragmentMovie extends Fragment {
             date.setText("D - " + getDday(movieInfo.date));   //dDay 메소드를 통해 날짜 차이를 얻어 낸 후 뷰에 표시
             ImageLoadTask imageLoadTask = new ImageLoadTask(movieInfo.image, poster);   //클래스 내부에 set하게 정의해 놓음.
             imageLoadTask.execute();
+
+
         }
+    }
+
+    //Dday 계산하는 메소드
+    public static long getDday(String date) throws ParseException {
+        String future = date;
+        String current = "2017-10-01";
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd");
+        Date serverTime = format.parse(future);
+        Date currentTime = format.parse(current);
+
+        long calDate = serverTime.getTime() - currentTime.getTime();
+        long dDay = calDate / (24 * 60 * 60 * 1000);
+        dDay = Math.abs(dDay);
+
+        return dDay;
+    }
+
+    //MainFragmentMovie 인스턴스를 생성할 때 position정보를 갖는 메소드
+    //MovieListFragmnet에서 이 메서드를 호출할 때 입력하는 매개변수를 Bundle에 넣고 이 메소드를 통해 이 클래스로 보내준다.
+    //position매개 변수를 받아와서 ArrayList에서 영화 정보를 뽑을 때 사용된다.
+    public static  MainFragmentMovie newInstance(int position){
+        MainFragmentMovie mainFragmentMovie = new MainFragmentMovie();
+        Bundle args = new Bundle();
+        args.putInt("position", position);
+        mainFragmentMovie.setArguments(args);
+
+        return mainFragmentMovie;
     }
 }
