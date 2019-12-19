@@ -29,8 +29,6 @@ public class AppHelper {
             " )";
     private static String insertDataSql = "insert into outline(id, title, title_eng, dateValue, user_rating, audience_rating, reviewer_rating, reservation_rate, reservation_grade, grade, thumb, image) values(?,?,?,?,?,?,?,?,?,?,?,?)";
 
-
-
     //1단계 데이터베이스를 생성
     public static void openDatabase(Context context, String databaseName){
         println("openDatabase 호출됨.");
@@ -98,6 +96,20 @@ public class AppHelper {
 
                 println("#"+i+"번 Data : "+id+", "+title+", "+title_eng+", "+dateValue+", "+user_rating+", "+audience_rating+", "+reviewer_rating+", "+reservation_rate+", "+reservation_grade+", "+grade+", "+thumb+", "+image);
             }
+        }
+    }
+
+    //데이터 업데이트하기
+    public static void updateData(int id, String title, String title_eng, String dateValue, float user_rating, float audience_rating, float reviewer_rating, float reservation_rate, int reservation_grade, int grade, String thumb, String image){
+        println("데이터 갱신호춯!");
+
+        if(database != null){
+            String updateDataSql = "update outline set id="+id+", title='"+title+"', title_eng='"+title_eng+"', dateValue='"+dateValue+"', user_rating="+user_rating+", audience_rating="+audience_rating+", reviewer_rating="+reviewer_rating+", reservation_rate="+reservation_rate+", reservation_grade="+reservation_grade+", grade="+grade+", thumb='"+thumb+"', image='"+image+"'";
+
+            database.execSQL(updateDataSql);
+            println("데이터 추가함!");
+        }else{
+            println("먼저 데이터베이스를 오픈하세요.");
         }
     }
 
