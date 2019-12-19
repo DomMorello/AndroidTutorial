@@ -113,6 +113,18 @@ public class AppHelper {
         }
     }
 
+    //id값이 6인 레코드가 있나 없나
+    public static boolean isMovieExsist(String tableName, int movie_id){
+        String sql = "select count(*) from " + tableName + " where id=" + movie_id;
+        Cursor cursor = database.rawQuery(sql,null);
+        cursor.moveToNext();
+        if(cursor.getInt(0) > 0){
+            Log.d("isMovieExsist","cursor.getInt값: " + cursor.getInt(0));
+            return true;
+        }
+        return false;
+    }
+
     public static void println(String data){
         Log.d(TAG,data);
     }

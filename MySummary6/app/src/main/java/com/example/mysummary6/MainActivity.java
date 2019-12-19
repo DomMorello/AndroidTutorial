@@ -3,6 +3,7 @@ package com.example.mysummary6;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,5 +18,10 @@ public class MainActivity extends AppCompatActivity {
         AppHelper.selectData("outline");
         AppHelper.updateData(6,"바보","바보","바보",6.6f,6.6f,6.6f,6.6f,6,6,"바보","바보");
         AppHelper.selectData("outline");
+        if(AppHelper.isMovieExsist("outline",6)){
+            Log.d("mmmm","outline 테이블에 id 6인 레코드가 있음!");
+        }else{
+            Log.d("mmmm","outline 테이블에 id 6인 레코드가 없음!");
+        }
     }
 }
