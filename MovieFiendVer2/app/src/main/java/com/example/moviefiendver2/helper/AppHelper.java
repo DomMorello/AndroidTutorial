@@ -20,20 +20,20 @@ public class AppHelper {
 
     //뷰페이저로 보이는 뮤비에 나오는 정보관련 sql 명령어
     private static String createTableMainMovieSql = "create table if not exists MainMovie" +
-            "("+
+            "(" +
             "    _id integer PRIMARY KEY autoincrement, " + //자동으로 늘어나는 고유 순서번호
-            "     id integer, "+
-            "     title text, "+
-            "     title_eng text, "+
-            "     dateValue text, "+
-            "     user_rating float, "+
-            "     audience_rating float, "+
-            "     reviewer_rating float, "+
-            "     reservation_rate float, "+
-            "     reservation_grade integer, "+
-            "     grade integer, "+
-            "     thumb text, "+
-            "     image text"+
+            "     id integer, " +
+            "     title text, " +
+            "     title_eng text, " +
+            "     dateValue text, " +
+            "     user_rating float, " +
+            "     audience_rating float, " +
+            "     reviewer_rating float, " +
+            "     reservation_rate float, " +
+            "     reservation_grade integer, " +
+            "     grade integer, " +
+            "     thumb text, " +
+            "     image text" +
             " )";
 
     private static String insertTupleMainMovieSql =
@@ -52,58 +52,58 @@ public class AppHelper {
                     ") values(?,?,?,?,?,?,?,?,?,?,?,?)";
 
     //1단계 데이터베이스를 생성
-    public static void openDatabase(Context context, String databaseName){
-
-        try{
-            database = context.openOrCreateDatabase(databaseName,Context.MODE_PRIVATE,null);
-            if(database != null){
-                println("데이터베이스"+ databaseName + "오픈됨.");
+    public static void openDatabase(Context context, String databaseName) {
+        println("openDatabase 호출됨.");
+        try {
+            database = context.openOrCreateDatabase(databaseName, Context.MODE_PRIVATE, null);
+            if (database != null) {
+                println("데이터베이스" + databaseName + "오픈됨.");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     //2단계 테이블 생성
-    public static void createTable(String tableName){
+    public static void createTable(String tableName) {
         println("createTable 호출됨: " + tableName);
 
-        if(database != null){
+        if (database != null) {
             //MainMovie table 생성시
-            if(tableName.equals(MAIN_MOVIE)){
+            if (tableName.equals(MAIN_MOVIE)) {
                 database.execSQL(createTableMainMovieSql);
                 println("MainMovie 테이블 생성됨.");
             }
             /* 이 메소도는 테이블 이름마다 각각 다른 테이블을 생성하게 사용할 수 있다. if문 구현해야함. */
-        }else{
+        } else {
             println("데이터베이스를 먼저 오픈하세요.");
         }
     }
 
     //3단계 데이터 추가(메인뮤비에 대한 데이터만 추가하는 메소드: 최초에 1회만 실시된다. 그 이후로는 update를 할 예정)
-    public static void insertMainMovieData(int id, String title, String title_eng, String dateValue, float user_rating, float audience_rating, float reviewer_rating, float reservation_rate, int reservation_grade, int grade, String thumb, String image){
+    public static void insertMainMovieData(int id, String title, String title_eng, String dateValue, float user_rating, float audience_rating, float reviewer_rating, float reservation_rate, int reservation_grade, int grade, String thumb, String image) {
 
-        if(database != null){
-            Object[] params = {id,title,title_eng,dateValue,user_rating,audience_rating,reviewer_rating,reservation_rate,reservation_grade,grade,thumb,image};
-            database.execSQL(insertTupleMainMovieSql,params);
+        if (database != null) {
+            Object[] params = {id, title, title_eng, dateValue, user_rating, audience_rating, reviewer_rating, reservation_rate, reservation_grade, grade, thumb, image};
+            database.execSQL(insertTupleMainMovieSql, params);
             println("MainMovie 테이블에 데이터 추가함!");
-        }else{
+        } else {
             println("먼저 데이터베이스를 오픈하세요.");
         }
     }
 
     //4단계 데이터 조회하기 -> tableName에 따라 그 테이블에 있는 데이터들을 조회한다.
-    public static void selectMainMovieData(String tableName){
+    public static void selectMainMovieData(String tableName) {
         println("selectData 호출함.");
 
-        if(database != null){
+        if (database != null) {
             //MainMovie table data 조회
-            if(tableName.equals(MAIN_MOVIE)){
+            if (tableName.equals(MAIN_MOVIE)) {
                 String sql = "select id, title, title_eng, dateValue, user_rating, audience_rating, reviewer_rating, reservation_rate, reservation_grade, grade, thumb, image from " + tableName;
-                Cursor cursor = database.rawQuery(sql,null);
+                Cursor cursor = database.rawQuery(sql, null);
                 println("조회된 데이터 개수: " + cursor.getCount());
 
-                for(int i=0; i < cursor.getCount(); i++){
+                for (int i = 0; i < cursor.getCount(); i++) {
                     cursor.moveToNext();
                     int id = cursor.getInt(0);
                     String title = cursor.getString(1);
@@ -113,37 +113,47 @@ public class AppHelper {
                     float audience_rating = cursor.getFloat(5);
                     float reviewer_rating = cursor.getFloat(6);
                     float reservation_rate = cursor.getFloat(7);
-                    int reservation_grade  = cursor.getInt(8);
-                    int grade  = cursor.getInt(9);
-                    String thumb  = cursor.getString(10);
-                    String image  = cursor.getString(11);
+                    int reservation_grade = cursor.getInt(8);
+                    int grade = cursor.getInt(9);
+                    String thumb = cursor.getString(10);
+                    String image = cursor.getString(11);
 
-                    println("#"+i+"번 Data : "+id+", "+title+", "+title_eng+", "+dateValue+", "+user_rating+", "+audience_rating+", "+reviewer_rating+", "+reservation_rate+", "+reservation_grade+", "+grade+", "+thumb+", "+image);
+                    println("#" + i + "번 Data : " + id + ", " + title + ", " + title_eng + ", " + dateValue + ", " + user_rating + ", " + audience_rating + ", " + reviewer_rating + ", " + reservation_rate + ", " + reservation_grade + ", " + grade + ", " + thumb + ", " + image);
                 }//for 끝
             }//MainMovie if 끝
-        }else{
+        } else {
             println("database가 null이라 조회할 데이터가 없음!");
         }
     }//메소드 끝
 
     //MainMovie 데이터 업데이트하기
-    public static void updateMainMovieData(int id, String title, String title_eng, String dateValue, float user_rating, float audience_rating, float reviewer_rating, float reservation_rate, int reservation_grade, int grade, String thumb, String image){
+    public static void updateMainMovieData(int movie_id, int id, String title, String title_eng, String dateValue, float user_rating, float audience_rating, float reviewer_rating, float reservation_rate, int reservation_grade, int grade, String thumb, String image) {
         println("updateMainMovieData 데이터 갱신호출!");
 
-        if(database != null){
-            String updateDataSql = "update outline set id="+id+", title='"+title+"', title_eng='"+title_eng+"', dateValue='"+dateValue+"', user_rating="+user_rating+", audience_rating="+audience_rating+", reviewer_rating="+reviewer_rating+", reservation_rate="+reservation_rate+", reservation_grade="+reservation_grade+", grade="+grade+", thumb='"+thumb+"', image='"+image+"'";
+        if (database != null) {
+            String updateDataSql = "update MainMovie set id=" + id + ", title='" + title + "', title_eng='" + title_eng + "', dateValue='" + dateValue + "', user_rating=" + user_rating + ", audience_rating=" + audience_rating + ", reviewer_rating=" + reviewer_rating + ", reservation_rate=" + reservation_rate + ", reservation_grade=" + reservation_grade + ", grade=" + grade + ", thumb='" + thumb + "', image='" + image + "' where id="+movie_id;
 
             database.execSQL(updateDataSql);
             println("데이터 추가함!");
-        }else{
+        } else {
             println("먼저 데이터베이스를 오픈하세요.");
         }
     }
 
-    //데이터베이스 관련 로그찍기
-    public static void println(String data){
-        Log.d(TAG,data);
+    //id값이 ?인 레코드 MainMovie 테이블에 있나 없나
+    public static boolean isMovieExsist(int movie_id) {
+        String sql = "select count(*) from " + MAIN_MOVIE + " where id=" + movie_id;
+        Cursor cursor = database.rawQuery(sql, null);
+        cursor.moveToNext();
+        if (cursor.getInt(0) > 0) {
+            Log.d("isMovieExsist", "cursor.getInt값: " + cursor.getInt(0));
+            return true;
+        }
+        return false;
     }
 
+    public static void println(String data) {
+        Log.d(TAG, data);
+    }
 
 }

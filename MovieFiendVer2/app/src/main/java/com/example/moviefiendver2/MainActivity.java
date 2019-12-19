@@ -60,9 +60,11 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback 
            2. 새로운 activity인 한줄평 작성과 모두보기를 열 때 앱바의 기능을 구현하지 못함
         */
 
-        AppHelper.openDatabase(getApplicationContext(),"Dom's DB"); //앱이 실행되면 데이터베이스를 열어라.
-        AppHelper.createTable(AppHelper.MAIN_MOVIE); //앱이 실행되면 MainMovie table을 생성
-        AppHelper.selectMainMovieData(AppHelper.MAIN_MOVIE);    //데이터가 어떻게 저장돼있나 조회하는 메소드.
+        //openDatabase메서드에서 두번째 parameter databaseName 에 ' 이거 하나 넣었다고 DB조회가 안 됐었다.
+        //이걸로 5시간 정도를 날렸다. 파일이름에는 웬만하면 공백, 특수문자 이런거 절대 넣지말자 이제는...
+        AppHelper.openDatabase(getApplicationContext(), "DomsDB");  //앱이 실행되면 데이터베이스를 열어라.
+        AppHelper.createTable(AppHelper.MAIN_MOVIE);    //앱이 실행되면 MainMovie table을 생성
+
 
     }
 

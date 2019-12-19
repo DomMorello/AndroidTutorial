@@ -71,6 +71,7 @@ public class MainFragmentMovie extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.main_fragment_movie, container, false);
+        Log.d("MainFragmentMovie","onCreateView가 호출됨!!!");
 
         //서버에서 받아온 정보들을 표시할 뷰들을 찾아온다.
         poster = rootView.findViewById(R.id.main_poster); //영화 포스터
@@ -153,6 +154,17 @@ public class MainFragmentMovie extends Fragment {
             ImageLoadTask imageLoadTask = new ImageLoadTask(movieInfo.image, poster);   //클래스 내부에 set하게 정의해 놓음.
             imageLoadTask.execute();
 
+            //서버에 정보를 요청할 때마다 영화data를 받아오는데 조건이 있다.
+            if(AppHelper.isMovieExsist(movieInfo.id)){  //database에 이미 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
+                //insert를 해서 중복되게 record를 삽입하지 말고 원래 있던 record를 서버에서 오는 새로운 정보로 update해라
+                AppHelper.updateMainMovieData(movieInfo.id,movieInfo.id, movieInfo.title, movieInfo.title_eng,movieInfo.date,movieInfo.user_rating,movieInfo.audience_rating,movieInfo.reviewer_rating,movieInfo.reservation_rate,movieInfo.reservation_grade,movieInfo.grade,movieInfo.thumb,movieInfo.image);
+                AppHelper.selectMainMovieData(AppHelper.MAIN_MOVIE);    //로그찍기
+            }else{
+                //최초로 서버에서 받아오는 거면(즉, 영화 id값이 database에 없으면) 새로 record를 만들어서 insert 삽입해라.
+                AppHelper.insertMainMovieData(movieInfo.id, movieInfo.title, movieInfo.title_eng,movieInfo.date,movieInfo.user_rating,movieInfo.audience_rating,movieInfo.reviewer_rating,movieInfo.reservation_rate,movieInfo.reservation_grade,movieInfo.grade,movieInfo.thumb,movieInfo.image);
+                AppHelper.selectMainMovieData(AppHelper.MAIN_MOVIE);    //로그찍기
+            }
+            /* 인터넷 연결 유무에 따른 코딩을 해야 된다. */
 
         }
     }
