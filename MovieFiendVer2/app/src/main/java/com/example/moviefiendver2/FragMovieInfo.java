@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +33,7 @@ import com.example.moviefiendver2.MovieData.LikeResponse;
 import com.example.moviefiendver2.MovieData.MovieResponse;
 import com.example.moviefiendver2.helper.AppHelper;
 import com.example.moviefiendver2.helper.ImageLoadTask;
+import com.example.moviefiendver2.helper.NetworkStatus;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
@@ -52,7 +54,6 @@ public class FragMovieInfo extends Fragment {
     String movieTitle;  //TextView에서 얻어온 title을 저장하기 위한 String변수
     byte[] byteArray;   //이미지를 보내줄 때 사용됨
     int position;   //영화API 서버에서 id값을 구분하기 위한 영화 인덱스
-    int tmpPosition;    //영화 프래그먼트마다 좋아요, 싫어요 버튼 눌러져있는 상태를 구분하기 위한 비교변수 TEST
 
     ImageView poster;   //영화 포스터 뷰
     ImageView grade;    //몇세 관람가 이미지
@@ -98,36 +99,79 @@ public class FragMovieInfo extends Fragment {
 
         scrollView.smoothScrollTo(0, 0); //프래그먼트가 화면에 보여질때마다 스크롤뷰의 최초 위치가 최상단으로 고정되게 함
 
-        //영화 상세정보를 서버에서 얻어오는 메소드
-        requestMovieInfo();
-        //한줄평 정보를 서버에서 얻어오는 메소드
-        requestCommentList();
+        //인터넷이 연결돼있으면 서버에서 정보를 가져와라.
+        if (NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_MOBILE || NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_WIFI) {
+            //영화 상세정보를 서버에서 얻어오는 메소드
+            requestMovieInfo();
+            //한줄평 정보를 서버에서 얻어오는 메소드
+            requestCommentList();
 
-        if (AppHelper.requestQueue == null) {
-            AppHelper.requestQueue = Volley.newRequestQueue(getContext());
+            if (AppHelper.requestQueue == null) {
+                AppHelper.requestQueue = Volley.newRequestQueue(getContext());
+            }
+            //인터넷에 연결돼있지 않으면 데이터베이스에서 데이터를 가져와 뷰에 보여줘라.
+        } else {
+            Log.d("FargMovieInfo", "인터넷 연결 안 돼있을 때 상세화면 데이터베이스에서 가져온거임.");
+            //selectData 메소드에서 테이블이 데이터베이스에 이미 있으면 true를 반환, 만약 table이 false를 반환하므로 테이블이 없으면 아무것도 하지 마라.
+            if(AppHelper.selectData(AppHelper.MOVIE_INFO,position)){
+                AppHelper.selectData(AppHelper.MOVIE_INFO, position);
+                title.setText(AppHelper.info_title);
+                date.setText(AppHelper.info_date.replace("-", ". ") + " 개봉");
+                genre.setText(AppHelper.info_genre);
+                duration.setText(AppHelper.info_duration + "분");
+                like.setText(AppHelper.info_like + "");
+                dislike.setText(AppHelper.info_dislike + "");
+                reservation_grade.setText(AppHelper.info_reservation_grade + "위");
+                reservation_rate.setText(AppHelper.info_reservation_rate + " %");
+                audience_rating.setText(AppHelper.info_audience_rating + " 점");
+                infoRatingBar.setRating(AppHelper.info_audience_rating / 2);  //레이팅바 서버 평점 정보로 표시, 2로 나눠야 별 색깔이 수치에 맞게 채워짐
+                DecimalFormat formatter = new DecimalFormat("###,###");
+                audience.setText(formatter.format(AppHelper.info_audience) + "명");
+                synopsis.setText(AppHelper.info_synopsis);
+                director.setText(AppHelper.info_director);
+                actor.setText(AppHelper.info_actor);
+                //데이터베이스에서 grade 데이터가 12,15,19이냐에 따라 몇세 관람가 이미지를 다르게 설정한다.
+                switch (AppHelper.info_grade) {
+                    case 12:
+                        grade.setImageResource(R.drawable.ic_12);
+                        break;
+                    case 15:
+                        grade.setImageResource(R.drawable.ic_15);
+                        break;
+                    case 19:
+                        grade.setImageResource(R.drawable.ic_19);
+                        break;
+                    default:
+                        grade.setImageResource(R.drawable.announcement);
+                        //IamgeLoadTask는 url을 이용하므로 인터넷이 필요하다. 그래서 데이터베이스에서 url을 가져오는 방법으로는 할 수 없다.
+//            ImageLoadTask imageLoadTask = new ImageLoadTask(AppHelper.info_thumb, poster);   //클래스 내부에 set하게 정의해 놓음.
+//            imageLoadTask.execute();
+                }
+
+            }
         }
 
         likeState = false;
         dislikeState = false;
-        Log.d("FragMovieInfo","onResume likeState: " + likeState);
-        Log.d("FragMovieInfo","onResume dislikeState: " + dislikeState);
+        Log.d("FragMovieInfo", "onResume likeState: " + likeState);
+        Log.d("FragMovieInfo", "onResume dislikeState: " + dislikeState);
         //프래그먼트가 재실행될때마다 좋아요를 안 누른 걸로 한다. 이렇게 하지 않았을 때 프래그먼트를 종료하고 다시 돌아왔을 때 로직에 문제가 생김.
         //이러한 문제들은 영화 고유아이디 정보 등을 데이터베이스에 저장을 하면 가능할 것 같음. 현재 단계에서는 해결하기가 어려움.
 
         /* 좋아요 문제점: 프래그먼트를 종료하고 다시 돌아왔을 때 좋아요를 눌렀었다면 좋아요 눌러져있는 이미지로 보이게 하고 다시 눌렀을 때 취소되는 기능 구현 못함
-        *               프래그먼트를 종료하고 다시 들어왔을 때 좋아요를 눌러져있는 이미지로 보이게 하는 것은 가능하지만 다른 영화정보와 구분할 방법을 못찾음.
-        *               예를 들어, 상세화면에서 좋아요를 눌러 놓고 나갔다가 다시 들어왔을 때 좋아요 이미지가 눌러져있는 이미지로 세팅해 놓으면 likeState가 true인
-        *               것을 인지하고 코딩을 하는 것이다. 그렇게 하면 꾼에서 좋아요를 눌러놓은 상태에서 프래그먼트를 나가고 저스티스 리그 상세화면을 키면 저스티스리그
-        *               상세화면에 있는 좋아요 버튼이 눌러져있는 이미지로 돼있는 오류가 발생함. 그래서 아예 그 기능을 없앰. 좋아요를 누른 경험을 기억하지 못하는 코딩으로 대체함.
-        *               영화상세화면이 갖고 있는 고유정보인 position을 활용해서 이 position을 갖는 영화마다 likeState dislikeState 정보를 각각 따로 저장하면 가능할 것으로 보임.
-        *               내 생각엔 현재 프로젝트에서 사용하는 API를 가지고는 불가능할 것으로 보임.
-        *               좋아요를 누른 적이 있는지 없는지를 저장할 수 있는 데이터베이스 요소가 없기 때문에 이 부분은 구현이 어렵다고 판단.
-        *
-        *  + API 자체적으로 문제가 있는건지 모르겠는데 싫어요를 누른 상태에서 좋아요를 누르면 싫어요 취소요청을 보내고 좋아요 증가요청을 보내도록 코드를 짰다.
-        * Log를 찍어봤을 때 메소드는 정상적으로 성공했다는 메세지를 받았다. 그런데 실제 서버상에 저장되는 데이터가 의도된대로 될 때가 있고 안 될 때가 있다.
-        * 싫어요를 누른 상태에서 좋아요를 누르거나 좋아요를 누른 상태에서 싫어요를 누를 때 어떤 한 동작이 서버에 저장되지 않는다. 여기서 성공하였다라는 메세지를 받았음에도 불구하고
-        * 서버에 저장이 안 되는 문제가 있기 때문에 API의 문제라고 생각한다.
-        *  */
+         *               프래그먼트를 종료하고 다시 들어왔을 때 좋아요를 눌러져있는 이미지로 보이게 하는 것은 가능하지만 다른 영화정보와 구분할 방법을 못찾음.
+         *               예를 들어, 상세화면에서 좋아요를 눌러 놓고 나갔다가 다시 들어왔을 때 좋아요 이미지가 눌러져있는 이미지로 세팅해 놓으면 likeState가 true인
+         *               것을 인지하고 코딩을 하는 것이다. 그렇게 하면 꾼에서 좋아요를 눌러놓은 상태에서 프래그먼트를 나가고 저스티스 리그 상세화면을 키면 저스티스리그
+         *               상세화면에 있는 좋아요 버튼이 눌러져있는 이미지로 돼있는 오류가 발생함. 그래서 아예 그 기능을 없앰. 좋아요를 누른 경험을 기억하지 못하는 코딩으로 대체함.
+         *               영화상세화면이 갖고 있는 고유정보인 position을 활용해서 이 position을 갖는 영화마다 likeState dislikeState 정보를 각각 따로 저장하면 가능할 것으로 보임.
+         *               내 생각엔 현재 프로젝트에서 사용하는 API를 가지고는 불가능할 것으로 보임.
+         *               좋아요를 누른 적이 있는지 없는지를 저장할 수 있는 데이터베이스 요소가 없기 때문에 이 부분은 구현이 어렵다고 판단.
+         *
+         *  + API 자체적으로 문제가 있는건지 모르겠는데 싫어요를 누른 상태에서 좋아요를 누르면 싫어요 취소요청을 보내고 좋아요 증가요청을 보내도록 코드를 짰다.
+         * Log를 찍어봤을 때 메소드는 정상적으로 성공했다는 메세지를 받았다. 그런데 실제 서버상에 저장되는 데이터가 의도된대로 될 때가 있고 안 될 때가 있다.
+         * 싫어요를 누른 상태에서 좋아요를 누르거나 좋아요를 누른 상태에서 싫어요를 누를 때 어떤 한 동작이 서버에 저장되지 않는다. 여기서 성공하였다라는 메세지를 받았음에도 불구하고
+         * 서버에 저장이 안 되는 문제가 있기 때문에 API의 문제라고 생각한다.
+         *  */
     }
 
     @Nullable
@@ -163,15 +207,20 @@ public class FragMovieInfo extends Fragment {
         writeCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent writeCommentIntent = new Intent(getActivity(), WriteCommentActivity.class);
-                writeCommentIntent.putExtra("title", movieResponse.result.get(0).title);    //작성하기 activity에 영화제목을 넘겨줌
-                writeCommentIntent.putExtra("position", position);   //영화 인덱스인 position을 넘겨준다.
-                //이미지 보내주기
-                writeCommentIntent.putExtra("integer", 300);
-                writeCommentIntent.putExtra("double", 3.141592);
-                writeCommentIntent.putExtra("image", byteArray);
+                //한줄평 작성은 인터넷에 연결돼있을 때만 할 수 있다.
+                if (NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_MOBILE || NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_WIFI) {
+                    Intent writeCommentIntent = new Intent(getActivity(), WriteCommentActivity.class);
+                    writeCommentIntent.putExtra("title", movieResponse.result.get(0).title);    //작성하기 activity에 영화제목을 넘겨줌
+                    writeCommentIntent.putExtra("position", position);   //영화 인덱스인 position을 넘겨준다.
+                    //이미지 보내주기
+                    writeCommentIntent.putExtra("integer", 300);
+                    writeCommentIntent.putExtra("double", 3.141592);
+                    writeCommentIntent.putExtra("image", byteArray);
 
-                startActivity(writeCommentIntent); //작성하기 activity실행
+                    startActivity(writeCommentIntent); //작성하기 activity실행
+                } else {
+                    Toast.makeText(getContext(), "인터넷이 없습니다.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -205,23 +254,28 @@ public class FragMovieInfo extends Fragment {
             @Override
             public void onClick(View view) {
 
-                if (likeState) {
-                    decrLikeCount();
-                    likeyn = "N";   //좋아요를 1감소하는 메소드 이므로 서버에 N으로 전달
-                    sendLikeynToServer(likeyn);
-                } else {
-                    incrLikeCount();
-                    likeyn = "Y"; //좋아요를 1증가하는 메소드 이므로 서버에 Y로 전달
-                    sendLikeynToServer(likeyn);
-                    if (dislikeState) {   //싫어요 버튼 눌러져있는 상태였다면 상태를 안 눌린 상태로 바꾸고 싫어요 숫자도 하나 줄인다.
-                        decrDislikeCount();
-                        dislikeyn = "N";    //싫어요를 1감소하는 메소드 이므로 서버에 N으로 전달
-                        sendDisLikeynToServer(dislikeyn);
-                        dislikeState = !dislikeState;
+                //인터넷이 연결돼있어야 좋아요를 누를 수 있다.
+                if (NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_MOBILE || NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_WIFI) {
+                    if (likeState) {
+                        decrLikeCount();
+                        likeyn = "N";   //좋아요를 1감소하는 메소드 이므로 서버에 N으로 전달
+                        sendLikeynToServer(likeyn);
+                    } else {
+                        incrLikeCount();
+                        likeyn = "Y"; //좋아요를 1증가하는 메소드 이므로 서버에 Y로 전달
+                        sendLikeynToServer(likeyn);
+                        if (dislikeState) {   //싫어요 버튼 눌러져있는 상태였다면 상태를 안 눌린 상태로 바꾸고 싫어요 숫자도 하나 줄인다.
+                            decrDislikeCount();
+                            dislikeyn = "N";    //싫어요를 1감소하는 메소드 이므로 서버에 N으로 전달
+                            sendDisLikeynToServer(dislikeyn);
+                            dislikeState = !dislikeState;
+                        }
                     }
-                }
 
-                likeState = !likeState; //클릭을 했기 때문에 상태가 눌린상태에서 안눌린상태로, 안눌린 상태에서 눌린 상태로 변해야 함.
+                    likeState = !likeState; //클릭을 했기 때문에 상태가 눌린상태에서 안눌린상태로, 안눌린 상태에서 눌린 상태로 변해야 함.
+                } else {
+                    Toast.makeText(getContext(), "인터넷이 없습니다.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -231,22 +285,27 @@ public class FragMovieInfo extends Fragment {
         dislikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (dislikeState) {
-                    decrDislikeCount();
-                    dislikeyn = "N";    //싫어요를 1감소하는 메소드 이므로 서버에 N으로 전달
-                    sendDisLikeynToServer(dislikeyn);
-                } else {
-                    incrDislikeCount();
-                    dislikeyn = "Y";   //좋아요를 1증가하는 메소드 이므로 서버에 Y로 전달
-                    sendDisLikeynToServer(dislikeyn);
-                    if (likeState) {  //좋아요 버튼 눌러져있는 상태였다면 상태를 안 눌린 상태로 바꾸고 좋아요 숫자도 하나 줄인다.
-                        decrLikeCount();
-                        likeyn = "N";   //좋아요를 1감소하는 메소드 이므로 서버에 N으로 전달
-                        sendLikeynToServer(likeyn);
-                        likeState = !likeState;
+                //인터넷이 연결돼있어야 싫어요를 누를 수 있다.
+                if (NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_MOBILE || NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_WIFI) {
+                    if (dislikeState) {
+                        decrDislikeCount();
+                        dislikeyn = "N";    //싫어요를 1감소하는 메소드 이므로 서버에 N으로 전달
+                        sendDisLikeynToServer(dislikeyn);
+                    } else {
+                        incrDislikeCount();
+                        dislikeyn = "Y";   //좋아요를 1증가하는 메소드 이므로 서버에 Y로 전달
+                        sendDisLikeynToServer(dislikeyn);
+                        if (likeState) {  //좋아요 버튼 눌러져있는 상태였다면 상태를 안 눌린 상태로 바꾸고 좋아요 숫자도 하나 줄인다.
+                            decrLikeCount();
+                            likeyn = "N";   //좋아요를 1감소하는 메소드 이므로 서버에 N으로 전달
+                            sendLikeynToServer(likeyn);
+                            likeState = !likeState;
+                        }
                     }
+                    dislikeState = !dislikeState;   //클릭을 했기 때문에 상태가 눌린상태에서 안눌린상태로, 안눌린 상태에서 눌린 상태로 변해야 함.
+                } else {
+                    Toast.makeText(getContext(), "인터넷이 없습니다.", Toast.LENGTH_SHORT).show();
                 }
-                dislikeState = !dislikeState;   //클릭을 했기 때문에 상태가 눌린상태에서 안눌린상태로, 안눌린 상태에서 눌린 상태로 변해야 함.
             }
         });
 
@@ -344,7 +403,22 @@ public class FragMovieInfo extends Fragment {
             resize.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             byteArray = stream.toByteArray();
 
+            //서버에 정보를 요청할 때마다 영화data를 받아오는데 조건이 있다.
+            if (AppHelper.isMovieExsist(AppHelper.MOVIE_INFO, movieResponse.result.get(0).id)) {  //database에 이미 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
+                //insert를 해서 중복되게 record를 삽입하지 말고 원래 있던 record를 서버에서 오는 새로운 정보로 update해라
+                AppHelper.updateMovieInfoData(movieResponse.result.get(0).id,movieResponse.result.get(0).title,movieResponse.result.get(0).id,movieResponse.result.get(0).date,movieResponse.result.get(0).user_rating,movieResponse.result.get(0).audience_rating,movieResponse.result.get(0).reviewer_rating,movieResponse.result.get(0).reservation_rate,movieResponse.result.get(0).reservation_grade,movieResponse.result.get(0).grade,movieResponse.result.get(0).thumb,movieResponse.result.get(0).image,movieResponse.result.get(0).photos,movieResponse.result.get(0).videos,movieResponse.result.get(0).outlinks,movieResponse.result.get(0).genre,movieResponse.result.get(0).duration,movieResponse.result.get(0).audience,movieResponse.result.get(0).synopsis,movieResponse.result.get(0).director,movieResponse.result.get(0).actor,movieResponse.result.get(0).like,movieResponse.result.get(0).dislike);
+                AppHelper.selectData(AppHelper.MOVIE_INFO);    //로그찍기
+            } else {
+                //최초로 서버에서 받아오는 거면(즉, 영화 id값이 database에 없으면) 새로 record를 만들어서 insert 삽입해라.
+                AppHelper.insertMovieInfoData(movieResponse.result.get(0).title,movieResponse.result.get(0).id,movieResponse.result.get(0).date,movieResponse.result.get(0).user_rating,movieResponse.result.get(0).audience_rating,movieResponse.result.get(0).reviewer_rating,movieResponse.result.get(0).reservation_rate,movieResponse.result.get(0).reservation_grade,movieResponse.result.get(0).grade,movieResponse.result.get(0).thumb,movieResponse.result.get(0).image,movieResponse.result.get(0).photos,movieResponse.result.get(0).videos,movieResponse.result.get(0).outlinks,movieResponse.result.get(0).genre,movieResponse.result.get(0).duration,movieResponse.result.get(0).audience,movieResponse.result.get(0).synopsis,movieResponse.result.get(0).director,movieResponse.result.get(0).actor,movieResponse.result.get(0).like,movieResponse.result.get(0).dislike);
+                AppHelper.selectData(AppHelper.MOVIE_INFO);    //로그찍기
+            }
 
+            /* 이 부분에서 전부 다 잘 되는데 러빙빈센트 항목에서 data를 update할 때 오류가 난다. 다른 영화들은 문제가 없는데 왜 러빙빈센트에서만 오류가 날까? 문제를 찾기 어렵다.
+            해야 할 일 : 1. 이미지 로드하기(최초에 이미지 url을 통해 이미지를 다운로드해서 기기에 저장하고 그 이후에는 인터넷 없을 때는
+            기기에 저장된 이미지를 갖고 와야 될 것 같다.)
+                        2. 모두보기 한줄평 리스트 받아와서 데이터베이스에 저장하고 보여주기 , 추천 막기 등
+             */
         }
     }
 
@@ -593,10 +667,7 @@ public class FragMovieInfo extends Fragment {
         }
     }//어댑터 클래스 끝
 
-    /* 이 부분도 서버에 한줄평작성을 저장하면 필요가 없을 것 같군! */
-    /* 1. 모두보기를 눌렀을 때 서버에 저장된 정보들이 똑같이 보여지는 것 구현해야함.
-       2. 한줄평 작성해서 서버에 저장하는 것 구현해야함.
-    */
+    /* 이 부분도 서버에 한줄평작성을 저장하면 필요가 없군! */
     //한줄평 작성과 평점 데이터를 불러오는 것 코드
 //    @Override
 //    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {

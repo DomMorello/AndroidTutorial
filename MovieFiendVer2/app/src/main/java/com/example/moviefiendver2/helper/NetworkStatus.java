@@ -3,6 +3,7 @@ package com.example.moviefiendver2.helper;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 public class NetworkStatus {
 
@@ -18,9 +19,13 @@ public class NetworkStatus {
         if(networkInfo != null){
             int type = networkInfo.getType();
             if(type == ConnectivityManager.TYPE_MOBILE){
+                Log.d("NetworkStatus","모바일 인터넷에 연결돼있음");
                 return TYPE_MOBILE;
             }else if(type == ConnectivityManager.TYPE_WIFI){
+                Log.d("NetworkStatus","와이파이 인터넷에 연결돼있음");
                 return TYPE_WIFI;
+            }else{
+                Log.d("NetworkStatus","인터넷에 연결돼있지 않음");
             }
         }
         return TYPE_NOT_CONNECTED;

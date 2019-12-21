@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback 
         //이걸로 5시간 정도를 날렸다. 파일이름에는 웬만하면 공백, 특수문자 이런거 절대 넣지말자 이제는...
         AppHelper.openDatabase(getApplicationContext(), "DomsDB");  //앱이 실행되면 데이터베이스를 열어라.
         AppHelper.createTable(AppHelper.MAIN_MOVIE);    //앱이 실행되면 MainMovie table을 생성
-
+        AppHelper.createTable(AppHelper.MOVIE_INFO);    //앱이 실행되면 MovieInfo table을 생성
 
     }
 
