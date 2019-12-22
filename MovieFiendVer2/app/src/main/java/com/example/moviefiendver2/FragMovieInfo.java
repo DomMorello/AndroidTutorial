@@ -224,7 +224,7 @@ public class FragMovieInfo extends Fragment {
             }
         });
 
-        //모두보기 버튼을 눌렀을 때 한줄평 전체 listview를 보여주는 메소드
+        //모두보기 버튼을 눌렀을 때 한줄평 전체 listview를 보여주는 코드
         final Button readMoreButton = rootView.findViewById(R.id.read_more);
         readMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -242,6 +242,7 @@ public class FragMovieInfo extends Fragment {
                 readMoreIntent.putExtra("image", byteArray);
 
                 startActivity(readMoreIntent);  //새로운 activity에서 작성하기를 누른 후 리스트정보를 받아와야 하기 때문에 ForResult
+                //-> 모두보기 액티비티에서도 서버에서 받아와서 보여주면 되니까 forResult 취소.
             }
 
 
@@ -414,11 +415,6 @@ public class FragMovieInfo extends Fragment {
                 AppHelper.selectData(AppHelper.MOVIE_INFO);    //로그찍기
             }
 
-            /* 이 부분에서 전부 다 잘 되는데 러빙빈센트 항목에서 data를 update할 때 오류가 난다. 다른 영화들은 문제가 없는데 왜 러빙빈센트에서만 오류가 날까? 문제를 찾기 어렵다.
-            해야 할 일 : 1. 이미지 로드하기(최초에 이미지 url을 통해 이미지를 다운로드해서 기기에 저장하고 그 이후에는 인터넷 없을 때는
-            기기에 저장된 이미지를 갖고 와야 될 것 같다.)
-                        2. 모두보기 한줄평 리스트 받아와서 데이터베이스에 저장하고 보여주기 , 추천 막기 등
-             */
         }
     }
 
@@ -469,7 +465,7 @@ public class FragMovieInfo extends Fragment {
             commentResponse = gson.fromJson(response, CommentResponse.class);
             Log.d("FragMovieInfo", "테스트중: " + commentResponse.result.size()); //서버상 list가 여러개이므로 전부(10개로 세팅) 다 온다.
 
-            //서버에 default로 지정된 최근 10개 한줄평을 다 얻어와서 commentItem에 세팅한 후 10개를 전부 어댑터 내부에 있는 commentItems List에 add한다.
+            //서버에 default로 지정된 최근 3개 한줄평을 다 얻어와서 commentItem에 세팅한 후 3개를 전부 어댑터 내부에 있는 commentItems List에 add한다.
             if (commentItems.size() == 0) {
                 for (int i = 0; i < commentResponse.result.size(); i++) {
                     CommentItem commentItem = new CommentItem();    //CommentItem객체를 생성해서
@@ -481,11 +477,24 @@ public class FragMovieInfo extends Fragment {
                     commentItem.setRecommend(commentResponse.result.get(i).recommend);
                     commentItem.setId(commentResponse.result.get(i).id);    //id값을 저장해놔야 추천할 때 사용할 수 있다.
                     commentAdapter.addItem(commentItem);    //어댑터에 들어갈 items ArrayList에 추가한다.
-                }
+
+                    //서버에 정보를 요청할 때마다 Comment data를 받아오는데 조건이 있다.
+                    //comment 고유 id와 movieId가 동일한 데이터가 데이터베이스에 이미 있다면 update를 해라.
+                    if (AppHelper.isCommentExsist(AppHelper.COMMENT, commentResponse.result.get(i).id, commentResponse.result.get(i).movieId)) {  //database에 이미 한줄평 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
+                        //insert를 해서 중복되게 record를 삽입하지 말고 원래 있던 record를 서버에서 오는 새로운 정보로 update해라
+                        AppHelper.updateCommentData(commentResponse.result.get(i).id,commentResponse.result.get(i).writer,commentResponse.result.get(i).movieId,commentResponse.result.get(i).writer_image,commentResponse.result.get(i).time,commentResponse.result.get(i).timestamp,commentResponse.result.get(i).rating,commentResponse.result.get(i).contents,commentResponse.result.get(i).recommend);
+                        AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
+                    } else {
+                        //최초로 서버에서 받아오는 거면(즉, 한줄평 id값과 movieId값이 database에 없으면) 새로 record를 만들어서 insert 삽입해라.
+                        AppHelper.insertCommentData(commentResponse.result.get(i).id,commentResponse.result.get(i).writer,commentResponse.result.get(i).movieId,commentResponse.result.get(i).writer_image,commentResponse.result.get(i).time,commentResponse.result.get(i).timestamp,commentResponse.result.get(i).rating,commentResponse.result.get(i).contents,commentResponse.result.get(i).recommend);
+                        AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
+                    }
+                }//for 끝
             }
             commentAdapter.notifyDataSetChanged();
             Log.d("FragMovieInfo", "어댑터 리스트에 추가: " + commentItems.size());
             //반복문만 있으면 상세화면에 들어갈 때 마다 commentItems list에 10개씩 추가로 들어간다.
+
 
 
         }

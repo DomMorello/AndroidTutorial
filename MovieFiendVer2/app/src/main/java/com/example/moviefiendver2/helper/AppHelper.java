@@ -19,6 +19,7 @@ public class AppHelper {
     private static final String TAG = "AppHelper";
     public static final String MAIN_MOVIE = "MainMovie";    //메인화면 테이블이름
     public static final String MOVIE_INFO = "MovieInfo";    //상세화면 테이블이름
+    public static final String COMMENT = "Comment";    //한줄평 테이블이름
 
     //다른 클래스에서 MainMovie table 정보를 접근해서 사용할 수 있도록 선언했다. -> 이 방법이 좋은 건지는 모르겠다.(memory leak?)
     public static String main_title;
@@ -109,6 +110,20 @@ public class AppHelper {
                     "reservation_grade, grade, thumb, image, photos, videos, outlinks, genre, duration, audience, " +
                     "synopsis, director, actor, likeCount, dislike) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
+    private static String createTableCommentSql = "create table if not exists Comment("
+            +"_id integer PRIMARY KEY autoincrement, "+
+            "id integer, "+
+            "writer text, "+
+            "movieId integer, "+
+            "writer_image text, "+
+            "time text, "+
+            "timestamp integer, "+
+            "rating float, "+
+            "contents text, "+
+            "recommend integer)";
+
+    private static String insertTupleCommentSql = "insert into Comment(id, writer, movieId, writer_image, time, timestamp, rating, contents, recommend) values(?,?,?,?,?,?,?,?,?)";
+
     //1단계 데이터베이스를 생성
     public static void openDatabase(Context context, String databaseName) {
         println("openDatabase 호출됨.");
@@ -134,6 +149,9 @@ public class AppHelper {
             } else if (tableName.equals(MOVIE_INFO)) {
                 database.execSQL(createTableMovieInfoSql);
                 println("MovieInfo 테이블 생성됨.");
+            } else if(tableName.equals(COMMENT)){
+                database.execSQL(createTableCommentSql);
+                println("Comment 테이블 생성됨.");
             }
 
         } else {
@@ -164,6 +182,18 @@ public class AppHelper {
                     grade, thumb, image, photos, videos, outlinks, genre, duration, audience, synopsis, director, actor, likeCount, dislike};
             database.execSQL(insertTupleMovieInfoSql, params);
             println("MovieInfo 테이블에 데이터 추가함!");
+        } else {
+            println("먼저 데이터베이스를 오픈하세요.");
+        }
+    }
+
+    //3단계 데이터 추가(한줄평 테이블에 대한 데이터만 추가하는 메소드: 최초에 1회만 실시된다. 그 이후로는 update를 할 예정)
+    public static void insertCommentData(int id, String writer, int movieId, String writer_image, String time, int timestamp, float rating, String contents, int recommend) {
+
+        if (database != null) {
+            Object[] params = {id , writer, movieId, writer_image, time, timestamp, rating, contents, recommend};
+            database.execSQL(insertTupleCommentSql, params);
+            println("Comment 테이블에 데이터 추가함!");
         } else {
             println("먼저 데이터베이스를 오픈하세요.");
         }
@@ -248,7 +278,33 @@ public class AppHelper {
                     println("database가 null이라 조회할 데이터가 없음!");
                     return false;
                 }
-            }//else if 끝
+            }else if(tableName.equals(COMMENT)){
+                String sql = "select id, writer, movieId, writer_image, time, timestamp, rating, contents, recommend from " + tableName;
+
+                Cursor cursor = database.rawQuery(sql, null);
+                println("조회된 데이터 개수: " + cursor.getCount());
+                //테이블에 데이터가 존재하면 아래 코드를 실행.
+                if(cursor.getCount() > 0){
+                    for (int i = 0; i < cursor.getCount(); i++) {
+                        cursor.moveToNext();
+                        int id = cursor.getInt(0);
+                        String writer = cursor.getString(1);
+                        int movieId = cursor.getInt(2);
+                        String writer_image = cursor.getString(3);
+                        String time = cursor.getString(4);
+                        int timestamp = cursor.getInt(5);
+                        float rating = cursor.getFloat(6);
+                        String contents = cursor.getString(7);
+                        int recommend = cursor.getInt(8);
+
+                        println("#" + i + "번 Data : " + id + ", " + writer + ", " + movieId + ", " + writer_image + ", " + time + ", " + timestamp + ", " + rating + ", " + contents + ", " + recommend);
+                    }//for 끝
+                    return true;
+                }else{
+                    println("database가 null이라 조회할 데이터가 없음!");
+                    return false;
+                }
+            }
         } else {
             println("database가 null이라 조회할 데이터가 없음!");
             return false;
@@ -330,6 +386,31 @@ public class AppHelper {
                     Log.d(TAG,"데이터베이스에 해당 데이터가 없음!");
                     return false;
                 }
+            }else if(tableName.equals(COMMENT)){
+                String sql = "select id, writer, movieId, writer_image, time, timestamp, rating, contents, recommend from " + tableName + " where id=" + movie_id;  //where조건절이 추가됨.
+
+                Cursor cursor = database.rawQuery(sql, null);
+                println("조회된 데이터 개수: " + cursor.getCount());
+                //테이블에 데이터가 존재하면 아래 코드를 실행.
+                if(cursor.getCount() > 0){
+                    cursor.moveToNext();
+
+                    int id = cursor.getInt(0);
+                    String writer = cursor.getString(1);
+                    int movieId = cursor.getInt(2);
+                    String writer_image = cursor.getString(3);
+                    String time = cursor.getString(4);
+                    int timestamp = cursor.getInt(5);
+                    float rating = cursor.getFloat(6);
+                    String contents = cursor.getString(7);
+                    int recommend = cursor.getInt(8);
+
+                    println("#Data : " + id + ", " + writer + ", " + movieId + ", " + writer_image + ", " + time + ", " + timestamp + ", " + rating + ", " + contents + ", " + recommend);
+                    return true;
+                }else{
+                    Log.d(TAG,"데이터베이스에 해당 데이터가 없음!");
+                    return false;
+                }
             }
         } else {
             println("database가 null이라 조회할 데이터가 없음!");
@@ -365,10 +446,36 @@ public class AppHelper {
             println("먼저 데이터베이스를 오픈하세요.");
         }
     }
+//    id, writer, movieId, writer_image, time, timestamp, rating, contents, recommend
+    //Comment 데이터 업데이트하기
+    public static void updateCommentData(int id, String writer, int movieId, String writer_image, String time, int timestamp, float rating, String contents, int recommend) {
+        println("updateCommentData 데이터 갱신호출!");
+
+        if (database != null) {
+            String updateDataSql = "update Comment set id=" + id + ", writer='" + writer + "', movieId=" + movieId + ", writer_image='" + writer_image + "', time='" + time + "', timestamp=" + timestamp + ", rating=" + rating + ", contents='" + contents + "', recommend=" + recommend +" where id=" + id +" and movieId=" + movieId;   //movie_id가 아닌 커멘트 자체 아이디인 id 를 조건절로 해서 업데이트 해야함. 그리고 movieId도 넣어줘야 완벽한 중복이 제거된다.
+
+            database.execSQL(updateDataSql);
+            println("comment_id가 " + id + "인 Comment table 레코드에 데이터 업데이트함!!");
+        } else {
+            println("먼저 데이터베이스를 오픈하세요.");
+        }
+    }
 
     //id값이 ?인 레코드가 테이블에 있나 없나
     public static boolean isMovieExsist(String tableName, int movie_id) {
         String sql = "select count(*) from " + tableName + " where id=" + movie_id;
+        Cursor cursor = database.rawQuery(sql, null);
+        cursor.moveToNext();
+        if (cursor.getInt(0) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    //Comment id값이 ?이고 movie_id값이 ?인 레코드가 테이블에 있나 없나 -> movie_id도 같이 검사를 해줘야 한다.
+    //서로 다른 movie_id 한줄평에서는 comment id가 중복되는게 있기 때문이다.
+    public static boolean isCommentExsist(String tableName, int comment_id, int movie_id) {
+        String sql = "select count(*) from " + tableName + " where id=" + comment_id +" and movieId="+ movie_id;
         Cursor cursor = database.rawQuery(sql, null);
         cursor.moveToNext();
         if (cursor.getInt(0) > 0) {
@@ -382,3 +489,5 @@ public class AppHelper {
     }
 
 }
+
+/* 지금 커멘트가 영화별로 추가가 돼야 되는데 안 되고 있다. 문제를 찾아보자.  */

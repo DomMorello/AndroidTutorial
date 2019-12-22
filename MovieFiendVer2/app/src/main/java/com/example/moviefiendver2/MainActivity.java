@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback 
         AppHelper.openDatabase(getApplicationContext(), "DomsDB");  //앱이 실행되면 데이터베이스를 열어라.
         AppHelper.createTable(AppHelper.MAIN_MOVIE);    //앱이 실행되면 MainMovie table을 생성
         AppHelper.createTable(AppHelper.MOVIE_INFO);    //앱이 실행되면 MovieInfo table을 생성
+        AppHelper.createTable(AppHelper.COMMENT);    //앱이 실행되면 Comment table을 생성
 
     }
 
