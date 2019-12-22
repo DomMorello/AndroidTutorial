@@ -95,7 +95,7 @@ public class MainFragmentMovie extends Fragment {
             Log.d("MainFragmentMovie","인터넷 연결 안 돼있을 때 메인화면 데이터베이스에서 가져온거임.");
             //table이 기존에 존재 하면 실행 아니면 아무것도 하지 않는다.
             if(AppHelper.selectData(AppHelper.MAIN_MOVIE)){ //select메소드가 table존재 유무를 알려준다. 존재하면 true, 아니면 false이다.
-                AppHelper.selectData(AppHelper.MAIN_MOVIE,position+1); //position+1 해야 영화 id값이 나옴.
+                AppHelper.selectData(AppHelper.MAIN_MOVIE,position+1,0); //position+1 해야 영화 id값이 나옴.
                 mainTitle.setText(AppHelper.main_title);    //AppHelper클래스에 public으로 선언해놔서 갖고와서 사용할 수 있는데 좋은 방법인지는 모르겠다.
                 grade.setText(AppHelper.main_grade + "세 관람가");
                 reservationRate.setText(AppHelper.main_reservation_rate + "%");

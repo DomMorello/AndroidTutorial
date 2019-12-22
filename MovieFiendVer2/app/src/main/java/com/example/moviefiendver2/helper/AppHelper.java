@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
-import com.example.moviefiendver2.R;
 
 public class AppHelper {
 
@@ -44,6 +43,14 @@ public class AppHelper {
     public static String info_actor;
     public static String info_thumb;
     public static int info_grade;
+
+    //다른 클래스에서 Comment table 정보를 접근해서 사용할 수 있도록 선언했다.
+    public static String com_writer;
+    public static String com_contents;
+    public static float com_rating;
+    public static String com_time;
+    public static int com_recommend;
+    public static int com_id;
 
     //뷰페이저로 보이는 뮤비에 나오는 정보관련 sql 명령어
     private static String createTableMainMovieSql = "create table if not exists MainMovie" +
@@ -315,7 +322,8 @@ public class AppHelper {
     //메소드 오버로딩
     //데이터베이스에서 특정 아이디값을 가진 정보를 조회한다.-> 인터넷연결 안 돼있을 때 가져와서 쓰기 위함
     //return boolean -> 테이블에 조회할 데이터가 있으면 true, 아니면 false;
-    public static boolean selectData(String tableName, int movie_id) {
+    //TEST -> movie_id만 있어도 어차피 데이터가 다 저장돼있는 거기 때문에 굳이 comment_id까지 검사할 필요가 없을 것 같은데? 시도해보자.
+    public static boolean selectData(String tableName, int movie_id, int comment_id) {
         println("movie_id가 " + movie_id + "인 데이터를 조회함.");
 
         if (database != null) {
@@ -387,7 +395,7 @@ public class AppHelper {
                     return false;
                 }
             }else if(tableName.equals(COMMENT)){
-                String sql = "select id, writer, movieId, writer_image, time, timestamp, rating, contents, recommend from " + tableName + " where id=" + movie_id;  //where조건절이 추가됨.
+                String sql = "select id, writer, movieId, writer_image, time, timestamp, rating, contents, recommend from " + tableName + " where id=" + comment_id +" and movieId=" + movie_id;  //where조건절이 추가됨. test중 두 개 다 필요하다.
 
                 Cursor cursor = database.rawQuery(sql, null);
                 println("조회된 데이터 개수: " + cursor.getCount());
@@ -395,17 +403,17 @@ public class AppHelper {
                 if(cursor.getCount() > 0){
                     cursor.moveToNext();
 
-                    int id = cursor.getInt(0);
-                    String writer = cursor.getString(1);
+                    com_id = cursor.getInt(0);
+                    com_writer = cursor.getString(1);
                     int movieId = cursor.getInt(2);
                     String writer_image = cursor.getString(3);
-                    String time = cursor.getString(4);
+                    com_time = cursor.getString(4);
                     int timestamp = cursor.getInt(5);
-                    float rating = cursor.getFloat(6);
-                    String contents = cursor.getString(7);
-                    int recommend = cursor.getInt(8);
+                    com_rating = cursor.getFloat(6);
+                    com_contents = cursor.getString(7);
+                    com_recommend = cursor.getInt(8);
 
-                    println("#Data : " + id + ", " + writer + ", " + movieId + ", " + writer_image + ", " + time + ", " + timestamp + ", " + rating + ", " + contents + ", " + recommend);
+                    println("#Data : " + com_id + ", " + com_writer + ", " + movieId + ", " + writer_image + ", " + com_time + ", " + timestamp + ", " + com_rating + ", " + com_contents + ", " + com_recommend);
                     return true;
                 }else{
                     Log.d(TAG,"데이터베이스에 해당 데이터가 없음!");

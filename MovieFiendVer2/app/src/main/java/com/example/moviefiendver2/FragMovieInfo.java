@@ -112,9 +112,9 @@ public class FragMovieInfo extends Fragment {
             //인터넷에 연결돼있지 않으면 데이터베이스에서 데이터를 가져와 뷰에 보여줘라.
         } else {
             Log.d("FargMovieInfo", "인터넷 연결 안 돼있을 때 상세화면 데이터베이스에서 가져온거임.");
-            //selectData 메소드에서 테이블이 데이터베이스에 이미 있으면 true를 반환, 만약 table이 false를 반환하므로 테이블이 없으면 아무것도 하지 마라.
-            if(AppHelper.selectData(AppHelper.MOVIE_INFO,position)){
-                AppHelper.selectData(AppHelper.MOVIE_INFO, position);
+            //selectData 메소드에서 테이블이 데이터베이스에 이미 있으면 true를 반환, 아니면 table이 false를 반환하므로 테이블이 없으면 아무것도 하지 마라.
+            if(AppHelper.selectData(AppHelper.MOVIE_INFO,position,0)){
+                AppHelper.selectData(AppHelper.MOVIE_INFO, position,0);
                 title.setText(AppHelper.info_title);
                 date.setText(AppHelper.info_date.replace("-", ". ") + " 개봉");
                 genre.setText(AppHelper.info_genre);
@@ -463,7 +463,7 @@ public class FragMovieInfo extends Fragment {
         CommentResponse info = gson.fromJson(response, CommentResponse.class);
         if (info.message.equals("movie readCommentList 성공")) {
             commentResponse = gson.fromJson(response, CommentResponse.class);
-            Log.d("FragMovieInfo", "테스트중: " + commentResponse.result.size()); //서버상 list가 여러개이므로 전부(10개로 세팅) 다 온다.
+            Log.d("FragMovieInfo", "테스트중: " + commentResponse.result.size()); //서버상 list가 여러개이므로 전부(3개로 세팅) 다 온다.
 
             //서버에 default로 지정된 최근 3개 한줄평을 다 얻어와서 commentItem에 세팅한 후 3개를 전부 어댑터 내부에 있는 commentItems List에 add한다.
             if (commentItems.size() == 0) {
@@ -478,17 +478,17 @@ public class FragMovieInfo extends Fragment {
                     commentItem.setId(commentResponse.result.get(i).id);    //id값을 저장해놔야 추천할 때 사용할 수 있다.
                     commentAdapter.addItem(commentItem);    //어댑터에 들어갈 items ArrayList에 추가한다.
 
-                    //서버에 정보를 요청할 때마다 Comment data를 받아오는데 조건이 있다.
-                    //comment 고유 id와 movieId가 동일한 데이터가 데이터베이스에 이미 있다면 update를 해라.
-                    if (AppHelper.isCommentExsist(AppHelper.COMMENT, commentResponse.result.get(i).id, commentResponse.result.get(i).movieId)) {  //database에 이미 한줄평 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
-                        //insert를 해서 중복되게 record를 삽입하지 말고 원래 있던 record를 서버에서 오는 새로운 정보로 update해라
-                        AppHelper.updateCommentData(commentResponse.result.get(i).id,commentResponse.result.get(i).writer,commentResponse.result.get(i).movieId,commentResponse.result.get(i).writer_image,commentResponse.result.get(i).time,commentResponse.result.get(i).timestamp,commentResponse.result.get(i).rating,commentResponse.result.get(i).contents,commentResponse.result.get(i).recommend);
-                        AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
-                    } else {
-                        //최초로 서버에서 받아오는 거면(즉, 한줄평 id값과 movieId값이 database에 없으면) 새로 record를 만들어서 insert 삽입해라.
-                        AppHelper.insertCommentData(commentResponse.result.get(i).id,commentResponse.result.get(i).writer,commentResponse.result.get(i).movieId,commentResponse.result.get(i).writer_image,commentResponse.result.get(i).time,commentResponse.result.get(i).timestamp,commentResponse.result.get(i).rating,commentResponse.result.get(i).contents,commentResponse.result.get(i).recommend);
-                        AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
-                    }
+//                    //서버에 정보를 요청할 때마다 Comment data를 받아오는데 조건이 있다.
+//                    //comment 고유 id와 movieId가 동일한 데이터가 데이터베이스에 이미 있다면 update를 해라.
+//                    if (AppHelper.isCommentExsist(AppHelper.COMMENT, commentResponse.result.get(i).id, position)) {  //database에 이미 한줄평 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
+//                        //insert를 해서 중복되게 record를 삽입하지 말고 원래 있던 record를 서버에서 오는 새로운 정보로 update해라
+//                        AppHelper.updateCommentData(commentResponse.result.get(i).id,commentResponse.result.get(i).writer,commentResponse.result.get(i).movieId,commentResponse.result.get(i).writer_image,commentResponse.result.get(i).time,commentResponse.result.get(i).timestamp,commentResponse.result.get(i).rating,commentResponse.result.get(i).contents,commentResponse.result.get(i).recommend);
+//                        AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
+//                    } else {
+//                        //최초로 서버에서 받아오는 거면(즉, 한줄평 id값과 movieId값이 database에 없으면) 새로 record를 만들어서 insert 삽입해라.
+//                        AppHelper.insertCommentData(commentResponse.result.get(i).id,commentResponse.result.get(i).writer,commentResponse.result.get(i).movieId,commentResponse.result.get(i).writer_image,commentResponse.result.get(i).time,commentResponse.result.get(i).timestamp,commentResponse.result.get(i).rating,commentResponse.result.get(i).contents,commentResponse.result.get(i).recommend);
+//                        AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
+//                    }
                 }//for 끝
             }
             commentAdapter.notifyDataSetChanged();
@@ -649,17 +649,37 @@ public class FragMovieInfo extends Fragment {
             //이렇게 하면 새로 등록한 한줄평이 제일 위로 나올 수 있게 됨.
             //이거 지렸다...
 
-            //CommentItem에 서버로부터 정보를 받아와서 그 정보를 listView에 보일 뷰들에 세팅한다.
-            //위에 int i 가 position의 역할을 하므로 i값을 얻어오면 commentItems list에 있는 인덱스에 적용돼서 잘 된다.
-            commentItemView.setUserId(commentResponse.result.get(i).writer);
-            commentItemView.setCommentContent(commentResponse.result.get(i).contents);
-            commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating / 2);    //나누기2를 하는 이유는 곱하기 2를 해서 서버에 저장하기 때문에 다시 리스트에 보여질 때는 자신이 입력한 별점만큼 보여야 하기 때문이다.
-            commentItemView.setTime(commentResponse.result.get(i).time);
-            commentItemView.setRecommendationNum(commentResponse.result.get(i).recommend + "");
-            Log.d("FragMovieInfo", "CommentItemView에서 세팅한 것 TEST: " + commentResponse.result.get(i).contents);
 
-            //이 메소드 내부적으로 순서대로 item들에 아래 값들을 적용 시키는 것 같다.
-            //->이렇게 하면 작성한 이후에 서버에 요청한 정보가 들어오는 것이 아니고 기존에 저장돼있는 정보가 넘어와서 바로 최신화된 정보가 보이지 않는다.
+
+            //인터넷 연결 유무에 따른 뷰 설정 차이
+            if(NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_WIFI || NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_MOBILE){
+
+                //-> 여기다가 하니까 다른 영화 상세화면에 들어갈 때도 잘 되는구만.
+                //서버에 정보를 요청할 때마다 Comment data를 받아오는데 조건이 있다.
+                //comment 고유 id와 movieId가 동일한 데이터가 데이터베이스에 이미 있다면 update를 해라.
+                //근데 이거는 인터넷이 연결돼있을 때만 해라.
+                if (AppHelper.isCommentExsist(AppHelper.COMMENT, commentResponse.result.get(i).id, commentResponse.result.get(i).movieId)) {  //database에 이미 한줄평 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
+                    //insert를 해서 중복되게 record를 삽입하지 말고 원래 있던 record를 서버에서 오는 새로운 정보로 update해라
+                    AppHelper.updateCommentData(commentResponse.result.get(i).id,commentResponse.result.get(i).writer,commentResponse.result.get(i).movieId,commentResponse.result.get(i).writer_image,commentResponse.result.get(i).time,commentResponse.result.get(i).timestamp,commentResponse.result.get(i).rating,commentResponse.result.get(i).contents,commentResponse.result.get(i).recommend);
+                    AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
+                } else {
+                    //최초로 서버에서 받아오는 거면(즉, 한줄평 id값과 movieId값이 database에 없으면) 새로 record를 만들어서 insert 삽입해라.
+                    AppHelper.insertCommentData(commentResponse.result.get(i).id,commentResponse.result.get(i).writer,commentResponse.result.get(i).movieId,commentResponse.result.get(i).writer_image,commentResponse.result.get(i).time,commentResponse.result.get(i).timestamp,commentResponse.result.get(i).rating,commentResponse.result.get(i).contents,commentResponse.result.get(i).recommend);
+                    AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
+                }
+
+
+                //CommentItem에 서버로부터 정보를 받아와서 그 정보를 listView에 보일 뷰들에 세팅한다.
+                //위에 int i 가 position의 역할을 하므로 i값을 얻어오면 commentItems list에 있는 인덱스에 적용돼서 잘 된다.
+                commentItemView.setUserId(commentResponse.result.get(i).writer);
+                commentItemView.setCommentContent(commentResponse.result.get(i).contents);
+                commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating / 2);    //나누기2를 하는 이유는 곱하기 2를 해서 서버에 저장하기 때문에 다시 리스트에 보여질 때는 자신이 입력한 별점만큼 보여야 하기 때문이다.
+                commentItemView.setTime(commentResponse.result.get(i).time);
+                commentItemView.setRecommendationNum(commentResponse.result.get(i).recommend + "");
+                Log.d("FragMovieInfo", "CommentItemView에서 세팅한 것 TEST: " + commentResponse.result.get(i).contents);
+
+                //이 메소드 내부적으로 순서대로 item들에 아래 값들을 적용 시키는 것 같다.
+                //->이렇게 하면 작성한 이후에 서버에 요청한 정보가 들어오는 것이 아니고 기존에 저장돼있는 정보가 넘어와서 바로 최신화된 정보가 보이지 않는다.
 //            commentItemView.setUserId(commentItem.writer);
 //            commentItemView.setCommentContent(commentItem.contents);
 //            commentItemView.setCommentRatingBar(commentItem.rating);
@@ -667,10 +687,25 @@ public class FragMovieInfo extends Fragment {
 //            commentItemView.setRecommendationNum(commentItem.recommend+"");
 //            Log.d("FragMovieInfo","상세화면에서 한줄평리스트 정보TEST: " + commentItem.writer);
 
-            Log.d("ReadMoreActivity", "한줄평의 고유 id값: " + commentResponse.result.get(i).id);
-            commentItemView.setId(commentResponse.result.get(i).id);    //각 한줄평 리스트 아이템들에 고유 id값을 서버에서 받아와 적용시킨다.
-            commentItemView.setRecommendation_num(commentResponse.result.get(i).recommend); //원래 서버에 저장된 값을 commentItemView에 저장한다.
-            //그 후에 거기서 1 증가한 수를 즉각적으로 보여주기 위해 저장함.
+                Log.d("ReadMoreActivity", "한줄평의 고유 id값: " + commentResponse.result.get(i).id);
+                commentItemView.setId(commentResponse.result.get(i).id);    //각 한줄평 리스트 아이템들에 고유 id값을 서버에서 받아와 적용시킨다.
+                commentItemView.setRecommendation_num(commentResponse.result.get(i).recommend); //원래 서버에 저장된 값을 commentItemView에 저장한다.
+                //그 후에 거기서 1 증가한 수를 즉각적으로 보여주기 위해 저장함.
+            }else{
+                 //데이터베이스에서 가져와서 보여줘야 된다.
+                Log.d("FragMovieInfo","인터넷이 연결돼있지 않아 데이터베이스에서 정보를 가져와 뷰에 보여줌.");
+
+                /* 이렇게 하니까 당연히 하나만 나온다...comment_id를 넣을 수 있어야 되는데; */
+                if(AppHelper.selectData(AppHelper.COMMENT,position,commentItem.getId())){   //아니야 이게 아니야!!!!
+                    commentItemView.setUserId(AppHelper.com_writer);
+                    commentItemView.setCommentContent(AppHelper.com_contents);
+                    commentItemView.setCommentRatingBar(AppHelper.com_rating / 2);    //나누기2를 하는 이유는 곱하기 2를 해서 서버에 저장하기 때문에 다시 리스트에 보여질 때는 자신이 입력한 별점만큼 보여야 하기 때문이다.
+                    commentItemView.setTime(AppHelper.com_time);
+                    commentItemView.setRecommendationNum(AppHelper.com_recommend + "");
+                    commentItemView.setId(AppHelper.com_id);
+                    commentItemView.setRecommendation_num(AppHelper.com_recommend);
+                }
+            }
 
             return commentItemView;
         }
