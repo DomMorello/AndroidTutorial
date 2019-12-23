@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -13,20 +12,16 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
-
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.moviefiendver2.MovieData.CommentItem;
 import com.example.moviefiendver2.MovieData.WriteCommentResponse;
 import com.example.moviefiendver2.helper.AppHelper;
+import com.example.moviefiendver2.helper.NetworkStatus;
 import com.google.gson.Gson;
-
-import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -112,22 +107,26 @@ public class CommentItemView extends LinearLayout {
         recommendation.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                /* 서버에 추천을 저장하는 코드 */
-                //id값이 있어야 추천을 할 수 있다. commentItem에 id값을 세팅을 하긴 했는데 어떻게 여기서 사용할 수 있지..?
+                if(NetworkStatus.getConnectivityStatus(getContext()) == NetworkStatus.TYPE_MOBILE || NetworkStatus.getConnectivityStatus(getContext()) == NetworkStatus.TYPE_WIFI){
+                    /* 서버에 추천을 저장하는 코드 */
+                    //id값이 있어야 추천을 할 수 있다. commentItem에 id값을 세팅을 하긴 했는데 어떻게 여기서 사용할 수 있지..?
 
-                count_pressed++;    //한 번 누를 때마다 누른 횟수를 증가시킨다.
-                if(count_pressed == 1){  //한 번 이상 누르면 추천이 안 된다.
-                    recommendation.setTextColor(Color.MAGENTA); //추천을 누르면 색깔이 바뀐다. 추천을 취소하는 기능은 없다.
+                    count_pressed++;    //한 번 누를 때마다 누른 횟수를 증가시킨다.
+                    if(count_pressed == 1){  //한 번 이상 누르면 추천이 안 된다.
+                        recommendation.setTextColor(Color.MAGENTA); //추천을 누르면 색깔이 바뀐다. 추천을 취소하는 기능은 없다.
 
-                    Log.d("CommentItemView", "과연 getId로 고유id를 받아올까? " + getId());    //된다. 지렸다 ...
-                    if (AppHelper.requestQueue == null) {
-                        AppHelper.requestQueue = Volley.newRequestQueue(getContext());  //getContext 될까..? 된다.
+                        Log.d("CommentItemView", "과연 getId로 고유id를 받아올까? " + getId());    //된다. 지렸다 ...
+                        if (AppHelper.requestQueue == null) {
+                            AppHelper.requestQueue = Volley.newRequestQueue(getContext());  //getContext 될까..? 된다.
+                        }
+
+                        //추천을 누르면 그 결과를 서버로 보내는 메소드
+                        sendRecommendToServer();
                     }
-
-                    //추천을 누르면 그 결과를 서버로 보내는 메소드
-                    sendRecommendToServer();
+                    /* 추천 관련 문제점: 다양한 상황(프래그먼트 종료 이후, 모두보기 액티비티 실행시마다 초기화 등)에서 추천을 한 번 누르고 나서 한 한줄평 아이템에 대해서 계속 추천을 누를 수가 있다. */
+                }else{
+                    Toast.makeText(getContext(), "인터넷에 연결되어 있지 않습니다.", Toast.LENGTH_SHORT).show();
                 }
-                /* 추천 관련 문제점: 다양한 상황(프래그먼트 종료 이후, 모두보기 액티비티 실행시마다 초기화 등)에서 추천을 한 번 누르고 나서 한 한줄평 아이템에 대해서 계속 추천을 누를 수가 있다. */
 
             }
         });
@@ -177,7 +176,7 @@ public class CommentItemView extends LinearLayout {
         WriteCommentResponse writeCommentResponse = gson.fromJson(response, WriteCommentResponse.class);
         if (writeCommentResponse.code == 200) {
             Log.d("ReadMoreActivity", "추천 서버에 보내기 성공: " + writeCommentResponse.message);
-            Toast.makeText(getContext(), "추천을 성공했습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "추천을 적용했습니다.", Toast.LENGTH_SHORT).show();
             recommendationNum.setText(getRecommendation_num() + 1 + "");    //추천을 누르면 바로 서버에 저장된것처럼 보여주기 위해 하나 증가시킨 뷰를 보여줌
         } else {
             Toast.makeText(getContext(), "추천 에러 발생!", Toast.LENGTH_SHORT).show();

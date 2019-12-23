@@ -1,10 +1,8 @@
 package com.example.moviefiendver2;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,9 +12,10 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
@@ -28,12 +27,13 @@ import com.android.volley.toolbox.Volley;
 import com.example.moviefiendver2.MovieData.CommentItem;
 import com.example.moviefiendver2.MovieData.CommentResponse;
 import com.example.moviefiendver2.helper.AppHelper;
-import com.google.android.material.snackbar.Snackbar;
+import com.example.moviefiendver2.helper.NetworkStatus;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class ReadMoreActivity extends AppCompatActivity {
@@ -44,6 +44,9 @@ public class ReadMoreActivity extends AppCompatActivity {
     TextView title; //모두보기 화면에서 영화 제목뷰
     String name;    //받아온 부가data로 영화뷰에 표시하기 위한 영화제목 String변수
     ImageView rated;    //몇세 관람가 이미지뷰
+    RatingBar ratingBar;
+    TextView ratingNum;
+    TextView participants;
     byte[] byteArray;   //이미지 받아오기 위해 있음
     int position;   //서버에서의 영화 인덱스
 
@@ -55,11 +58,44 @@ public class ReadMoreActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        //인터넷이 있을 때만 서버에 요청해라
         //커멘트 정보를 서버에서 얻어오는 메소드
-        requestCommentList();
+        if(NetworkStatus.getConnectivityStatus(getApplicationContext()) == NetworkStatus.TYPE_WIFI || NetworkStatus.getConnectivityStatus(getApplicationContext()) == NetworkStatus.TYPE_MOBILE){
+            requestCommentList();
 
-        if (AppHelper.requestQueue == null) {
-            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
+            if (AppHelper.requestQueue == null) {
+                AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
+            }
+        }else{
+            /* 인터넷이 없을 때 데이터베이스 활용해서 보여주는 코드 */
+
+            //이 아래 코드는 getCommentFromDatabase메소드에서 해당 영화에 해당하는 모든 한줄평 정보를 list에 담아서 갖고 온다.
+            //그 이후에 여기 onResume에서 어댑터에 추가해서 getView메소드를 통해 데이터베이스에서 가져온 정보를
+            //인터넷이 없을 때 보여주는 역할을 하기 위해서 짜여진 코드이다. 지렸다. -> 메모리 측면에서 좋은 방법인지는 모르겠다.
+            ArrayList list = AppHelper.getCommentFromDatabase(position); //데이터베이스에 있는 movieId가 ?인 데이터를 내림차순으로 조회한것 불러옴
+            Log.d("FragMovieInfo", "인터넷없을 때 AppHelper에 담은 comment list내용: " + list.toString()); //값이 넘어옴
+            Iterator it = list.iterator();
+            //commentItems에 계속 item들이 쌓이기 때문에 매번 프래그먼트를 실행할 때마다 원래 데이터가 있으면 clear 해주고 다시 넣어야 한다.
+            if (inCommentItems.size() > 0) {
+                Log.d("FragMovieInfo","commentItems 안에 데이터가 있어서 클리어 실시함!!!");
+                inCommentItems.clear();
+            }
+            while (it.hasNext()) {
+                CommentItem item = (CommentItem) it.next();
+                inCommentAdapter.addItem(item);
+            }
+            Log.d("FragMovieInfo", "!!! 어댑터 내부에 있는 정보 개수: " + inCommentItems.size());
+
+            //인터넷이 없을 때도 몇세관람가 아이콘 이미지는 전달해야 하기 때문에 여기서 해준다.
+            //이미지를 전달하기 위해 코드 작성(이미지 축소)
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            Bitmap bitmap = ((BitmapDrawable)rated.getDrawable()).getBitmap();
+            float scale = (float) (1024/(float)bitmap.getWidth());
+            int image_w = (int) (bitmap.getWidth() * scale);
+            int image_h = (int) (bitmap.getHeight() * scale);
+            Bitmap resize = Bitmap.createScaledBitmap(bitmap, image_w, image_h, true);
+            resize.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            byteArray = stream.toByteArray();
         }
     }
 
@@ -70,13 +106,23 @@ public class ReadMoreActivity extends AppCompatActivity {
 
         title = findViewById(R.id.read_more_title);
         rated = findViewById(R.id.read_more_rated);
+        ratingBar = findViewById(R.id.read_more_rating_bar);
+        ratingNum = findViewById(R.id.read_more_rating_num);
+        participants = findViewById(R.id.read_more_participants);
+
 
         Intent passedIntent = getIntent();  //전달받은 인텐트를
         if(passedIntent != null){
             name = passedIntent.getStringExtra("title");
             title.setText(name);    //받아온 데이터로 영화제목을 뷰에 표시한다.
+            float rating = passedIntent.getFloatExtra("rating",0.0f);
+            ratingBar.setRating(rating/2);  //평점바 나누기2를 해야 별에 수치만큼 채워짐
+            ratingNum.setText(rating+"");   //평점
+            int totalCount = passedIntent.getIntExtra("totalCount",0);  //평점 참여 인원
+            participants.setText("("+totalCount+"명 참여)");
 //            inCommentItems = (ArrayList<CommentItem>) passedIntent.getSerializableExtra("list"); //CommentItem을 Parcelable 구현해서 받아냄
             //-> 주석처리 이유: 서버에서 받아올 것이기 때문에 따로 받아 올 필요가 없다.
+
             position = passedIntent.getIntExtra("position",0);   //영화 상세화면에서 받아온 position을 이 activity에서 사용한다.
             Log.d("ReadMoreActivity","모두보기로 넘어온 position값: " + position);
 
@@ -99,29 +145,34 @@ public class ReadMoreActivity extends AppCompatActivity {
         writeCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent writeCommentIntent = new Intent(getApplicationContext(), WriteCommentActivity.class);
+                //인터넷이 있을 때만 작성하기 기능을 실행한다.
+                if(NetworkStatus.getConnectivityStatus(getApplicationContext()) == NetworkStatus.TYPE_MOBILE || NetworkStatus.getConnectivityStatus(getApplicationContext()) == NetworkStatus.TYPE_WIFI){
+                    Intent writeCommentIntent = new Intent(getApplicationContext(), WriteCommentActivity.class);
 
-                writeCommentIntent.putExtra("title", name);    //작성하기 activity에 영화제목을 넘겨줌
-                writeCommentIntent.putExtra("position",position);   //영화 인덱스인 position을 넘겨준다.
+                    writeCommentIntent.putExtra("title", name);    //작성하기 activity에 영화제목을 넘겨줌
+                    writeCommentIntent.putExtra("position",position);   //영화 인덱스인 position을 넘겨준다.
 
-                //이미지를 전달하기 위해 코드 작성(이미지 축소)
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                Bitmap bitmap = ((BitmapDrawable)rated.getDrawable()).getBitmap();
-                float scale = (float) (1024/(float)bitmap.getWidth());
-                int image_w = (int) (bitmap.getWidth() * scale);
-                int image_h = (int) (bitmap.getHeight() * scale);
-                Bitmap resize = Bitmap.createScaledBitmap(bitmap, image_w, image_h, true);
-                resize.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byteArray = stream.toByteArray();
+                    //이미지를 전달하기 위해 코드 작성(이미지 축소)
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    Bitmap bitmap = ((BitmapDrawable)rated.getDrawable()).getBitmap();
+                    float scale = (float) (1024/(float)bitmap.getWidth());
+                    int image_w = (int) (bitmap.getWidth() * scale);
+                    int image_h = (int) (bitmap.getHeight() * scale);
+                    Bitmap resize = Bitmap.createScaledBitmap(bitmap, image_w, image_h, true);
+                    resize.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    byteArray = stream.toByteArray();
 
-                //이미지 보내주기
-                writeCommentIntent.putExtra("integer", 300);
-                writeCommentIntent.putExtra("double", 3.141592 );
-                writeCommentIntent.putExtra("image", byteArray);
+                    //이미지 보내주기
+                    writeCommentIntent.putExtra("integer", 300);
+                    writeCommentIntent.putExtra("double", 3.141592 );
+                    writeCommentIntent.putExtra("image", byteArray);
 
 //                startActivityForResult(writeCommentIntent, 103); //작성하기 activity실행 -> forResult로 할 필요가 없을 것 같아서 일단 지운다.
-                startActivity(writeCommentIntent);
-                //작성하기 액티비티를 실행시키면서 결과를 기대한다.
+                    startActivity(writeCommentIntent);
+                    //작성하기 액티비티를 실행시키면서 결과를 기대한다.
+                }else{
+                    Toast.makeText(ReadMoreActivity.this, "인터넷에 연결되어 있지 않습니다.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -190,9 +241,6 @@ public class ReadMoreActivity extends AppCompatActivity {
             inCommentAdapter.notifyDataSetChanged();
             Log.d("ReadMoreActivity", "어댑터 리스트에 추가: " + inCommentItems.size());
 
-            //1. 뒤로 가기를 누르거나 프래그먼트를 나갈 때 사이즈 0으로 초기화 해줘야 한다.
-            //2. size가 0이면 반복문을 실행하게 한다.(Test)->일단 되는데 나중에 서버에 한줄평을 저장하고 난 후에는 어떻게 될지 봐야된다.
-
         }
     }
 
@@ -226,7 +274,7 @@ public class ReadMoreActivity extends AppCompatActivity {
 //        finish();
 //    }
 
-    //모두 보기 클릭시 리스트뷰에 메인액티비티에 있는 것을 전부 보여주기 위한 어댑터
+    //모두 보기 클릭시 리스트뷰에 있는 것을 전부 보여주기 위한 어댑터
     class InCommentAdapter extends BaseAdapter {
 
         @Override
@@ -259,31 +307,62 @@ public class ReadMoreActivity extends AppCompatActivity {
             }
 
             CommentItem commentItem = inCommentItems.get(i);    //서버 연결 이후에는 이렇게 해야 순서대로 나온다.
-//            CommentItem commentItem = inCommentItems.get(inCommentItems.size()-1-i); //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
+            // CommentItem commentItem = inCommentItems.get(inCommentItems.size()-1-i); //순서대로 나오지 않고 역순으로 나오게 하려고 사이즈-1에서 i를 뺌
             //이렇게 하면 새로 등록한 한줄평이 제일 위로 나올 수 있게 됨.
             //이거 지렸다...
 
-            //CommentItem에 서버로부터 정보를 받아와서 그 정보를 listView에 보일 뷰들에 세팅한다.
-            //위에 int i 가 position의 역할을 하므로 i값을 얻어오면 commentItems list에 있는 인덱스에 적용돼서 잘 된다.
-            commentItemView.setUserId(commentResponse.result.get(i).writer);
-            commentItemView.setCommentContent(commentResponse.result.get(i).contents);
-            commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating/2);
-            commentItemView.setTime(commentResponse.result.get(i).time);
-            commentItemView.setRecommendationNum(commentResponse.result.get(i).recommend + "");
-            Log.d("ReadMoreActivity", "CommentItemView에서 세팅한 것 TEST: " + commentResponse.result.get(i).contents);
+            if(NetworkStatus.getConnectivityStatus(getApplicationContext()) == NetworkStatus.TYPE_MOBILE || NetworkStatus.getConnectivityStatus(getApplicationContext()) == NetworkStatus.TYPE_WIFI){
 
-            //이 메소드 내부적으로 순서대로 item들에 아래 값들을 적용 시키는 것 같다.
-            //->이렇게 하면 작성한 이후에 서버에 요청한 정보가 들어오는 것이 아니고 기존에 저장돼있는 정보가 넘어와서 바로 최신화된 정보가 보이지 않는다.
+                //-> 여기다가 하니까 다른 영화 상세화면에 들어갈 때도 잘 되는구만.
+                //서버에 정보를 요청할 때마다 Comment data를 받아오는데 조건이 있다.
+                //comment 고유 id와 movieId가 동일한 데이터가 데이터베이스에 이미 있다면 update를 해라.
+                //근데 이거는 인터넷이 연결돼있을 때만 해라.
+                if (AppHelper.isDataExsist(AppHelper.COMMENT, commentResponse.result.get(i).id)) {  //database에 이미 한줄평 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
+                    //insert를 해서 중복되게 record를 삽입하지 말고 원래 있던 record를 서버에서 오는 새로운 정보로 update해라
+                    AppHelper.updateCommentData(commentResponse.result.get(i).id, commentResponse.result.get(i).writer, commentResponse.result.get(i).movieId, commentResponse.result.get(i).writer_image, commentResponse.result.get(i).time, commentResponse.result.get(i).timestamp, commentResponse.result.get(i).rating, commentResponse.result.get(i).contents, commentResponse.result.get(i).recommend);
+                    AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
+                } else {
+                    //최초로 서버에서 받아오는 거면(즉, 한줄평 id값과 movieId값이 database에 없으면) 새로 record를 만들어서 insert 삽입해라.
+                    AppHelper.insertCommentData(commentResponse.result.get(i).id, commentResponse.result.get(i).writer, commentResponse.result.get(i).movieId, commentResponse.result.get(i).writer_image, commentResponse.result.get(i).time, commentResponse.result.get(i).timestamp, commentResponse.result.get(i).rating, commentResponse.result.get(i).contents, commentResponse.result.get(i).recommend);
+                    AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
+                }
+
+                //CommentItem에 서버로부터 정보를 받아와서 그 정보를 listView에 보일 뷰들에 세팅한다.
+                //위에 int i 가 position의 역할을 하므로 i값을 얻어오면 commentItems list에 있는 인덱스에 적용돼서 잘 된다.
+                commentItemView.setUserId(commentResponse.result.get(i).writer);
+                commentItemView.setCommentContent(commentResponse.result.get(i).contents);
+                commentItemView.setCommentRatingBar(commentResponse.result.get(i).rating/2);
+                commentItemView.setTime(commentResponse.result.get(i).time);
+                commentItemView.setRecommendationNum(commentResponse.result.get(i).recommend + "");
+                Log.d("ReadMoreActivity", "CommentItemView에서 세팅한 것 TEST: " + commentResponse.result.get(i).contents);
+
+                //이 메소드 내부적으로 순서대로 item들에 아래 값들을 적용 시키는 것 같다.
+                //->이렇게 하면 작성한 이후에 서버에 요청한 정보가 들어오는 것이 아니고 기존에 저장돼있는 정보가 넘어와서 바로 최신화된 정보가 보이지 않는다.
 //            commentItemView.setUserId(commentItem.writer);
 //            commentItemView.setCommentContent(commentItem.contents);
 //            commentItemView.setCommentRatingBar(commentItem.rating);
 //            commentItemView.setTime(commentItem.time);
 //            commentItemView.setRecommendationNum(commentItem.recommend+"");
 
-            Log.d("ReadMoreActivity","한줄평의 고유 id값: "+ commentResponse.result.get(i).id);
-            commentItemView.setId(commentResponse.result.get(i).id);    //각 한줄평 리스트 아이템들에 고유 id값을 서버에서 받아와 적용시킨다.
-            commentItemView.setRecommendation_num(commentResponse.result.get(i).recommend); //원래 서버에 저장된 값을 commentItemView에 저장한다.
-            //그 후에 추천을 누르면 거기서 1 증가한 수를 즉각적으로 보여주기 위해 저장함.
+
+                Log.d("ReadMoreActivity","한줄평의 고유 id값: "+ commentResponse.result.get(i).id);
+                commentItemView.setId(commentResponse.result.get(i).id);    //각 한줄평 리스트 아이템들에 고유 id값을 서버에서 받아와 적용시킨다.
+                commentItemView.setRecommendation_num(commentResponse.result.get(i).recommend); //원래 서버에 저장된 값을 commentItemView에 저장한다.
+                //그 후에 추천을 누르면 거기서 1 증가한 수를 즉각적으로 보여주기 위해 저장함.
+            }else{
+                //데이터베이스에서 가져와서 보여줘야 된다.
+                Log.d("FragMovieInfo", "인터넷이 연결돼있지 않아 데이터베이스에서 정보를 가져와 뷰에 보여줌.");
+
+                if (AppHelper.selectData(AppHelper.COMMENT, position, commentItem.getId())) {  //getId 위에 onResume에서 인터넷없을 때 넣어준 id값들을 차례대로 가져오기 때문에 한줄평들을 각각 보여줄 수 있다.
+                    commentItemView.setUserId(AppHelper.com_writer);
+                    commentItemView.setCommentContent(AppHelper.com_contents);
+                    commentItemView.setCommentRatingBar(AppHelper.com_rating / 2);    //나누기2를 하는 이유는 곱하기 2를 해서 서버에 저장하기 때문에 다시 리스트에 보여질 때는 자신이 입력한 별점만큼 보여야 하기 때문이다.
+                    commentItemView.setTime(AppHelper.com_time);
+                    commentItemView.setRecommendationNum(AppHelper.com_recommend + "");
+                    commentItemView.setId(AppHelper.com_id);
+                    commentItemView.setRecommendation_num(AppHelper.com_recommend);
+                }
+            }
 
             return commentItemView;
         }

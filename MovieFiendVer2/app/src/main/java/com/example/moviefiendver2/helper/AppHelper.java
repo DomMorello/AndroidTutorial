@@ -22,6 +22,7 @@ public class AppHelper {
     public static final String MAIN_MOVIE = "MainMovie";    //메인화면 테이블이름
     public static final String MOVIE_INFO = "MovieInfo";    //상세화면 테이블이름
     public static final String COMMENT = "Comment";    //한줄평 테이블이름
+    public static final String TOTAL_COUNT = "TotalCount";  //영화별 평점 참여 인원 테이블이름
 
     //다른 클래스에서 MainMovie table 정보를 접근해서 사용할 수 있도록 선언했다. -> 이 방법이 좋은 건지는 모르겠다.(memory leak?)
     public static String main_title;
@@ -54,6 +55,9 @@ public class AppHelper {
     public static String com_time;
     public static int com_recommend;
     public static int com_id;
+
+    //다른 클래스에서 TotalCount table 정보를 접근해서 사용할 수 있도록 선언했다.
+    public static int total_totalCount;
 
     //뷰페이저로 보이는 뮤비에 나오는 정보관련 sql 명령어
     private static String createTableMainMovieSql = "create table if not exists MainMovie" +
@@ -134,6 +138,10 @@ public class AppHelper {
 
     private static String insertTupleCommentSql = "insert into Comment(id, writer, movieId, writer_image, time, timestamp, rating, contents, recommend) values(?,?,?,?,?,?,?,?,?)";
 
+    private static String createTableTotalCountSql = "create table if not exists TotalCount(_id integer PRIMARY KEY autoincrement, id integer, totalCount integer)";
+
+    private static String insertTupleTotalCountSql = "insert into TotalCount(id, totalCount) values(?,?)";
+
     //1단계 데이터베이스를 생성
     public static void openDatabase(Context context, String databaseName) {
         println("openDatabase 호출됨.");
@@ -162,6 +170,9 @@ public class AppHelper {
             } else if(tableName.equals(COMMENT)){
                 database.execSQL(createTableCommentSql);
                 println("Comment 테이블 생성됨.");
+            } else if(tableName.equals(TOTAL_COUNT)){
+                database.execSQL(createTableTotalCountSql);
+                println("TotalCount 테이블 생성됨.");
             }
 
         } else {
@@ -205,6 +216,16 @@ public class AppHelper {
             database.execSQL(insertTupleCommentSql, params);
             println("Comment 테이블에 데이터 추가함!");
         } else {
+            println("먼저 데이터베이스를 오픈하세요.");
+        }
+    }
+
+    public static void insertTotalCountData(int id, int totalCount){
+        if(database != null){
+            Object[] params = {id, totalCount};
+            database.execSQL(insertTupleTotalCountSql, params);
+            println("TotalCount 테이블에 데이터 추가함!");
+        }else{
             println("먼저 데이터베이스를 오픈하세요.");
         }
     }
@@ -308,6 +329,25 @@ public class AppHelper {
                         int recommend = cursor.getInt(8);
 
                         println("#" + i + "번 Data : " + id + ", " + writer + ", " + movieId + ", " + writer_image + ", " + time + ", " + timestamp + ", " + rating + ", " + contents + ", " + recommend);
+                    }//for 끝
+                    return true;
+                }else{
+                    println("database가 null이라 조회할 데이터가 없음!");
+                    return false;
+                }
+            }else if(tableName.equals(TOTAL_COUNT)){
+                String sql = "select id, totalCount from " + tableName;
+
+                Cursor cursor = database.rawQuery(sql, null);
+                println("조회된 데이터 개수: " + cursor.getCount());
+                //테이블에 데이터가 존재하면 아래 코드를 실행.
+                if(cursor.getCount() > 0){
+                    for (int i = 0; i < cursor.getCount(); i++) {
+                        cursor.moveToNext();
+                        int id = cursor.getInt(0);
+                        int totalCount = cursor.getInt(1);
+
+                        println("#" + i + "번 Data : " + id + ", " + totalCount);
                     }//for 끝
                     return true;
                 }else{
@@ -421,6 +461,23 @@ public class AppHelper {
                     Log.d(TAG,"데이터베이스에 해당 데이터가 없음!");
                     return false;
                 }
+            }else if(tableName.equals(TOTAL_COUNT)){
+                String sql = "select id, totalCount from " + tableName + " where id=" + movie_id;  //where조건절이 추가됨.
+
+                Cursor cursor = database.rawQuery(sql, null);
+                println("조회된 데이터 개수: " + cursor.getCount());
+                //테이블에 데이터가 존재하면 아래 코드를 실행.
+                if(cursor.getCount() > 0){
+                    cursor.moveToNext();
+                    int id = cursor.getInt(0);
+                    total_totalCount = cursor.getInt(1);
+
+                    println("#Data : " + id + ", " + total_totalCount);
+                    return true;
+                }else{
+                    Log.d(TAG,"데이터베이스에 해당 데이터가 없음!");
+                    return false;
+                }
             }
         } else {
             println("database가 null이라 조회할 데이터가 없음!");
@@ -443,6 +500,8 @@ public class AppHelper {
         }
     }
 
+    /* 알 수 없는 오류발생: 이 메서드를 실행할 때 다른 영화데이터들은 문제가 없는데 러빙 빈센트만 업데이트를 할 때 syntax error 가 발생한다.
+    * 왜일까? 이유를 모르겠다. 안 되면 다같이 안 돼야 되는데 러빙 빈센트만 안 된다. 뭐지... */
     //MovieInfo 데이터 업데이트하기
     public static void updateMovieInfoData(int movie_id, String title, int id, String date, float user_rating, float audience_rating, float reviewer_rating, float reservation_rate, int reservation_grade, int grade, String thumb, String image, String photos, String videos, String outlinks, String genre, int duration, int audience, String synopsis, String director, String actor, int likeCount, int dislike) {
         println("updateMovieInfoData 데이터 갱신호출!");
@@ -456,7 +515,7 @@ public class AppHelper {
             println("먼저 데이터베이스를 오픈하세요.");
         }
     }
-//    id, writer, movieId, writer_image, time, timestamp, rating, contents, recommend
+
     //Comment 데이터 업데이트하기
     public static void updateCommentData(int id, String writer, int movieId, String writer_image, String time, int timestamp, float rating, String contents, int recommend) {
         println("updateCommentData 데이터 갱신호출!");
@@ -466,6 +525,20 @@ public class AppHelper {
 
             database.execSQL(updateDataSql);
             println("comment_id가 " + id + "인 Comment table 레코드에 데이터 업데이트함!!");
+        } else {
+            println("먼저 데이터베이스를 오픈하세요.");
+        }
+    }
+
+    //TotalCount 데이터 업데이트하기
+    public static void updateTotalCountData(int id, int totalCount) {
+        println("updateTotalCountData 데이터 갱신호출!");
+
+        if (database != null) {
+            String updateDataSql = "update TotalCount set id=" + id + ", totalCount=" + totalCount + " where id=" + id;
+
+            database.execSQL(updateDataSql);
+            println("TotalCount 테이블에서 id가 " + id + "인 TotalCount table 레코드에 데이터 업데이트함!!");
         } else {
             println("먼저 데이터베이스를 오픈하세요.");
         }
@@ -482,7 +555,9 @@ public class AppHelper {
         return false;
     }
 
-    //TEST 어레이리스트를 반환하는 메소드를 만들어서 데이터베이스 내용을 보내준다?
+    //어레이리스트를 반환하는 메소드를 만들어서 데이터베이스 내용을 보내준다
+    //이 메소드가 존재하는 이유는 기존의 MainMovie나 MovieInfo처럼 position 변수를 넣어줄 수 없고 각 한줄평마다 comment_id를 적용해야해서
+    //아예 각 한줄평마다 commentItem을 만들어서 전달해줄 필요가 있었기 때문이다.
     public static ArrayList getCommentFromDatabase(int movie_id){
         String sql = "select id, writer, movieId, writer_image, time, timestamp, rating, contents, recommend from comment where movieId=" + movie_id + " order by id desc";
 

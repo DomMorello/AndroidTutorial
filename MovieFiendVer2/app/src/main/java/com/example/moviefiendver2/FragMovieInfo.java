@@ -52,7 +52,6 @@ public class FragMovieInfo extends Fragment {
     Button writeCommentButton;  //작성하기 버튼
     CommentAdapter commentAdapter;
     ArrayList<CommentItem> commentItems = new ArrayList<>();
-    String movieTitle;  //TextView에서 얻어온 title을 저장하기 위한 String변수
     byte[] byteArray;   //이미지를 보내줄 때 사용됨
     int position;   //영화API 서버에서 id값을 구분하기 위한 영화 인덱스
 
@@ -148,6 +147,16 @@ public class FragMovieInfo extends Fragment {
 //            ImageLoadTask imageLoadTask = new ImageLoadTask(AppHelper.info_thumb, poster);   //클래스 내부에 set하게 정의해 놓음.
 //            imageLoadTask.execute();
                 }
+                //인터넷이 없을 때도 몇세 관람가 이미지는 축소해서 보내야 하기 때문에 여기에 아래 코드 추가
+                //이미지를 전달하기 위해 코드 작성(이미지 축소)
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                Bitmap bitmap = ((BitmapDrawable) grade.getDrawable()).getBitmap();
+                float scale = (1024 / (float) bitmap.getWidth());
+                int image_w = (int) (bitmap.getHeight() * scale);
+                int image_h = (int) (bitmap.getHeight() * scale);
+                Bitmap resize = Bitmap.createScaledBitmap(bitmap, image_w, image_h, true);
+                resize.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                byteArray = stream.toByteArray();
 
                 //이 아래 코드는 getCommentFromDatabase메소드에서 해당 영화에 해당하는 모든 한줄평 정보를 list에 담아서 갖고 온다.
                 //그 이후에 여기 onResume에서 어댑터에 추가해서 getView메소드를 통해 데이터베이스에서 가져온 정보를
@@ -237,7 +246,7 @@ public class FragMovieInfo extends Fragment {
 
                     startActivity(writeCommentIntent); //작성하기 activity실행
                 } else {
-                    Toast.makeText(getContext(), "인터넷이 없습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "인터넷에 연결되어 있지 않습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -248,11 +257,24 @@ public class FragMovieInfo extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent readMoreIntent = new Intent(getActivity(), ReadMoreActivity.class);
-                readMoreIntent.putExtra("title", movieResponse.result.get(0).title);    //모두보기 activity에 영화제목을 넘겨줌
+                //인터넷이 있을 때는 서버에서 받아온 정보를 모두보기액티비티에 보내지만 인터넷이 없을 때는 데이터베이스에서 가져와서 title정보를 보낸다.
+                if(NetworkStatus.getConnectivityStatus(getContext()) == NetworkStatus.TYPE_MOBILE || NetworkStatus.getConnectivityStatus(getContext()) == NetworkStatus.TYPE_WIFI){
+                    readMoreIntent.putExtra("title", movieResponse.result.get(0).title);    //모두보기 activity 에 영화제목을 넘겨줌
+                    readMoreIntent.putExtra("rating",movieResponse.result.get(0).audience_rating);  //평점 모두보기에 넘겨줌
+                    readMoreIntent.putExtra("totalCount",commentResponse.totalCount);   //한줄평 개수 -> 평점 참여 총 인원
+                }else{
+                    AppHelper.selectData(AppHelper.MOVIE_INFO,position,0);
+                    AppHelper.selectData(AppHelper.TOTAL_COUNT,position,0);
+                    //위 메소드를 먼저 실행해줘야 영화정보에 맞는 title, rating이 AppHelper.info_title, info_audience_rating 에 저장된다.
+                    //totalCount 에도 마찬가지로 적용된다.
+                    readMoreIntent.putExtra("title",AppHelper.info_title);
+                    readMoreIntent.putExtra("rating",AppHelper.info_audience_rating);
+                    readMoreIntent.putExtra("totalCount",AppHelper.total_totalCount);
+                }
 //                readMoreIntent.putExtra("list", commentItems);   //그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
 //                -> 일단 주석. 왜? readMoreActivity에서도 서버에서 받아올 거니까 보내줄 필요 없음.
                 readMoreIntent.putExtra("position", position);   //모두보기 activity에 영화 인덱스인 position정보를 보내준다.
-                Log.d("FragMovieInfo", "보내려는 position값: " + position);
+                Log.d("FragMovieInfo", "보내려는 position 값: " + position);
 
                 //이미지 보내주기
                 readMoreIntent.putExtra("integer", 300);
@@ -293,7 +315,7 @@ public class FragMovieInfo extends Fragment {
 
                     likeState = !likeState; //클릭을 했기 때문에 상태가 눌린상태에서 안눌린상태로, 안눌린 상태에서 눌린 상태로 변해야 함.
                 } else {
-                    Toast.makeText(getContext(), "인터넷이 없습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "인터넷에 연결되어 있지 않습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -323,7 +345,7 @@ public class FragMovieInfo extends Fragment {
                     }
                     dislikeState = !dislikeState;   //클릭을 했기 때문에 상태가 눌린상태에서 안눌린상태로, 안눌린 상태에서 눌린 상태로 변해야 함.
                 } else {
-                    Toast.makeText(getContext(), "인터넷이 없습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "인터넷에 연결되어 있지 않습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -518,6 +540,15 @@ public class FragMovieInfo extends Fragment {
             commentAdapter.notifyDataSetChanged();
             Log.d("FragMovieInfo", "어댑터 리스트에 추가: " + commentItems.size());
             //반복문만 있으면 상세화면에 들어갈 때 마다 commentItems list에 10개씩 추가로 들어간다.
+
+            //totalCount테이블에 해당 영화 레코드가 있으면 업데이트하고 없으면 새로 만드는 코드
+            if(AppHelper.isDataExsist(AppHelper.TOTAL_COUNT, position)){
+                AppHelper.updateTotalCountData(position,commentResponse.totalCount);
+                AppHelper.selectData(AppHelper.TOTAL_COUNT);
+            }else{
+                AppHelper.insertTotalCountData(position,commentResponse.totalCount);
+                AppHelper.selectData(AppHelper.TOTAL_COUNT);
+            }
 
 
         }

@@ -40,11 +40,11 @@
 
 
         <TextView
-            android:id="@+id/participant"
+            android:id="@+id/read_more_participants"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
-            android:text="(2,394명 참여)"
+            android:text="(0명 참여)"
             android:textColor="@color/basicText"
             android:textSize="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -52,15 +52,15 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/rating"
+            android:id="@+id/read_more_rating_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
-            android:text="8.2"
+            android:text="0.0"
             android:textColor="@color/basicText"
             android:textSize="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/participant"
+            app:layout_constraintEnd_toStartOf="@+id/read_more_participants"
             app:layout_constraintTop_toTopOf="parent" />
 
         <RatingBar
@@ -69,9 +69,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
-            android:rating="3.5"
+            android:max="10"
+            android:numStars="5"
+            android:stepSize="0.1"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/rating"
+            app:layout_constraintEnd_toStartOf="@+id/read_more_rating_num"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
