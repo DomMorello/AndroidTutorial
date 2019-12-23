@@ -166,7 +166,7 @@ public class FragMovieInfo extends Fragment {
                 Iterator it = list.iterator();
                 //commentItems에 계속 item들이 쌓이기 때문에 매번 프래그먼트를 실행할 때마다 원래 데이터가 있으면 clear 해주고 다시 넣어야 한다.
                 if (commentItems.size() > 0) {
-                    Log.d("FragMovieInfo","commentItems 안에 데이터가 있어서 클리어 실시함!!!");
+                    Log.d("FragMovieInfo", "commentItems 안에 데이터가 있어서 클리어 실시함!!!");
                     commentItems.clear();
                 }
                 while (it.hasNext()) {
@@ -258,18 +258,18 @@ public class FragMovieInfo extends Fragment {
             public void onClick(View view) {
                 Intent readMoreIntent = new Intent(getActivity(), ReadMoreActivity.class);
                 //인터넷이 있을 때는 서버에서 받아온 정보를 모두보기액티비티에 보내지만 인터넷이 없을 때는 데이터베이스에서 가져와서 title정보를 보낸다.
-                if(NetworkStatus.getConnectivityStatus(getContext()) == NetworkStatus.TYPE_MOBILE || NetworkStatus.getConnectivityStatus(getContext()) == NetworkStatus.TYPE_WIFI){
+                if (NetworkStatus.getConnectivityStatus(getContext()) == NetworkStatus.TYPE_MOBILE || NetworkStatus.getConnectivityStatus(getContext()) == NetworkStatus.TYPE_WIFI) {
                     readMoreIntent.putExtra("title", movieResponse.result.get(0).title);    //모두보기 activity 에 영화제목을 넘겨줌
-                    readMoreIntent.putExtra("rating",movieResponse.result.get(0).audience_rating);  //평점 모두보기에 넘겨줌
-                    readMoreIntent.putExtra("totalCount",commentResponse.totalCount);   //한줄평 개수 -> 평점 참여 총 인원
-                }else{
-                    AppHelper.selectData(AppHelper.MOVIE_INFO,position,0);
-                    AppHelper.selectData(AppHelper.TOTAL_COUNT,position,0);
+                    readMoreIntent.putExtra("rating", movieResponse.result.get(0).audience_rating);  //평점 모두보기에 넘겨줌
+                    readMoreIntent.putExtra("totalCount", commentResponse.totalCount);   //한줄평 개수 -> 평점 참여 총 인원
+                } else {
+                    AppHelper.selectData(AppHelper.MOVIE_INFO, position, 0);
+                    AppHelper.selectData(AppHelper.TOTAL_COUNT, position, 0);
                     //위 메소드를 먼저 실행해줘야 영화정보에 맞는 title, rating이 AppHelper.info_title, info_audience_rating 에 저장된다.
                     //totalCount 에도 마찬가지로 적용된다.
-                    readMoreIntent.putExtra("title",AppHelper.info_title);
-                    readMoreIntent.putExtra("rating",AppHelper.info_audience_rating);
-                    readMoreIntent.putExtra("totalCount",AppHelper.total_totalCount);
+                    readMoreIntent.putExtra("title", AppHelper.info_title);
+                    readMoreIntent.putExtra("rating", AppHelper.info_audience_rating);
+                    readMoreIntent.putExtra("totalCount", AppHelper.total_totalCount);
                 }
 //                readMoreIntent.putExtra("list", commentItems);   //그 안에 들어있는 객체들은 Parcelable 구현해서 넘겨줌.
 //                -> 일단 주석. 왜? readMoreActivity에서도 서버에서 받아올 거니까 보내줄 필요 없음.
@@ -447,7 +447,7 @@ public class FragMovieInfo extends Fragment {
             //서버에 정보를 요청할 때마다 영화data를 받아오는데 조건이 있다.
             if (AppHelper.isDataExsist(AppHelper.MOVIE_INFO, movieResponse.result.get(0).id)) {  //database에 이미 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
                 //insert를 해서 중복되게 record를 삽입하지 말고 원래 있던 record를 서버에서 오는 새로운 정보로 update해라
-                AppHelper.updateMovieInfoData(movieResponse.result.get(0).id, movieResponse.result.get(0).title, movieResponse.result.get(0).id, movieResponse.result.get(0).date, movieResponse.result.get(0).user_rating, movieResponse.result.get(0).audience_rating, movieResponse.result.get(0).reviewer_rating, movieResponse.result.get(0).reservation_rate, movieResponse.result.get(0).reservation_grade, movieResponse.result.get(0).grade, movieResponse.result.get(0).thumb, movieResponse.result.get(0).image, movieResponse.result.get(0).photos, movieResponse.result.get(0).videos, movieResponse.result.get(0).outlinks, movieResponse.result.get(0).genre, movieResponse.result.get(0).duration, movieResponse.result.get(0).audience, movieResponse.result.get(0).synopsis, movieResponse.result.get(0).director, movieResponse.result.get(0).actor, movieResponse.result.get(0).like, movieResponse.result.get(0).dislike);
+//                AppHelper.updateMovieInfoData(movieResponse.result.get(0).id, movieResponse.result.get(0).title, movieResponse.result.get(0).id, movieResponse.result.get(0).date, movieResponse.result.get(0).user_rating, movieResponse.result.get(0).audience_rating, movieResponse.result.get(0).reviewer_rating, movieResponse.result.get(0).reservation_rate, movieResponse.result.get(0).reservation_grade, movieResponse.result.get(0).grade, movieResponse.result.get(0).thumb, movieResponse.result.get(0).image, movieResponse.result.get(0).photos, movieResponse.result.get(0).videos, movieResponse.result.get(0).outlinks, movieResponse.result.get(0).genre, movieResponse.result.get(0).duration, movieResponse.result.get(0).audience, movieResponse.result.get(0).synopsis, movieResponse.result.get(0).director, movieResponse.result.get(0).actor, movieResponse.result.get(0).like, movieResponse.result.get(0).dislike);
                 AppHelper.selectData(AppHelper.MOVIE_INFO);    //로그찍기
             } else {
                 //최초로 서버에서 받아오는 거면(즉, 영화 id값이 database에 없으면) 새로 record를 만들어서 insert 삽입해라.
@@ -542,11 +542,11 @@ public class FragMovieInfo extends Fragment {
             //반복문만 있으면 상세화면에 들어갈 때 마다 commentItems list에 10개씩 추가로 들어간다.
 
             //totalCount테이블에 해당 영화 레코드가 있으면 업데이트하고 없으면 새로 만드는 코드
-            if(AppHelper.isDataExsist(AppHelper.TOTAL_COUNT, position)){
-                AppHelper.updateTotalCountData(position,commentResponse.totalCount);
+            if (AppHelper.isDataExsist(AppHelper.TOTAL_COUNT, position)) {
+                AppHelper.updateTotalCountData(position, commentResponse.totalCount);
                 AppHelper.selectData(AppHelper.TOTAL_COUNT);
-            }else{
-                AppHelper.insertTotalCountData(position,commentResponse.totalCount);
+            } else {
+                AppHelper.insertTotalCountData(position, commentResponse.totalCount);
                 AppHelper.selectData(AppHelper.TOTAL_COUNT);
             }
 
@@ -720,7 +720,6 @@ public class FragMovieInfo extends Fragment {
                     AppHelper.insertCommentData(commentResponse.result.get(i).id, commentResponse.result.get(i).writer, commentResponse.result.get(i).movieId, commentResponse.result.get(i).writer_image, commentResponse.result.get(i).time, commentResponse.result.get(i).timestamp, commentResponse.result.get(i).rating, commentResponse.result.get(i).contents, commentResponse.result.get(i).recommend);
                     AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
                 }
-
 
                 //CommentItem에 서버로부터 정보를 받아와서 그 정보를 listView에 보일 뷰들에 세팅한다.
                 //위에 int i 가 position의 역할을 하므로 i값을 얻어오면 commentItems list에 있는 인덱스에 적용돼서 잘 된다.

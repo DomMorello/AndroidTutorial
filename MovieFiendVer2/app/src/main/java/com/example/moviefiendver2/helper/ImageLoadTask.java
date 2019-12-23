@@ -4,11 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.widget.ImageView;
-
-import com.example.moviefiendver2.R;
-
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -35,14 +31,18 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
         super.onProgressUpdate(values);
     }
 
+    /* Canvas: trying to use a recycled bitmap android.graphics.Bitmap@36a2934
+      앱을 실행 중에 가끔씩 이런 오류가 뜨면서 앱이 비정상 종료되는데 이 클래스에 대한 정확한 작동원리 등을
+      잘 몰라서 고치는 것에 실패함. recycle된 것을 또 사용하려고 한다는데 그게 어느 부분인지도 잘 모르겠음. */
+
     @Override
     protected Bitmap doInBackground(Void... voids) {
         Bitmap bitmap = null;
         try {
-            //전에 비트맵 파일이 이미 받아온 것이라면 삭제해버이고 새로 받는다. 메모리 효율을 위해(out of memory 예방)
+            //전에 비트맵 파일이 이미 받아온 것이라면 삭제해버리고 새로 받는다. 메모리 효율을 위해(out of memory 예방)
             if(bitmapHash.containsKey(urlStr)){
                 Bitmap oldBitmap = bitmapHash.remove(urlStr);
-                if(oldBitmap != null && !oldBitmap.isRecycled()){   //가끔씩 런타임 에러가 발생한다. 어떻게 해결해야 하나;
+                if(oldBitmap != null || !oldBitmap.isRecycled()){
                     oldBitmap.recycle();
                     oldBitmap = null;
                 }
