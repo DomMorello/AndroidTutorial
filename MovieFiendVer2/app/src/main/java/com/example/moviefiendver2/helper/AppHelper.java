@@ -6,6 +6,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
+import com.example.moviefiendver2.MovieData.CommentItem;
+
+import java.util.ArrayList;
 
 public class AppHelper {
 
@@ -395,14 +398,13 @@ public class AppHelper {
                     return false;
                 }
             }else if(tableName.equals(COMMENT)){
-                String sql = "select id, writer, movieId, writer_image, time, timestamp, rating, contents, recommend from " + tableName + " where id=" + comment_id +" and movieId=" + movie_id;  //where조건절이 추가됨. test중 두 개 다 필요하다.
+                String sql = "select id, writer, movieId, writer_image, time, timestamp, rating, contents, recommend from " + tableName + " where id=" + comment_id;  //where조건절이 추가됨. -> 다시 보니까 각 한줄평마다 다 다른 id가 있어서 movie_id는 검사를 하지 않아도 된다.
 
                 Cursor cursor = database.rawQuery(sql, null);
                 println("조회된 데이터 개수: " + cursor.getCount());
                 //테이블에 데이터가 존재하면 아래 코드를 실행.
                 if(cursor.getCount() > 0){
                     cursor.moveToNext();
-
                     com_id = cursor.getInt(0);
                     com_writer = cursor.getString(1);
                     int movieId = cursor.getInt(2);
@@ -460,7 +462,7 @@ public class AppHelper {
         println("updateCommentData 데이터 갱신호출!");
 
         if (database != null) {
-            String updateDataSql = "update Comment set id=" + id + ", writer='" + writer + "', movieId=" + movieId + ", writer_image='" + writer_image + "', time='" + time + "', timestamp=" + timestamp + ", rating=" + rating + ", contents='" + contents + "', recommend=" + recommend +" where id=" + id +" and movieId=" + movieId;   //movie_id가 아닌 커멘트 자체 아이디인 id 를 조건절로 해서 업데이트 해야함. 그리고 movieId도 넣어줘야 완벽한 중복이 제거된다.
+            String updateDataSql = "update Comment set id=" + id + ", writer='" + writer + "', movieId=" + movieId + ", writer_image='" + writer_image + "', time='" + time + "', timestamp=" + timestamp + ", rating=" + rating + ", contents='" + contents + "', recommend=" + recommend +" where id=" + id;   //movie_id가 아닌 커멘트 자체 아이디인 id 를 조건절로 해서 업데이트 해야함. 그리고 movieId도 넣어줘야 완벽한 중복이 제거된다. -> 다시 보니까 각 한줄평마다 다 다른 id가 있어서 movie_id는 검사를 하지 않아도 된다.
 
             database.execSQL(updateDataSql);
             println("comment_id가 " + id + "인 Comment table 레코드에 데이터 업데이트함!!");
@@ -470,8 +472,8 @@ public class AppHelper {
     }
 
     //id값이 ?인 레코드가 테이블에 있나 없나
-    public static boolean isMovieExsist(String tableName, int movie_id) {
-        String sql = "select count(*) from " + tableName + " where id=" + movie_id;
+    public static boolean isDataExsist(String tableName, int id) {   //매개변수가 id인 이유는 영화를 조회할 때는 movie_id 한줄평일 때는 comment_id
+        String sql = "select count(*) from " + tableName + " where id=" + id;
         Cursor cursor = database.rawQuery(sql, null);
         cursor.moveToNext();
         if (cursor.getInt(0) > 0) {
@@ -480,16 +482,46 @@ public class AppHelper {
         return false;
     }
 
-    //Comment id값이 ?이고 movie_id값이 ?인 레코드가 테이블에 있나 없나 -> movie_id도 같이 검사를 해줘야 한다.
-    //서로 다른 movie_id 한줄평에서는 comment id가 중복되는게 있기 때문이다.
-    public static boolean isCommentExsist(String tableName, int comment_id, int movie_id) {
-        String sql = "select count(*) from " + tableName + " where id=" + comment_id +" and movieId="+ movie_id;
+    //TEST 어레이리스트를 반환하는 메소드를 만들어서 데이터베이스 내용을 보내준다?
+    public static ArrayList getCommentFromDatabase(int movie_id){
+        String sql = "select id, writer, movieId, writer_image, time, timestamp, rating, contents, recommend from comment where movieId=" + movie_id + " order by id desc";
+
+        ArrayList<CommentItem> list = new ArrayList<>();
         Cursor cursor = database.rawQuery(sql, null);
-        cursor.moveToNext();
-        if (cursor.getInt(0) > 0) {
-            return true;
+        println("조회된 데이터 개수: " + cursor.getCount());
+        //테이블에 데이터가 존재하면 아래 코드를 실행.
+        if(cursor.getCount() > 0){
+            for (int i = 0; i < cursor.getCount(); i++) {
+                cursor.moveToNext();
+                int id = cursor.getInt(0);
+                String writer = cursor.getString(1);
+                int movieId = cursor.getInt(2);
+                String writer_image = cursor.getString(3);
+                String time = cursor.getString(4);
+                int timestamp = cursor.getInt(5);
+                float rating = cursor.getFloat(6);
+                String contents = cursor.getString(7);
+                int recommend = cursor.getInt(8);
+                println("getCommentDatabase 메소드 안에!!!! id="+id+", writer="+writer+", movieId="+movieId+", contents="+contents);
+
+                CommentItem commentItem = new CommentItem();
+                commentItem.setId(id);
+                commentItem.setWriter(writer);
+                commentItem.setMovieId(movieId);
+                commentItem.setWriter_image(writer_image);
+                commentItem.setTime(time);
+                commentItem.setTimestamp(timestamp);
+                commentItem.setRating(rating);
+                commentItem.setContents(contents);
+                commentItem.setRecommend(recommend);
+                list.add(commentItem);
+
+                println("list: " + list.toString());
+            }//for 끝
+        }else{
+            println("database가 null이라 조회할 데이터가 없음!");
         }
-        return false;
+        return list;
     }
 
     public static void println(String data) {
@@ -497,5 +529,3 @@ public class AppHelper {
     }
 
 }
-
-/* 지금 커멘트가 영화별로 추가가 돼야 되는데 안 되고 있다. 문제를 찾아보자.  */

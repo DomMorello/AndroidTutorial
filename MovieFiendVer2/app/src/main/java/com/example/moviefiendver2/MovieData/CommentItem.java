@@ -55,6 +55,21 @@ public class CommentItem {
         this.recommend = recommend;
     }
 
+    @Override
+    public String toString() {
+        return "CommentItem{" +
+                "id=" + id +
+                ", writer='" + writer + '\'' +
+                ", movieId=" + movieId +
+                ", writer_image='" + writer_image + '\'' +
+                ", time='" + time + '\'' +
+                ", timestamp=" + timestamp +
+                ", rating=" + rating +
+                ", contents='" + contents + '\'' +
+                ", recommend=" + recommend +
+                '}';
+    }
+
     //    String tmpid;
 //    String comment;
 //    float tmprating;   //평점

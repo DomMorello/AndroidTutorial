@@ -179,7 +179,7 @@ public class MainFragmentMovie extends Fragment {
             imageLoadTask.execute();
 
             //서버에 정보를 요청할 때마다 영화data를 받아오는데 조건이 있다.
-            if (AppHelper.isMovieExsist(AppHelper.MAIN_MOVIE, movieInfo.id)) {  //database에 이미 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
+            if (AppHelper.isDataExsist(AppHelper.MAIN_MOVIE, movieInfo.id)) {  //database에 이미 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
                 //insert를 해서 중복되게 record를 삽입하지 말고 원래 있던 record를 서버에서 오는 새로운 정보로 update해라
                 AppHelper.updateMainMovieData(movieInfo.id, movieInfo.id, movieInfo.title, movieInfo.title_eng, movieInfo.date, movieInfo.user_rating, movieInfo.audience_rating, movieInfo.reviewer_rating, movieInfo.reservation_rate, movieInfo.reservation_grade, movieInfo.grade, movieInfo.thumb, movieInfo.image);
                 AppHelper.selectData(AppHelper.MAIN_MOVIE);    //로그찍기

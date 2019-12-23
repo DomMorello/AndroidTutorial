@@ -41,6 +41,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class FragMovieInfo extends Fragment {
@@ -113,8 +114,8 @@ public class FragMovieInfo extends Fragment {
         } else {
             Log.d("FargMovieInfo", "인터넷 연결 안 돼있을 때 상세화면 데이터베이스에서 가져온거임.");
             //selectData 메소드에서 테이블이 데이터베이스에 이미 있으면 true를 반환, 아니면 table이 false를 반환하므로 테이블이 없으면 아무것도 하지 마라.
-            if(AppHelper.selectData(AppHelper.MOVIE_INFO,position,0)){
-                AppHelper.selectData(AppHelper.MOVIE_INFO, position,0);
+            if (AppHelper.selectData(AppHelper.MOVIE_INFO, position, 0)) {
+                AppHelper.selectData(AppHelper.MOVIE_INFO, position, 0);
                 title.setText(AppHelper.info_title);
                 date.setText(AppHelper.info_date.replace("-", ". ") + " 개봉");
                 genre.setText(AppHelper.info_genre);
@@ -147,6 +148,23 @@ public class FragMovieInfo extends Fragment {
 //            ImageLoadTask imageLoadTask = new ImageLoadTask(AppHelper.info_thumb, poster);   //클래스 내부에 set하게 정의해 놓음.
 //            imageLoadTask.execute();
                 }
+
+                //이 아래 코드는 getCommentFromDatabase메소드에서 해당 영화에 해당하는 모든 한줄평 정보를 list에 담아서 갖고 온다.
+                //그 이후에 여기 onResume에서 어댑터에 추가해서 getView메소드를 통해 데이터베이스에서 가져온 정보를
+                //인터넷이 없을 때 보여주는 역할을 하기 위해서 짜여진 코드이다. 지렸다. -> 메모리 측면에서 좋은 방법인지는 모르겠다.
+                ArrayList list = AppHelper.getCommentFromDatabase(position); //데이터베이스에 있는 movieId가 ?인 데이터를 내림차순으로 조회한것 불러옴
+                Log.d("FragMovieInfo", "인터넷없을 때 AppHelper에 담은 comment list내용: " + list.toString()); //값이 넘어옴
+                Iterator it = list.iterator();
+                //commentItems에 계속 item들이 쌓이기 때문에 매번 프래그먼트를 실행할 때마다 원래 데이터가 있으면 clear 해주고 다시 넣어야 한다.
+                if (commentItems.size() > 0) {
+                    Log.d("FragMovieInfo","commentItems 안에 데이터가 있어서 클리어 실시함!!!");
+                    commentItems.clear();
+                }
+                while (it.hasNext()) {
+                    CommentItem item = (CommentItem) it.next();
+                    commentAdapter.addItem(item);
+                }
+                Log.d("FragMovieInfo", "!!! 어댑터 내부에 있는 정보 개수: " + commentItems.size());
 
             }
         }
@@ -405,13 +423,13 @@ public class FragMovieInfo extends Fragment {
             byteArray = stream.toByteArray();
 
             //서버에 정보를 요청할 때마다 영화data를 받아오는데 조건이 있다.
-            if (AppHelper.isMovieExsist(AppHelper.MOVIE_INFO, movieResponse.result.get(0).id)) {  //database에 이미 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
+            if (AppHelper.isDataExsist(AppHelper.MOVIE_INFO, movieResponse.result.get(0).id)) {  //database에 이미 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
                 //insert를 해서 중복되게 record를 삽입하지 말고 원래 있던 record를 서버에서 오는 새로운 정보로 update해라
-                AppHelper.updateMovieInfoData(movieResponse.result.get(0).id,movieResponse.result.get(0).title,movieResponse.result.get(0).id,movieResponse.result.get(0).date,movieResponse.result.get(0).user_rating,movieResponse.result.get(0).audience_rating,movieResponse.result.get(0).reviewer_rating,movieResponse.result.get(0).reservation_rate,movieResponse.result.get(0).reservation_grade,movieResponse.result.get(0).grade,movieResponse.result.get(0).thumb,movieResponse.result.get(0).image,movieResponse.result.get(0).photos,movieResponse.result.get(0).videos,movieResponse.result.get(0).outlinks,movieResponse.result.get(0).genre,movieResponse.result.get(0).duration,movieResponse.result.get(0).audience,movieResponse.result.get(0).synopsis,movieResponse.result.get(0).director,movieResponse.result.get(0).actor,movieResponse.result.get(0).like,movieResponse.result.get(0).dislike);
+                AppHelper.updateMovieInfoData(movieResponse.result.get(0).id, movieResponse.result.get(0).title, movieResponse.result.get(0).id, movieResponse.result.get(0).date, movieResponse.result.get(0).user_rating, movieResponse.result.get(0).audience_rating, movieResponse.result.get(0).reviewer_rating, movieResponse.result.get(0).reservation_rate, movieResponse.result.get(0).reservation_grade, movieResponse.result.get(0).grade, movieResponse.result.get(0).thumb, movieResponse.result.get(0).image, movieResponse.result.get(0).photos, movieResponse.result.get(0).videos, movieResponse.result.get(0).outlinks, movieResponse.result.get(0).genre, movieResponse.result.get(0).duration, movieResponse.result.get(0).audience, movieResponse.result.get(0).synopsis, movieResponse.result.get(0).director, movieResponse.result.get(0).actor, movieResponse.result.get(0).like, movieResponse.result.get(0).dislike);
                 AppHelper.selectData(AppHelper.MOVIE_INFO);    //로그찍기
             } else {
                 //최초로 서버에서 받아오는 거면(즉, 영화 id값이 database에 없으면) 새로 record를 만들어서 insert 삽입해라.
-                AppHelper.insertMovieInfoData(movieResponse.result.get(0).title,movieResponse.result.get(0).id,movieResponse.result.get(0).date,movieResponse.result.get(0).user_rating,movieResponse.result.get(0).audience_rating,movieResponse.result.get(0).reviewer_rating,movieResponse.result.get(0).reservation_rate,movieResponse.result.get(0).reservation_grade,movieResponse.result.get(0).grade,movieResponse.result.get(0).thumb,movieResponse.result.get(0).image,movieResponse.result.get(0).photos,movieResponse.result.get(0).videos,movieResponse.result.get(0).outlinks,movieResponse.result.get(0).genre,movieResponse.result.get(0).duration,movieResponse.result.get(0).audience,movieResponse.result.get(0).synopsis,movieResponse.result.get(0).director,movieResponse.result.get(0).actor,movieResponse.result.get(0).like,movieResponse.result.get(0).dislike);
+                AppHelper.insertMovieInfoData(movieResponse.result.get(0).title, movieResponse.result.get(0).id, movieResponse.result.get(0).date, movieResponse.result.get(0).user_rating, movieResponse.result.get(0).audience_rating, movieResponse.result.get(0).reviewer_rating, movieResponse.result.get(0).reservation_rate, movieResponse.result.get(0).reservation_grade, movieResponse.result.get(0).grade, movieResponse.result.get(0).thumb, movieResponse.result.get(0).image, movieResponse.result.get(0).photos, movieResponse.result.get(0).videos, movieResponse.result.get(0).outlinks, movieResponse.result.get(0).genre, movieResponse.result.get(0).duration, movieResponse.result.get(0).audience, movieResponse.result.get(0).synopsis, movieResponse.result.get(0).director, movieResponse.result.get(0).actor, movieResponse.result.get(0).like, movieResponse.result.get(0).dislike);
                 AppHelper.selectData(AppHelper.MOVIE_INFO);    //로그찍기
             }
 
@@ -478,6 +496,12 @@ public class FragMovieInfo extends Fragment {
                     commentItem.setId(commentResponse.result.get(i).id);    //id값을 저장해놔야 추천할 때 사용할 수 있다.
                     commentAdapter.addItem(commentItem);    //어댑터에 들어갈 items ArrayList에 추가한다.
 
+                    /* 서버로부터 와서 저장한 것도 3개 있으니까 이 반복문 안에 데이터베이스에서 조회한 것들을 세팅해주는데;
+                     * comment_id를 내림차순으로 정렬하고 그거를 위에 있는 것부터 하나씩 commentItem에 세팅해주면
+                     * 리스트뷰에 하나씩 들어가지 않나? 인터넷이 없을 때는 여기에다가 데이터베이스의 내용을 내림차순으로
+                     * 조회한 순서대로 set해주고 아래서 인터넷없을 때 commentItemView에 보여줄 때는 get해서 하면 되지 않을까?
+                     * -> 이 부분은 인터넷이 연결돼있을 때만 실행된다. 그래서 다른 곳에서 코드를 짜야 된다. */
+
 //                    //서버에 정보를 요청할 때마다 Comment data를 받아오는데 조건이 있다.
 //                    //comment 고유 id와 movieId가 동일한 데이터가 데이터베이스에 이미 있다면 update를 해라.
 //                    if (AppHelper.isCommentExsist(AppHelper.COMMENT, commentResponse.result.get(i).id, position)) {  //database에 이미 한줄평 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
@@ -494,7 +518,6 @@ public class FragMovieInfo extends Fragment {
             commentAdapter.notifyDataSetChanged();
             Log.d("FragMovieInfo", "어댑터 리스트에 추가: " + commentItems.size());
             //반복문만 있으면 상세화면에 들어갈 때 마다 commentItems list에 10개씩 추가로 들어간다.
-
 
 
         }
@@ -650,21 +673,20 @@ public class FragMovieInfo extends Fragment {
             //이거 지렸다...
 
 
-
             //인터넷 연결 유무에 따른 뷰 설정 차이
-            if(NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_WIFI || NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_MOBILE){
+            if (NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_WIFI || NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_MOBILE) {
 
                 //-> 여기다가 하니까 다른 영화 상세화면에 들어갈 때도 잘 되는구만.
                 //서버에 정보를 요청할 때마다 Comment data를 받아오는데 조건이 있다.
                 //comment 고유 id와 movieId가 동일한 데이터가 데이터베이스에 이미 있다면 update를 해라.
                 //근데 이거는 인터넷이 연결돼있을 때만 해라.
-                if (AppHelper.isCommentExsist(AppHelper.COMMENT, commentResponse.result.get(i).id, commentResponse.result.get(i).movieId)) {  //database에 이미 한줄평 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
+                if (AppHelper.isDataExsist(AppHelper.COMMENT, commentResponse.result.get(i).id)) {  //database에 이미 한줄평 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)
                     //insert를 해서 중복되게 record를 삽입하지 말고 원래 있던 record를 서버에서 오는 새로운 정보로 update해라
-                    AppHelper.updateCommentData(commentResponse.result.get(i).id,commentResponse.result.get(i).writer,commentResponse.result.get(i).movieId,commentResponse.result.get(i).writer_image,commentResponse.result.get(i).time,commentResponse.result.get(i).timestamp,commentResponse.result.get(i).rating,commentResponse.result.get(i).contents,commentResponse.result.get(i).recommend);
+                    AppHelper.updateCommentData(commentResponse.result.get(i).id, commentResponse.result.get(i).writer, commentResponse.result.get(i).movieId, commentResponse.result.get(i).writer_image, commentResponse.result.get(i).time, commentResponse.result.get(i).timestamp, commentResponse.result.get(i).rating, commentResponse.result.get(i).contents, commentResponse.result.get(i).recommend);
                     AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
                 } else {
                     //최초로 서버에서 받아오는 거면(즉, 한줄평 id값과 movieId값이 database에 없으면) 새로 record를 만들어서 insert 삽입해라.
-                    AppHelper.insertCommentData(commentResponse.result.get(i).id,commentResponse.result.get(i).writer,commentResponse.result.get(i).movieId,commentResponse.result.get(i).writer_image,commentResponse.result.get(i).time,commentResponse.result.get(i).timestamp,commentResponse.result.get(i).rating,commentResponse.result.get(i).contents,commentResponse.result.get(i).recommend);
+                    AppHelper.insertCommentData(commentResponse.result.get(i).id, commentResponse.result.get(i).writer, commentResponse.result.get(i).movieId, commentResponse.result.get(i).writer_image, commentResponse.result.get(i).time, commentResponse.result.get(i).timestamp, commentResponse.result.get(i).rating, commentResponse.result.get(i).contents, commentResponse.result.get(i).recommend);
                     AppHelper.selectData(AppHelper.COMMENT);    //로그찍기
                 }
 
@@ -691,12 +713,11 @@ public class FragMovieInfo extends Fragment {
                 commentItemView.setId(commentResponse.result.get(i).id);    //각 한줄평 리스트 아이템들에 고유 id값을 서버에서 받아와 적용시킨다.
                 commentItemView.setRecommendation_num(commentResponse.result.get(i).recommend); //원래 서버에 저장된 값을 commentItemView에 저장한다.
                 //그 후에 거기서 1 증가한 수를 즉각적으로 보여주기 위해 저장함.
-            }else{
-                 //데이터베이스에서 가져와서 보여줘야 된다.
-                Log.d("FragMovieInfo","인터넷이 연결돼있지 않아 데이터베이스에서 정보를 가져와 뷰에 보여줌.");
+            } else {
+                //데이터베이스에서 가져와서 보여줘야 된다.
+                Log.d("FragMovieInfo", "인터넷이 연결돼있지 않아 데이터베이스에서 정보를 가져와 뷰에 보여줌.");
 
-                /* 이렇게 하니까 당연히 하나만 나온다...comment_id를 넣을 수 있어야 되는데; */
-                if(AppHelper.selectData(AppHelper.COMMENT,position,commentItem.getId())){   //아니야 이게 아니야!!!!
+                if (AppHelper.selectData(AppHelper.COMMENT, position, commentItem.getId())) {  //getId 위에 onResume에서 인터넷없을 때 넣어준 id값들을 차례대로 가져오기 때문에 한줄평들을 각각 보여줄 수 있다.
                     commentItemView.setUserId(AppHelper.com_writer);
                     commentItemView.setCommentContent(AppHelper.com_contents);
                     commentItemView.setCommentRatingBar(AppHelper.com_rating / 2);    //나누기2를 하는 이유는 곱하기 2를 해서 서버에 저장하기 때문에 다시 리스트에 보여질 때는 자신이 입력한 별점만큼 보여야 하기 때문이다.
