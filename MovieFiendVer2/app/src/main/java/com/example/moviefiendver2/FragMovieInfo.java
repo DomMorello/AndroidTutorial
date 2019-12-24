@@ -143,10 +143,10 @@ public class FragMovieInfo extends Fragment {
                         break;
                     default:
                         grade.setImageResource(R.drawable.announcement);
-                        //IamgeLoadTask는 url을 이용하므로 인터넷이 필요하다. 그래서 데이터베이스에서 url을 가져오는 방법으로는 할 수 없다.
-//            ImageLoadTask imageLoadTask = new ImageLoadTask(AppHelper.info_thumb, poster);   //클래스 내부에 set하게 정의해 놓음.
-//            imageLoadTask.execute();
                 }
+                //IamgeLoadTask는 url을 이용하므로 인터넷이 필요하다. 그래서 데이터베이스에서 url을 가져오는 방법으로는 할 수 없다.
+//                ImageLoadTask imageLoadTask = new ImageLoadTask(AppHelper.info_thumb, poster);   //클래스 내부에 set하게 정의해 놓음.
+//                imageLoadTask.execute();
                 //인터넷이 없을 때도 몇세 관람가 이미지는 축소해서 보내야 하기 때문에 여기에 아래 코드 추가
                 //이미지를 전달하기 위해 코드 작성(이미지 축소)
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();

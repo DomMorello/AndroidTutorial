@@ -3,7 +3,9 @@ package com.example.moviefiendver2.helper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.ImageView;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -16,7 +18,7 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
 
     private static HashMap<String, Bitmap> bitmapHash = new HashMap<>();
 
-    public ImageLoadTask(String url, ImageView imageView){
+    public ImageLoadTask(String url, ImageView imageView) {
         this.urlStr = url;
         this.imageView = imageView;
     }
@@ -40,9 +42,9 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
         Bitmap bitmap = null;
         try {
             //전에 비트맵 파일이 이미 받아온 것이라면 삭제해버리고 새로 받는다. 메모리 효율을 위해(out of memory 예방)
-            if(bitmapHash.containsKey(urlStr)){
+            if (bitmapHash.containsKey(urlStr)) {
                 Bitmap oldBitmap = bitmapHash.remove(urlStr);
-                if(oldBitmap != null || !oldBitmap.isRecycled()){
+                if (oldBitmap != null || !oldBitmap.isRecycled()) {
                     oldBitmap.recycle();
                     oldBitmap = null;
                 }
