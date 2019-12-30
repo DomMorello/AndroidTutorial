@@ -20,6 +20,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -79,6 +81,9 @@ public class FragMovieInfo extends Fragment {
 
     MovieResponse movieResponse;    //JAON 다른 액티비티에 넘겨주려면 다른 메소드에서도 사용해야 하므로 여기에 선언
     CommentResponse commentResponse;    //JSON 다른 액티비티에 넘겨주려면 다른 메소드에서도 사용해야 하므로 여기에 선언
+
+    RecyclerView recyclerView;  //갤러리 부분 recyclerView
+    GalleryAdapter galleryAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -225,6 +230,20 @@ public class FragMovieInfo extends Fragment {
         synopsis = rootView.findViewById(R.id.info_synopsis);
         director = rootView.findViewById(R.id.info_director);
         actor = rootView.findViewById(R.id.info_actor);
+
+        recyclerView = rootView.findViewById(R.id.recyclerView);
+
+        //RecyclerView 가로로 스크롤되게 설정
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.HORIZONTAL,false);
+        recyclerView.setLayoutManager(layoutManager);
+
+        galleryAdapter = new GalleryAdapter(getActivity()); //갤러리 어댑터 객체 생성
+
+        /* 서버에서 받아오는 정보들을 items list에 넣어줘야 한다.
+        * split 이용해서 string 배열로 잘라서 넣어서 실험해봐야 한다. 하;; ;어렵네*/
+
+        recyclerView.setAdapter(galleryAdapter);    //GalleryAdapter를 어댑터로 설정
+
 
         commentAdapter = new CommentAdapter();  //어댑터를 사용하기 위해 객체 생성
         commentListView.setAdapter(commentAdapter);

@@ -434,6 +434,35 @@
                     android:layout_height="30px"
                     android:layout_marginTop="10dp"
                     android:background="@color/basicBorder"></LinearLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp">
+
+                    <TextView
+                        android:id="@+id/줄거리"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:text="갤러리"
+                        android:textColor="@color/accentText"
+                        android:textSize="20dp"
+                        android:textStyle="bold" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="130dp"
+                        android:layout_below="@+id/줄거리"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"/>
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="30px"
+                    android:layout_marginTop="10dp"
+                    android:background="@color/basicBorder"></LinearLayout>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
