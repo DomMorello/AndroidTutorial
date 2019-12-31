@@ -19,10 +19,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.example.moviefiendver2.MovieData.MovieInfo;
 import com.example.moviefiendver2.MovieData.MovieResponse;
 import com.example.moviefiendver2.helper.AppHelper;
-import com.example.moviefiendver2.helper.ImageLoadTask;
 import com.example.moviefiendver2.helper.NetworkStatus;
 import com.google.gson.Gson;
 
@@ -173,8 +173,14 @@ public class MainFragmentMovie extends Fragment {
             grade.setText(movieInfo.grade + "세 관람가");
             reservationRate.setText(movieInfo.reservation_rate + "%");
             date.setText("D - " + getDday(movieInfo.date));   //dDay 메소드를 통해 날짜 차이를 얻어 낸 후 뷰에 표시
-            ImageLoadTask imageLoadTask = new ImageLoadTask(movieInfo.image, poster);   //클래스 내부에 set하게 정의해 놓음.
-            imageLoadTask.execute();
+//            ImageLoadTask imageLoadTask = new ImageLoadTask(movieInfo.image, poster);   //클래스 내부에 set하게 정의해 놓음.
+//            imageLoadTask.execute();
+            Glide.with(getActivity())
+                    .load(movieInfo.image)
+                    .placeholder(R.drawable.loading)
+                    .error(R.mipmap.ic_launcher)
+                    .thumbnail(0.1f)
+                    .into(poster);
 
             //서버에 정보를 요청할 때마다 영화data를 받아오는데 조건이 있다.
             if (AppHelper.isDataExsist(AppHelper.MAIN_MOVIE, movieInfo.id)) {  //database에 이미 id값이 서버에서 넘어오는 id값과 동일한 것이 존재하면(즉, 중복되게 저장되는 것을 피하기 위해)

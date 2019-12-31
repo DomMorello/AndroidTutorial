@@ -63,7 +63,7 @@ public class WriteCommentActivity extends AppCompatActivity {
 
         Intent passedIntent = getIntent();  //상세보기 화면에서 보내준 intent를 받아서
         String passedTitle = passedIntent.getStringExtra("title");    //부가data인 영화제목을 받아서
-        position = passedIntent.getIntExtra("position",0);   //상세화면, 모두보기에서 받아온 position을 이 activity에서 사용한다.
+        position = passedIntent.getIntExtra("position", 0);   //상세화면, 모두보기에서 받아온 position을 이 activity에서 사용한다.
         title.setText(passedTitle);   //이 액티비티 화면xml에 영화제목을 표시한다.
 
         //이미지 받아오기
@@ -96,19 +96,17 @@ public class WriteCommentActivity extends AppCompatActivity {
                 comment = editText.getText().toString();    //작성한 한줄평 내용 정보를 가져온다.
 
                 //평점과 한줄평을 입력하지 않았을 때
-                if(rating < 0.5f && comment.length() < 1){
+                if (rating < 0.5f && comment.length() < 1) {
                     Toast.makeText(getApplicationContext(), "한줄평과 평점을 입력해 주세요.", Toast.LENGTH_SHORT).show();
                 }
                 //한줄평만 입력했을 때
-                else if(rating < 0.5f && comment.length() >= 1){
+                else if (rating < 0.5f && comment.length() >= 1) {
                     Toast.makeText(getApplicationContext(), "평점을 입력해 주세요.", Toast.LENGTH_SHORT).show();
                 }
                 //평점만 입력했을 때
-                else if(rating >= 0.5f && comment.length() < 1){
+                else if (rating >= 0.5f && comment.length() < 1) {
                     Toast.makeText(getApplicationContext(), "한줄평을 작성해 주세요.", Toast.LENGTH_SHORT).show();
-                }
-
-                else{
+                } else {
                     //모두 다 입력했을 때 저장버튼을 누르면 Intent를 전달하면서 activity를 종료한다. -> 서버에 한줄평을 저장하면 되므로 인텐트를 전달해줄 필요가 없다.
 //                    intent.putExtra("rating", rating);  //작성한 한줄평에서 평점을 메인에 전달한다.
 //                    intent.putExtra("comment", comment);    //작성한 한줄평 내용을 메인에 전달한다.
@@ -153,10 +151,10 @@ public class WriteCommentActivity extends AppCompatActivity {
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
                 params.put("id", Integer.toString(position));    //id값을 서버에 전달하면 ?id=1 이런 식으로 서버에 대입이 돼서 해당 id를 가진 영화의 한줄평정보를 나타낸다.
-                params.put("writer","domMorello");  //작성자는 나의 아이디인 domMorello로 고정
-                params.put("rating",Float.toString(rating*2));    //작성자가 설정한 rating값을 전달
-                Log.d("WriteCommentActivity","작성하기에서 서버에 보내는 평점: " + rating);
-                params.put("contents",comment); //작성자가 작성한 한줄평 내용을 전달
+                params.put("writer", "domMorello");  //작성자는 나의 아이디인 domMorello로 고정
+                params.put("rating", Float.toString(rating * 2));    //작성자가 설정한 rating값을 전달
+                Log.d("WriteCommentActivity", "작성하기에서 서버에 보내는 평점: " + rating);
+                params.put("contents", comment); //작성자가 작성한 한줄평 내용을 전달
                 return params;
             }
         };
@@ -174,7 +172,7 @@ public class WriteCommentActivity extends AppCompatActivity {
         if (writeCommentResponse.code == 200) {
             Log.d("ReadMoreActivity", "테스트 한줄평 작성 성공: " + writeCommentResponse.message);
             Toast.makeText(getApplicationContext(), "한줄평이 저장되었습니다.", Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
             Toast.makeText(getApplicationContext(), "한줄평 작성 에러 발생!", Toast.LENGTH_SHORT).show();
         }
         finish();

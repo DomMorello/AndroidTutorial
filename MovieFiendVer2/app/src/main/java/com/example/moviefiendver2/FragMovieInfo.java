@@ -29,12 +29,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.example.moviefiendver2.MovieData.CommentItem;
 import com.example.moviefiendver2.MovieData.CommentResponse;
 import com.example.moviefiendver2.MovieData.LikeResponse;
 import com.example.moviefiendver2.MovieData.MovieResponse;
 import com.example.moviefiendver2.helper.AppHelper;
-import com.example.moviefiendver2.helper.ImageLoadTask;
 import com.example.moviefiendver2.helper.NetworkStatus;
 import com.google.gson.Gson;
 
@@ -234,15 +234,23 @@ public class FragMovieInfo extends Fragment {
         recyclerView = rootView.findViewById(R.id.recyclerView);
 
         //RecyclerView 가로로 스크롤되게 설정
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.HORIZONTAL,false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
         galleryAdapter = new GalleryAdapter(getActivity()); //갤러리 어댑터 객체 생성
-
-        /* 서버에서 받아오는 정보들을 items list에 넣어줘야 한다.
-        * split 이용해서 string 배열로 잘라서 넣어서 실험해봐야 한다. 하;; ;어렵네*/
-
         recyclerView.setAdapter(galleryAdapter);    //GalleryAdapter를 어댑터로 설정
+
+        //RecyclerView 아이템 클릭시 확대화면 보여주기(인터넷 될 때만 해야됨.)
+        galleryAdapter.setOnItemClickListener(new GalleryAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(GalleryAdapter.ViewHolder holder, View view, int position) {
+                String item = galleryAdapter.getItem(position);
+
+                Intent viewPhotoIntent = new Intent(getContext(), ViewPhotos.class);
+                viewPhotoIntent.putExtra("photo", item); //Intent를 통해서 photo url 정보를 보내준다.
+                startActivity(viewPhotoIntent);
+            }
+        });
 
 
         commentAdapter = new CommentAdapter();  //어댑터를 사용하기 위해 객체 생성
@@ -436,8 +444,15 @@ public class FragMovieInfo extends Fragment {
             synopsis.setText(movieResponse.result.get(0).synopsis);
             director.setText(movieResponse.result.get(0).director);
             actor.setText(movieResponse.result.get(0).actor);
-            ImageLoadTask imageLoadTask = new ImageLoadTask(movieResponse.result.get(0).thumb, poster);   //클래스 내부에 set하게 정의해 놓음.
-            imageLoadTask.execute();
+//            ImageLoadTask imageLoadTask = new ImageLoadTask(movieResponse.result.get(0).thumb, poster);   //클래스 내부에 set하게 정의해 놓음.
+//            imageLoadTask.execute();
+            Glide.with(getActivity())
+                    .load(movieResponse.result.get(0).thumb)
+                    .placeholder(R.drawable.loading)
+                    .error(R.mipmap.ic_launcher)
+                    .thumbnail(0.1f)
+                    .into(poster);
+
             //서버에서 grade 데이터가 12,15,19이냐에 따라 몇세 관람가 이미지를 다르게 설정한다.
             switch (movieResponse.result.get(0).grade) {
                 case 12:
@@ -451,6 +466,21 @@ public class FragMovieInfo extends Fragment {
                     break;
                 default:
                     grade.setImageResource(R.drawable.announcement);
+            }
+
+            //영화의 사진, 동영상 정보를 갤러리 리싸이클러뷰 어댑터에 넣어서 보여준다
+            if (movieResponse.result.get(0).photos != null && galleryAdapter.isEmpty()) {
+                String[] photos = movieResponse.result.get(0).photos.split(",");    //서버에 , 를 기준으로 여러 사진 url이 있으므로 나눠서 받는다.
+                for (int i = 0; i < photos.length; i++) {
+                    galleryAdapter.addItem(photos[i]);  //모든 사진 url을 어댑터에 추가한다.
+                }
+
+                //동영상 썸네일 이미지 recyclerView에 추가
+                galleryAdapter.addItem("https://img.youtube.com/vi/VJAPZ9cIbs0/0.jpg");
+                galleryAdapter.addItem("https://img.youtube.com/vi/y422jVFruic/0.jpg");
+                galleryAdapter.addItem("https://img.youtube.com/vi/JNL44p5kzTk/0.jpg");
+
+                galleryAdapter.notifyDataSetChanged();  //어댑터에 변화가 있으면 갱신해라.
             }
 
             //이미지를 전달하기 위해 코드 작성(이미지 축소) -> 여기서 축소를 해줘야 서버에서 받아온 파일을 축소해서 보낼 수가 있다.

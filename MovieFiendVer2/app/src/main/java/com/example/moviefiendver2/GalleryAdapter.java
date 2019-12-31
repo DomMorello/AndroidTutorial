@@ -1,6 +1,7 @@
 package com.example.moviefiendver2;
 
 import android.content.Context;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,7 +9,8 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.moviefiendver2.helper.ImageLoadTask;
+
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
@@ -41,6 +43,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         return items.get(position);
     }
 
+    //ArrayList가 비어있는지 확인하는 것을 다른 클래스에서 사용하기 위해 메소드를 만듦.
+    public boolean isEmpty(){
+        if(items.isEmpty()){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
@@ -57,7 +68,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull GalleryAdapter.ViewHolder holder, int position) {
         String item = items.get(position);
-        holder.setItem(item);
+        holder.setItem(item, context);
 
         holder.setOnItemClickListener(listener);
     }
@@ -65,12 +76,14 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imageView;
+        ImageView playIcon;
         OnItemClickListener listener;
 
         //뷰홀더 생성자
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.gal_imageView);
+            playIcon = itemView.findViewById(R.id.play_icon);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -88,9 +101,22 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             this.listener = listener;
         }
 
-        public void setItem(String photo) {
-            ImageLoadTask imageLoadTask = new ImageLoadTask(photo, imageView);
-            imageLoadTask.execute();    //String을 받아와서 이렇게 하면 될까? TEST
+        public void setItem(String photo, Context context) {
+//            ImageLoadTask imageLoadTask = new ImageLoadTask(photo, imageView);
+//            imageLoadTask.execute();    //String을 받아와서 이렇게 하면 될까? 된다.
+            Glide.with(context)
+                    .load(photo)
+                    .placeholder(R.drawable.loading)
+                    .error(R.mipmap.ic_launcher)
+                    .thumbnail(0.1f)
+                    .into(imageView);    //Glide를 사용하기 위해 context를 가져온다.
+
+            //동영상 썸네일인 경우에만 플레이아이콘이 보이도록 설정
+            if(photo.endsWith("jpg")){
+                playIcon.setVisibility(View.VISIBLE);
+            }else{
+                playIcon.setVisibility(View.INVISIBLE);
+            }
         }
     }
 }
