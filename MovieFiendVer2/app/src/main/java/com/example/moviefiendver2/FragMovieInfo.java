@@ -3,6 +3,7 @@ package com.example.moviefiendver2;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,6 +35,7 @@ import com.example.moviefiendver2.MovieData.CommentItem;
 import com.example.moviefiendver2.MovieData.CommentResponse;
 import com.example.moviefiendver2.MovieData.LikeResponse;
 import com.example.moviefiendver2.MovieData.MovieResponse;
+import com.example.moviefiendver2.MovieData.RecyclerItem;
 import com.example.moviefiendver2.helper.AppHelper;
 import com.example.moviefiendver2.helper.NetworkStatus;
 import com.google.gson.Gson;
@@ -244,11 +246,21 @@ public class FragMovieInfo extends Fragment {
         galleryAdapter.setOnItemClickListener(new GalleryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(GalleryAdapter.ViewHolder holder, View view, int position) {
-                String item = galleryAdapter.getItem(position);
 
-                Intent viewPhotoIntent = new Intent(getContext(), ViewPhotos.class);
-                viewPhotoIntent.putExtra("photo", item); //Intent를 통해서 photo url 정보를 보내준다.
-                startActivity(viewPhotoIntent);
+                //인터넷이 연결돼있을 때만 볼 수 있다.
+                if (NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_MOBILE || NetworkStatus.getConnectivityStatus(getActivity()) == NetworkStatus.TYPE_WIFI) {
+
+                    RecyclerItem item = galleryAdapter.getItem(position);
+                    //동영상이면 재생하고 사진이면 사진보기 activity를 실행.
+                    if(item.getIsVideo()){
+                        Intent playIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(item.getVideo()));
+                        startActivity(playIntent);
+                    }else{
+                        Intent viewPhotoIntent = new Intent(getContext(), ViewPhotos.class);
+                        viewPhotoIntent.putExtra("photo", item.getPhoto()); //Intent를 통해서 photo url 정보를 보내준다.
+                        startActivity(viewPhotoIntent);
+                    }
+                }
             }
         });
 
@@ -472,13 +484,29 @@ public class FragMovieInfo extends Fragment {
             if (movieResponse.result.get(0).photos != null && galleryAdapter.isEmpty()) {
                 String[] photos = movieResponse.result.get(0).photos.split(",");    //서버에 , 를 기준으로 여러 사진 url이 있으므로 나눠서 받는다.
                 for (int i = 0; i < photos.length; i++) {
-                    galleryAdapter.addItem(photos[i]);  //모든 사진 url을 어댑터에 추가한다.
+                    RecyclerItem item = new RecyclerItem();
+                    item.setPhoto(photos[i]);
+                    galleryAdapter.addItem(item);  //모든 사진 url을 어댑터에 추가한다.
                 }
 
+                String[] videos = movieResponse.result.get(0).videos.split(",");
+
                 //동영상 썸네일 이미지 recyclerView에 추가
-                galleryAdapter.addItem("https://img.youtube.com/vi/VJAPZ9cIbs0/0.jpg");
-                galleryAdapter.addItem("https://img.youtube.com/vi/y422jVFruic/0.jpg");
-                galleryAdapter.addItem("https://img.youtube.com/vi/JNL44p5kzTk/0.jpg");
+                RecyclerItem item1 = new RecyclerItem();
+                item1.setPhoto("https://img.youtube.com/vi/VJAPZ9cIbs0/0.jpg");
+                item1.setIsVideo(true);
+                item1.setVideo(videos[0]);
+                galleryAdapter.addItem(item1);
+                RecyclerItem item2 = new RecyclerItem();
+                item2.setPhoto("https://img.youtube.com/vi/y422jVFruic/0.jpg");
+                item2.setIsVideo(true);
+                item2.setVideo(videos[1]);
+                galleryAdapter.addItem(item2);
+                RecyclerItem item3 = new RecyclerItem();
+                item3.setPhoto("https://img.youtube.com/vi/JNL44p5kzTk/0.jpg");
+                item3.setIsVideo(true);
+                item3.setVideo(videos[2]);
+                galleryAdapter.addItem(item3);
 
                 galleryAdapter.notifyDataSetChanged();  //어댑터에 변화가 있으면 갱신해라.
             }

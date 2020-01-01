@@ -11,13 +11,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.moviefiendver2.MovieData.RecyclerItem;
 
 import java.util.ArrayList;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
 
     Context context;
-    ArrayList<String> items = new ArrayList<>();    //String인 이유는 photos가 서버에 String으로 돼있기 때문이다.
+    ArrayList<RecyclerItem> items = new ArrayList<>();    //String인 이유는 photos가 서버에 String으로 돼있기 때문이다.
     OnItemClickListener listener;
 
     //리사이클러뷰 아이템 클릭을 위해 만듦.
@@ -35,11 +36,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         return items.size();
     }
 
-    public void addItem(String photo) {
-        items.add(photo);
+    public void addItem(RecyclerItem item) {
+        items.add(item);
     }
 
-    public String getItem(int position) {
+    public RecyclerItem getItem(int position) {
         return items.get(position);
     }
 
@@ -67,7 +68,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull GalleryAdapter.ViewHolder holder, int position) {
-        String item = items.get(position);
+        RecyclerItem item = items.get(position);
         holder.setItem(item, context);
 
         holder.setOnItemClickListener(listener);
@@ -101,18 +102,18 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             this.listener = listener;
         }
 
-        public void setItem(String photo, Context context) {
+        public void setItem(RecyclerItem item, Context context) {    //Glide를 사용하기 위해 context를 가져온다.
 //            ImageLoadTask imageLoadTask = new ImageLoadTask(photo, imageView);
 //            imageLoadTask.execute();    //String을 받아와서 이렇게 하면 될까? 된다.
             Glide.with(context)
-                    .load(photo)
+                    .load(item.getPhoto())
                     .placeholder(R.drawable.loading)
                     .error(R.mipmap.ic_launcher)
                     .thumbnail(0.1f)
-                    .into(imageView);    //Glide를 사용하기 위해 context를 가져온다.
+                    .into(imageView);
 
             //동영상 썸네일인 경우에만 플레이아이콘이 보이도록 설정
-            if(photo.endsWith("jpg")){
+            if(item.getIsVideo()){
                 playIcon.setVisibility(View.VISIBLE);
             }else{
                 playIcon.setVisibility(View.INVISIBLE);
