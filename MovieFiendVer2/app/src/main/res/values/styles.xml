@@ -17,10 +17,15 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    //RatingBar 색상 변경
+    <!-- RatingBar 색상 변경 -->
     <style name="Ratingbar" parent="Theme.AppCompat">
         <item name="colorControlNormal">@color/cardview_dark_background</item>
         <item name="colorControlActivated">@color/colorPrimaryDark</item>
+    </style>
+
+    <!-- 앱 실행이 처음에 보여주는 splash activiy theme -->
+    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
     </style>
 
 </resources>

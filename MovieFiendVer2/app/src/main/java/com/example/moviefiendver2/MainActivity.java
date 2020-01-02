@@ -4,7 +4,11 @@ import android.animation.ObjectAnimator;
 import android.animation.StateListAnimator;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
@@ -68,6 +72,33 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback 
         AppHelper.createTable(AppHelper.COMMENT);    //앱이 실행되면 Comment table을 생성
         AppHelper.createTable(AppHelper.TOTAL_COUNT);   //앱이 실행되면 TotalCount table을 생성
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        /* 실제 영화 순서 정렬하는 기능은 구현하지 않음. */
+        /* 애니메이션 효과 구현하지 않음. */
+        int id = item.getItemId();
+
+        switch (id){
+            case R.id.menu1:
+                Toast.makeText(this, "예매율순 정렬", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.menu2:
+                Toast.makeText(this, "큐레이션 정렬", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.menu3:
+                Toast.makeText(this, "상영예정 정렬", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

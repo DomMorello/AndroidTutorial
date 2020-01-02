@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu1"
+        android:orderInCategory="100"
+        android:title="예매율순"
+        android:icon="@drawable/order11"
+        app:showAsAction="never">
+    </item>
+    <item
+        android:id="@+id/menu2"
+        android:orderInCategory="100"
+        android:title="큐레이션"
+        android:icon="@drawable/order22"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu3"
+        android:orderInCategory="100"
+        android:title="상영예정"
+        android:icon="@drawable/order33"
+        app:showAsAction="never" />
+    <!-- image를 overflow menu에 삽입하는 방법을 모르겠음. -->
+
+</menu>
